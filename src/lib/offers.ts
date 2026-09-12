@@ -53,6 +53,18 @@ export interface Offer {
   method: OfferMethod;
   /** ISO date on which this figure was last confirmed against the source. */
   observedAt: string;
+  /**
+   * The date the *provider* stamps on the figure — its `Stand`, where one is
+   * published. `null` when the page states none.
+   *
+   * This is not the same thing as `observedAt`, and on housing loans the
+   * difference is the whole point. A representative example under HIKrG is
+   * refreshed when the bank chooses, not when we read it, so a scrape today can
+   * faithfully report a rate the bank set a year ago. Without this field the
+   * board would show a fresh `observedAt` next to a stale number and imply a
+   * currency the figure does not have.
+   */
+  statedAt: string | null;
 }
 
 export interface OfferSource {
@@ -75,10 +87,20 @@ export interface OfferBoard {
 }
 
 /**
- * An advertised rate more than this old is shown as stale rather than current.
- * Deposit pricing moves on days, not months, so a fortnight is generous.
+ * How long a figure stays current, by what it prices.
+ *
+ * These differ by an order of magnitude because the underlying publishing
+ * behaviour does. Deposit pricing moves on days, so a fortnight is generous. A
+ * housing-loan representative example is a legal disclosure a bank refreshes
+ * when it feels like it — the observed spread across Austrian lenders runs from
+ * same-day to a year — so holding mortgages to the deposit threshold would
+ * paint the entire board stale and make the signal useless.
  */
-export const STALE_AFTER_DAYS = 14;
+export const STALE_AFTER_DAYS: Record<OfferCategory, number> = {
+  deposit: 14,
+  consumer: 60,
+  mortgage: 120,
+};
 
 export function daysSince(iso: string, now = new Date()): number {
   const then = Date.parse(iso);
@@ -86,8 +108,17 @@ export function daysSince(iso: string, now = new Date()): number {
   return Math.floor((now.getTime() - then) / 86_400_000);
 }
 
+/**
+ * The date a figure actually dates from.
+ *
+ * The provider's own `Stand` wins over the day we read the page: reading a
+ * year-old rate sheet today does not make its rate a day old, and showing it as
+ * one would be the single most misleading thing this board could do.
+ */
+export const ratedAt = (offer: Offer): string => offer.statedAt ?? offer.observedAt;
+
 export const isStale = (offer: Offer, now = new Date()): boolean =>
-  daysSince(offer.observedAt, now) > STALE_AFTER_DAYS;
+  daysSince(ratedAt(offer), now) > STALE_AFTER_DAYS[offer.category];
 
 /**
  * Loads the committed offer board.

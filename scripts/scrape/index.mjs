@@ -21,7 +21,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { fetchPage, parseRate, plausible } from './html.mjs';
+import { fetchPage, parseGermanDate, parseRate, plausible } from './html.mjs';
 import { BOUNDS, SOURCES, UNAVAILABLE } from './sources.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -40,12 +40,24 @@ function probe(text, pattern, category) {
   return plausible(value, BOUNDS[category]) ? value : null;
 }
 
+/**
+ * The date the provider stamps on its own figures, if the page carries one.
+ *
+ * Deliberately looked up once per source rather than per offer: a page states
+ * one `Stand` covering everything on it, and hunting for a nearer one per rate
+ * would just find whichever date happened to sit closest in the flattened text.
+ */
+function statedDate(text, pattern) {
+  if (!pattern) return null;
+  return parseGermanDate(text.match(pattern)?.[1]);
+}
+
 async function scrapeSource(source) {
   const checkedAt = today();
   let text;
 
   try {
-    text = await fetchPage(source.url);
+    text = await fetchPage(source.url, { includeScripts: source.includeScripts ?? false });
   } catch (err) {
     return {
       offers: [],
@@ -61,6 +73,7 @@ async function scrapeSource(source) {
 
   const offers = [];
   const missed = [];
+  const statedAt = statedDate(text, source.stand);
 
   for (const spec of source.offers) {
     const rate = probe(text, spec.rate, source.category);
@@ -87,8 +100,13 @@ async function scrapeSource(source) {
       sourceUrl: source.url,
       method: 'scraped',
       observedAt: checkedAt,
+      statedAt,
     });
   }
+
+  // A source that publishes a Stand and stops publishing it is worth saying out
+  // loud: the rates keep scraping fine, and their age silently becomes a guess.
+  const lostDate = source.stand && statedAt === null;
 
   return {
     offers,
@@ -97,7 +115,16 @@ async function scrapeSource(source) {
       url: source.url,
       status: missed.length === 0 ? 'ok' : offers.length === 0 ? 'failed' : 'partial',
       checkedAt,
-      ...(missed.length > 0 ? { note: `No rate found for: ${missed.join(', ')}` } : {}),
+      ...(missed.length > 0 || lostDate
+        ? {
+            note: [
+              missed.length > 0 ? `No rate found for: ${missed.join(', ')}` : null,
+              lostDate ? 'No Stand date found; age falls back to the scrape date' : null,
+            ]
+              .filter(Boolean)
+              .join('. '),
+          }
+        : {}),
     },
   };
 }
@@ -105,7 +132,10 @@ async function scrapeSource(source) {
 async function loadCurated() {
   try {
     const parsed = JSON.parse(await readFile(CURATED, 'utf8'));
-    return Array.isArray(parsed.offers) ? parsed.offers : [];
+    if (!Array.isArray(parsed.offers)) return [];
+    // A hand-checked entry states its own date in `observedAt`; `statedAt` is
+    // optional there, so normalise it rather than letting `undefined` through.
+    return parsed.offers.map((offer) => ({ statedAt: null, ...offer }));
   } catch {
     return [];
   }

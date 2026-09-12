@@ -5,10 +5,15 @@
     "not an override. Set observedAt to the date you actually opened the page:",
     "the dashboard greys an entry out once it passes STALE_AFTER_DAYS.",
     "",
-    "Mortgages are empty on purpose. Austrian banks publish housing-loan pricing",
-    "through credit-scored calculators rather than rate cards, so there is no",
-    "honest figure to scrape. Add an entry here only from a bank's own published",
-    "representative example under HIKrG, with the URL it came from."
+    "statedAt is optional and defaults to null. Set it to the date the provider",
+    "stamps on the figure itself — a Konditionenaushang or a HIKrG example is",
+    "dated by the bank, and that date, not the day you checked, is what the board",
+    "ages the rate against.",
+    "",
+    "Housing loans are scraped now, from the representative examples banks must",
+    "publish under §6 HIKrG. Add an entry here only from a bank's own published",
+    "example, with the URL it came from — never from a comparison portal, whose",
+    "figures are broker-negotiated and licensed."
   ],
   "offers": []
 }

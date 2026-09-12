@@ -7,11 +7,12 @@ import {
   bestRate,
   daysSince,
   isStale,
+  ratedAt,
   splitDeposits,
   type Offer,
   type OfferBoard,
 } from '../lib/offers';
-import { bpsAbs, eur, formatAge, formatTerm, pct } from '../lib/format';
+import { bpsAbs, eur, formatAge, formatFixation, formatTerm, pct } from '../lib/format';
 import { Chart, CHART_COLORS, Legend } from '../components/Chart';
 import { ladderChart } from '../components/charts';
 import { Callout, Card, Stat, StatRow } from '../components/ui';
@@ -363,7 +364,7 @@ function DepositBoard({ board }: { board: OfferBoard }) {
 
 function OfferRow({ offer }: { offer: Offer }) {
   const stale = isStale(offer);
-  const age = daysSince(offer.observedAt);
+  const age = daysSince(ratedAt(offer));
 
   return (
     <tr class={stale ? 'stale' : ''}>
@@ -417,13 +418,13 @@ function LoanBoard({ board }: { board: OfferBoard }) {
                 <tr key={o.id} class={isStale(o) ? 'stale' : ''}>
                   <td class="provider">{o.provider}</td>
                   <td>{o.product}</td>
-                  <td>{o.fixationYears === 0 ? 'Variable' : 'Fixed'}</td>
+                  <td>{formatFixation(o.fixationYears)}</td>
                   <td class="num">{pct(o.rate)}</td>
                   <td class="num strong">{pct(o.effectiveRate)}</td>
                   <td class="conditions">{o.conditions ?? '–'}</td>
                   <td class="source">
                     <a href={o.sourceUrl} target="_blank" rel="noreferrer">
-                      {formatAge(daysSince(o.observedAt))}
+                      {formatAge(daysSince(ratedAt(o)))}
                     </a>
                   </td>
                 </tr>
@@ -435,16 +436,25 @@ function LoanBoard({ board }: { board: OfferBoard }) {
 
       {mortgages.length === 0 ? (
         <Callout>
-          <strong>There are no housing loan offers on this board, and that is the finding.</strong>{' '}
-          Austrian banks publish savings rates as firm numbers but price mortgages through
-          credit-scored calculators — the rate depends on the borrower, the property and the
-          loan-to-value, so no comparable figure is published to scrape. Anything quoted elsewhere
-          as &ldquo;the&rdquo; Austrian mortgage rate is either a broker&rsquo;s index or a
-          representative example under assumptions that differ by bank. The honest answer to what
-          housing loans currently cost is the ECB series on the Housing loans tab: actual concluded
-          business, volume-weighted across every Austrian bank, broken down by fixation period.
+          <strong>No housing loan offers reached the board on this run.</strong> Austrian banks
+          price mortgages through credit-scored calculators, so the only published figures are the
+          representative examples required under §6 HIKrG — and if every one of those sources fails
+          at once, nothing here is trustworthy. The fallback answer to what housing loans currently
+          cost is the ECB series on the Housing loans tab: actual concluded business,
+          volume-weighted across every Austrian bank, broken down by fixation period.
         </Callout>
-      ) : null}
+      ) : (
+        <Callout>
+          <strong>A housing loan rate here is not a quote.</strong> No Austrian bank publishes a
+          mortgage rate card — pricing depends on the borrower, the property and the loan-to-value.
+          What they must publish is a representative example under §6 HIKrG, at a profile each bank
+          chooses for itself, so these rows sit at loan sizes from €100,000 to €400,000 and terms
+          from 20 to 35 years. Read them as a spread across the market rather than a like-for-like
+          ranking, and compare them against concluded business on the Housing loans tab. The date
+          is the bank&rsquo;s own <em>Stand</em>, not the day we read the page: a bank refreshes its
+          example when it chooses, and one here is a year old.
+        </Callout>
+      )}
 
       <Callout>
         Compare the effective rate, not the nominal one. Only the effective rate includes fees, and
