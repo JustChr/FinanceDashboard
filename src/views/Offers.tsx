@@ -3,6 +3,7 @@ import { useMemo } from 'preact/hooks';
 import type { DashboardData } from '../lib/data';
 import { latest } from '../lib/sdmx';
 import {
+  bestIn,
   bestRate,
   daysSince,
   isStale,
@@ -53,10 +54,106 @@ export function Offers({ data }: { data: DashboardData }) {
     <div class="grid">
       <BestOfBoard data={data} board={board} />
       <AdvertisedVersusConcluded data={data} board={board} />
+      <DirectVersusBranch data={data} board={board} />
       <DepositBoard board={board} />
       <LoanBoard board={board} />
       <SourceHealth board={board} />
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+/**
+ * The spread that explains the ECB average.
+ *
+ * Comparing the best direct-bank rate with the best branch-network rate for the
+ * same kind of money is the single most useful comparison on this board: where
+ * you bank moves the rate far more than how long you fix for.
+ */
+function DirectVersusBranch({ data, board }: { data: DashboardData; board: OfferBoard }) {
+  const rows = useMemo(
+    () =>
+      BUCKETS.map((bucket) => {
+        const holds = (o: Offer) => o.category === 'deposit' && bucket.holds(o.termMonths);
+        const direct = bestIn(board.offers, 'direct', holds);
+        const branch = bestIn(board.offers, 'branch', holds);
+        return {
+          label: bucket.label,
+          direct: direct?.rate ?? null,
+          directProvider: direct?.provider,
+          branch: branch?.rate ?? null,
+          branchProvider: branch?.provider,
+          market: latest(data.at.get(bucket.mirId))?.value ?? null,
+        };
+      }),
+    [board, data],
+  );
+
+  const option = useMemo(
+    () =>
+      ladderChart(
+        rows.map((r) => r.label),
+        [
+          { name: 'Best direct bank', values: rows.map((r) => r.direct), color: CHART_COLORS.positive },
+          { name: 'Best branch network', values: rows.map((r) => r.branch), color: CHART_COLORS.liability },
+          { name: 'Market average', values: rows.map((r) => r.market), color: CHART_COLORS.euroArea },
+        ],
+      ),
+    [rows],
+  );
+
+  const instant = rows[0];
+  const whereGap =
+    instant?.direct !== null && instant?.direct !== undefined && instant?.branch !== null
+      ? instant.direct - (instant.branch ?? 0)
+      : undefined;
+
+  return (
+    <Card
+      span={12}
+      title="Where you bank beats when you fix"
+      sub="Best advertised rate by kind of provider, against the ECB volume-weighted average"
+    >
+      <StatRow>
+        <Stat
+          label="Instant access, best direct"
+          value={pct(instant?.direct)}
+          note={instant?.directProvider}
+          tone="positive"
+        />
+        <Stat
+          label="Instant access, best branch"
+          value={pct(instant?.branch)}
+          note={instant?.branchProvider}
+        />
+        <Stat
+          label="Cost of banking at a branch"
+          value={bpsAbs(whereGap)}
+          note="On instant-access money"
+          tone="negative"
+        />
+      </StatRow>
+      <Chart
+        option={option}
+        height={215}
+        ariaLabel="Best advertised Austrian deposit rates from direct banks and branch networks, against the ECB average"
+      />
+      <Legend
+        shape="dot"
+        items={[
+          { label: 'Best direct bank', color: CHART_COLORS.positive },
+          { label: 'Best branch network', color: CHART_COLORS.liability },
+          { label: 'Market average (MIR)', color: CHART_COLORS.euroArea },
+        ]}
+      />
+      <Callout>
+        The grey line sits close to the branch networks rather than the direct banks, and that is
+        the whole explanation for the headline gap on this page: the ECB average is weighted by
+        where the money actually is, and most Austrian retail money sits in a branch network. The
+        best advertised rate is real, but it describes a small share of the deposits.
+      </Callout>
+    </Card>
   );
 }
 
@@ -270,7 +367,10 @@ function OfferRow({ offer }: { offer: Offer }) {
 
   return (
     <tr class={stale ? 'stale' : ''}>
-      <td class="provider">{offer.provider}</td>
+      <td class="provider">
+        {offer.provider}
+        {offer.network === 'branch' ? <span class="badge">branch</span> : null}
+      </td>
       <td>{offer.product}</td>
       <td>{formatTerm(offer.termMonths)}</td>
       <td class="num strong">{pct(offer.rate)}</td>

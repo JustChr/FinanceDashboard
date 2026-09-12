@@ -20,12 +20,23 @@ export type OfferCategory = 'deposit' | 'mortgage' | 'consumer';
 /** `scraped` was read from the source page today; `curated` was checked by hand. */
 export type OfferMethod = 'scraped' | 'curated';
 
+/**
+ * How the provider sets and publishes its rate.
+ *
+ * `direct` banks run one national rate and compete on it publicly. `branch`
+ * networks price at the counter, often per local institution. The gap between
+ * the two is wider than the gap between any two terms, and it is the main reason
+ * the ECB volume-weighted average sits so far below the best advertised offer.
+ */
+export type ProviderNetwork = 'direct' | 'branch';
+
 export interface Offer {
   id: string;
   provider: string;
   /** Product name as the provider markets it: Festgeld, Tagesgeld, Sparbuch… */
   product: string;
   category: OfferCategory;
+  network: ProviderNetwork;
   /** Deposit term in months; `null` for instant access. */
   termMonths: number | null;
   /** Loan rate fixation in years; `0` means variable, `null` not applicable. */
@@ -47,8 +58,12 @@ export interface Offer {
 export interface OfferSource {
   provider: string;
   url: string;
-  /** `partial` means the page loaded but not every expected rate was found. */
-  status: 'ok' | 'partial' | 'failed';
+  /**
+   * `partial` means the page loaded but not every expected rate was found;
+   * `unavailable` is an institution we deliberately do not scrape, listed so the
+   * board can say why a bank that size is absent.
+   */
+  status: 'ok' | 'partial' | 'failed' | 'unavailable';
   checkedAt: string;
   note?: string;
 }
@@ -122,4 +137,18 @@ export function splitDeposits(offers: Offer[]): { instant: Offer[]; term: Offer[
       .filter((o) => o.termMonths !== null)
       .sort((a, b) => (a.termMonths ?? 0) - (b.termMonths ?? 0)),
   };
+}
+
+/** Highest advertised rate within one kind of provider, for the direct/branch gap. */
+export function bestIn(
+  offers: Offer[],
+  network: ProviderNetwork,
+  predicate: (offer: Offer) => boolean,
+): Offer | undefined {
+  return offers
+    .filter((o) => o.network === network && o.rate !== null && predicate(o))
+    .reduce<Offer | undefined>(
+      (best, o) => (best === undefined || (o.rate ?? 0) > (best.rate ?? 0) ? o : best),
+      undefined,
+    );
 }

@@ -64,10 +64,14 @@ export function htmlToText(html) {
  * Parses an Austrian-format number. German decimal commas are the norm on these
  * pages; a thousands separator in a rate is impossible, so a dot is a decimal
  * point too and both spellings are accepted.
+ *
+ * Internal whitespace is stripped before parsing. PDF rate sheets position
+ * glyphs individually, so a rate routinely extracts as `1, 5 00` — the spaces
+ * are an artefact of kerning, not of the number.
  */
 export function parseRate(raw) {
   if (raw === undefined || raw === null) return null;
-  const value = Number(String(raw).trim().replace(',', '.'));
+  const value = Number(String(raw).replace(/\s+/g, '').replace(',', '.'));
   return Number.isFinite(value) ? value : null;
 }
 
@@ -83,8 +87,18 @@ export function plausible(value, { min = 0, max = 25 } = {}) {
   return value !== null && value >= min && value <= max;
 }
 
-/** A polite, identifiable, cache-busting fetch with a hard timeout. */
-export async function fetchPage(url, { timeoutMs = 20_000 } = {}) {
+/**
+ * A polite, identifiable fetch with a hard timeout, returning flattened text.
+ *
+ * Handles both HTML pages and PDFs, because the two halves of the Austrian
+ * market publish differently: the direct banks put rates in HTML, while the
+ * branch networks publish a *Konditionenaushang* PDF and nothing else.
+ *
+ * The user agent stays identifiable on purpose. A site that refuses it is
+ * refusing us specifically, and the answer to that is to record the refusal —
+ * never to drop the identification until the request is let through.
+ */
+export async function fetchPage(url, { timeoutMs = 25_000 } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -92,15 +106,19 @@ export async function fetchPage(url, { timeoutMs = 20_000 } = {}) {
       redirect: 'follow',
       signal: controller.signal,
       headers: {
-        // Identifiable rather than disguised: these are public condition pages,
-        // fetched once a day, and a bank that objects should be able to tell who.
         'User-Agent':
-          'ALMDeskBot/1.0 (+https://github.com/ChrisKrammer/FinanceDashboard; daily rate board)',
-        Accept: 'text/html,application/xhtml+xml',
+          'ALMDeskBot/1.0 (+https://github.com/JustChr/FinanceDashboard; daily rate board)',
+        Accept: 'text/html,application/xhtml+xml,application/pdf',
         'Accept-Language': 'de-AT,de;q=0.9',
       },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const type = res.headers.get('content-type') ?? '';
+    if (type.includes('pdf') || new URL(res.url).pathname.toLowerCase().endsWith('.pdf')) {
+      const { pdfToText } = await import('./pdf.mjs');
+      return pdfToText(Buffer.from(await res.arrayBuffer()));
+    }
     return htmlToText(await res.text());
   } finally {
     clearTimeout(timer);

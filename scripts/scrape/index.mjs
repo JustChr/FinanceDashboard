@@ -22,7 +22,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { fetchPage, parseRate, plausible } from './html.mjs';
-import { BOUNDS, SOURCES } from './sources.mjs';
+import { BOUNDS, SOURCES, UNAVAILABLE } from './sources.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '../..');
@@ -76,6 +76,7 @@ async function scrapeSource(source) {
       provider: source.provider,
       product: spec.product,
       category: source.category,
+      network: source.network,
       termMonths: spec.termMonths ?? null,
       fixationYears: spec.fixationYears ?? null,
       rate,
@@ -130,6 +131,16 @@ async function main() {
   // Curated entries fill gaps rather than override: a live rate always wins.
   const curated = (await loadCurated()).filter((o) => !scrapedIds.has(o.id));
 
+  // Institutions we cannot reach are part of the board's output, not an
+  // omission: the page has to be able to say why a bank this size is missing.
+  const unavailable = UNAVAILABLE.map((entry) => ({
+    provider: entry.provider,
+    url: entry.url,
+    status: 'unavailable',
+    checkedAt: today(),
+    note: entry.reason,
+  }));
+
   const board = {
     generatedAt: new Date().toISOString(),
     offers: [...scraped, ...curated].sort(
@@ -138,7 +149,7 @@ async function main() {
         a.provider.localeCompare(b.provider) ||
         (a.termMonths ?? -1) - (b.termMonths ?? -1),
     ),
-    sources: results.map((r) => r.source),
+    sources: [...results.map((r) => r.source), ...unavailable],
   };
 
   await mkdir(dirname(OUTPUT), { recursive: true });
