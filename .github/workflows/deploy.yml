@@ -24,7 +24,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Active LTS until Oct 2026, supported to Apr 2028, and already the
+          # runner default. Node 20 reached end-of-life in April 2026.
+          node-version: 24
           cache: npm
 
       - run: npm ci
