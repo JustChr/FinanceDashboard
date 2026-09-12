@@ -3,14 +3,16 @@ import { useMemo } from 'preact/hooks';
 import type { DashboardData } from '../lib/data';
 import { latest } from '../lib/sdmx';
 import {
+  bestIn,
   bestRate,
   daysSince,
   isStale,
+  ratedAt,
   splitDeposits,
   type Offer,
   type OfferBoard,
 } from '../lib/offers';
-import { bpsAbs, eur, formatAge, formatTerm, pct } from '../lib/format';
+import { bpsAbs, eur, formatAge, formatFixation, formatTerm, pct } from '../lib/format';
 import { Chart, CHART_COLORS, Legend } from '../components/Chart';
 import { ladderChart } from '../components/charts';
 import { Callout, Card, Stat, StatRow } from '../components/ui';
@@ -53,10 +55,106 @@ export function Offers({ data }: { data: DashboardData }) {
     <div class="grid">
       <BestOfBoard data={data} board={board} />
       <AdvertisedVersusConcluded data={data} board={board} />
+      <DirectVersusBranch data={data} board={board} />
       <DepositBoard board={board} />
       <LoanBoard board={board} />
       <SourceHealth board={board} />
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+/**
+ * The spread that explains the ECB average.
+ *
+ * Comparing the best direct-bank rate with the best branch-network rate for the
+ * same kind of money is the single most useful comparison on this board: where
+ * you bank moves the rate far more than how long you fix for.
+ */
+function DirectVersusBranch({ data, board }: { data: DashboardData; board: OfferBoard }) {
+  const rows = useMemo(
+    () =>
+      BUCKETS.map((bucket) => {
+        const holds = (o: Offer) => o.category === 'deposit' && bucket.holds(o.termMonths);
+        const direct = bestIn(board.offers, 'direct', holds);
+        const branch = bestIn(board.offers, 'branch', holds);
+        return {
+          label: bucket.label,
+          direct: direct?.rate ?? null,
+          directProvider: direct?.provider,
+          branch: branch?.rate ?? null,
+          branchProvider: branch?.provider,
+          market: latest(data.at.get(bucket.mirId))?.value ?? null,
+        };
+      }),
+    [board, data],
+  );
+
+  const option = useMemo(
+    () =>
+      ladderChart(
+        rows.map((r) => r.label),
+        [
+          { name: 'Best direct bank', values: rows.map((r) => r.direct), color: CHART_COLORS.positive },
+          { name: 'Best branch network', values: rows.map((r) => r.branch), color: CHART_COLORS.liability },
+          { name: 'Market average', values: rows.map((r) => r.market), color: CHART_COLORS.euroArea },
+        ],
+      ),
+    [rows],
+  );
+
+  const instant = rows[0];
+  const whereGap =
+    instant?.direct !== null && instant?.direct !== undefined && instant?.branch !== null
+      ? instant.direct - (instant.branch ?? 0)
+      : undefined;
+
+  return (
+    <Card
+      span={12}
+      title="Where you bank beats when you fix"
+      sub="Best advertised rate by kind of provider, against the ECB volume-weighted average"
+    >
+      <StatRow>
+        <Stat
+          label="Instant access, best direct"
+          value={pct(instant?.direct)}
+          note={instant?.directProvider}
+          tone="positive"
+        />
+        <Stat
+          label="Instant access, best branch"
+          value={pct(instant?.branch)}
+          note={instant?.branchProvider}
+        />
+        <Stat
+          label="Cost of banking at a branch"
+          value={bpsAbs(whereGap)}
+          note="On instant-access money"
+          tone="negative"
+        />
+      </StatRow>
+      <Chart
+        option={option}
+        height={215}
+        ariaLabel="Best advertised Austrian deposit rates from direct banks and branch networks, against the ECB average"
+      />
+      <Legend
+        shape="dot"
+        items={[
+          { label: 'Best direct bank', color: CHART_COLORS.positive },
+          { label: 'Best branch network', color: CHART_COLORS.liability },
+          { label: 'Market average (MIR)', color: CHART_COLORS.euroArea },
+        ]}
+      />
+      <Callout>
+        The grey line sits close to the branch networks rather than the direct banks, and that is
+        the whole explanation for the headline gap on this page: the ECB average is weighted by
+        where the money actually is, and most Austrian retail money sits in a branch network. The
+        best advertised rate is real, but it describes a small share of the deposits.
+      </Callout>
+    </Card>
   );
 }
 
@@ -266,11 +364,14 @@ function DepositBoard({ board }: { board: OfferBoard }) {
 
 function OfferRow({ offer }: { offer: Offer }) {
   const stale = isStale(offer);
-  const age = daysSince(offer.observedAt);
+  const age = daysSince(ratedAt(offer));
 
   return (
     <tr class={stale ? 'stale' : ''}>
-      <td class="provider">{offer.provider}</td>
+      <td class="provider">
+        {offer.provider}
+        {offer.network === 'branch' ? <span class="badge">branch</span> : null}
+      </td>
       <td>{offer.product}</td>
       <td>{formatTerm(offer.termMonths)}</td>
       <td class="num strong">{pct(offer.rate)}</td>
@@ -317,13 +418,13 @@ function LoanBoard({ board }: { board: OfferBoard }) {
                 <tr key={o.id} class={isStale(o) ? 'stale' : ''}>
                   <td class="provider">{o.provider}</td>
                   <td>{o.product}</td>
-                  <td>{o.fixationYears === 0 ? 'Variable' : 'Fixed'}</td>
+                  <td>{formatFixation(o.fixationYears)}</td>
                   <td class="num">{pct(o.rate)}</td>
                   <td class="num strong">{pct(o.effectiveRate)}</td>
                   <td class="conditions">{o.conditions ?? '–'}</td>
                   <td class="source">
                     <a href={o.sourceUrl} target="_blank" rel="noreferrer">
-                      {formatAge(daysSince(o.observedAt))}
+                      {formatAge(daysSince(ratedAt(o)))}
                     </a>
                   </td>
                 </tr>
@@ -335,16 +436,25 @@ function LoanBoard({ board }: { board: OfferBoard }) {
 
       {mortgages.length === 0 ? (
         <Callout>
-          <strong>There are no housing loan offers on this board, and that is the finding.</strong>{' '}
-          Austrian banks publish savings rates as firm numbers but price mortgages through
-          credit-scored calculators — the rate depends on the borrower, the property and the
-          loan-to-value, so no comparable figure is published to scrape. Anything quoted elsewhere
-          as &ldquo;the&rdquo; Austrian mortgage rate is either a broker&rsquo;s index or a
-          representative example under assumptions that differ by bank. The honest answer to what
-          housing loans currently cost is the ECB series on the Housing loans tab: actual concluded
-          business, volume-weighted across every Austrian bank, broken down by fixation period.
+          <strong>No housing loan offers reached the board on this run.</strong> Austrian banks
+          price mortgages through credit-scored calculators, so the only published figures are the
+          representative examples required under §6 HIKrG — and if every one of those sources fails
+          at once, nothing here is trustworthy. The fallback answer to what housing loans currently
+          cost is the ECB series on the Housing loans tab: actual concluded business,
+          volume-weighted across every Austrian bank, broken down by fixation period.
         </Callout>
-      ) : null}
+      ) : (
+        <Callout>
+          <strong>A housing loan rate here is not a quote.</strong> No Austrian bank publishes a
+          mortgage rate card — pricing depends on the borrower, the property and the loan-to-value.
+          What they must publish is a representative example under §6 HIKrG, at a profile each bank
+          chooses for itself, so these rows sit at loan sizes from €100,000 to €400,000 and terms
+          from 20 to 35 years. Read them as a spread across the market rather than a like-for-like
+          ranking, and compare them against concluded business on the Housing loans tab. The date
+          is the bank&rsquo;s own <em>Stand</em>, not the day we read the page: a bank refreshes its
+          example when it chooses, and one here is a year old.
+        </Callout>
+      )}
 
       <Callout>
         Compare the effective rate, not the nominal one. Only the effective rate includes fees, and

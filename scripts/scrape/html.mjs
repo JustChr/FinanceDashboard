@@ -19,6 +19,23 @@
  */
 const DROPPED_ELEMENTS = /<(script|style|noscript|svg|head)\b[^>]*(?<!\/)>[\s\S]*?<\/\1\s*>/gi;
 
+/** The same, but keeping `<script>` bodies — see `includeScripts` below. */
+const DROPPED_EXCEPT_SCRIPTS = /<(style|noscript|svg|head)\b[^>]*(?<!\/)>[\s\S]*?<\/\1\s*>/gi;
+
+/**
+ * Unescapes HTML that has been embedded inside a JSON string.
+ *
+ * Content-managed pages increasingly ship their copy as JSON in a `<script>`
+ * block and render it in the browser, so the markup arrives escaped:
+ * `<strong>Sollzinssatz</strong>`. Left alone it survives
+ * tag-stripping intact and glues itself to the words a probe is anchored on.
+ */
+function decodeJsonEscapes(text) {
+  return text
+    .replace(/\\u([0-9a-f]{4})/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
+    .replace(/\\(["/\\])/g, '$1');
+}
+
 const ENTITIES = {
   nbsp: ' ',
   amp: '&',
@@ -48,11 +65,19 @@ function decodeEntities(text) {
  *
  * Tags become a single space rather than nothing: `<td>12 Monate</td><td>2,8 %`
  * must not collapse into `12 Monate2,8 %`, which would defeat every probe.
+ *
+ * `includeScripts` keeps `<script>` bodies in the text. It is off by default
+ * because script text is mostly machinery and matching against it invites false
+ * positives — but several banks, Erste and bank99 among them, publish their
+ * legally required representative example *only* inside an embedded JSON blob.
+ * Dropping scripts is the obvious way to clean a page and it silently hides
+ * exactly those sources, so this is opt-in per source rather than global.
  */
-export function htmlToText(html) {
+export function htmlToText(html, { includeScripts = false } = {}) {
+  const source = includeScripts ? decodeJsonEscapes(html) : html;
   return decodeEntities(
-    html
-      .replace(DROPPED_ELEMENTS, ' ')
+    source
+      .replace(includeScripts ? DROPPED_EXCEPT_SCRIPTS : DROPPED_ELEMENTS, ' ')
       .replace(/<!--[\s\S]*?-->/g, ' ')
       .replace(/<[^>]+>/g, ' '),
   )
@@ -64,11 +89,32 @@ export function htmlToText(html) {
  * Parses an Austrian-format number. German decimal commas are the norm on these
  * pages; a thousands separator in a rate is impossible, so a dot is a decimal
  * point too and both spellings are accepted.
+ *
+ * Internal whitespace is stripped before parsing. PDF rate sheets position
+ * glyphs individually, so a rate routinely extracts as `1, 5 00` — the spaces
+ * are an artefact of kerning, not of the number.
  */
 export function parseRate(raw) {
   if (raw === undefined || raw === null) return null;
-  const value = Number(String(raw).trim().replace(',', '.'));
+  const value = Number(String(raw).replace(/\s+/g, '').replace(',', '.'));
   return Number.isFinite(value) ? value : null;
+}
+
+/**
+ * Parses the date a bank stamps on its own figure — `Stand: 08.07.2026`.
+ *
+ * Whitespace is stripped first for the same reason `parseRate` strips it: a PDF
+ * positions glyphs individually, so BAWAG's sheet extracts its date as
+ * `22.0 9 .2025`. A two-digit year is rejected rather than guessed at, because
+ * guessing the century on a rate sheet is how a 2025 figure becomes a 1925 one.
+ */
+export function parseGermanDate(raw) {
+  if (raw === undefined || raw === null) return null;
+  const match = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(String(raw).replace(/\s+/g, ''));
+  if (!match) return null;
+  const [, day, month, year] = match;
+  const iso = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  return Number.isNaN(Date.parse(iso)) ? null : iso;
 }
 
 /**
@@ -83,8 +129,18 @@ export function plausible(value, { min = 0, max = 25 } = {}) {
   return value !== null && value >= min && value <= max;
 }
 
-/** A polite, identifiable, cache-busting fetch with a hard timeout. */
-export async function fetchPage(url, { timeoutMs = 20_000 } = {}) {
+/**
+ * A polite, identifiable fetch with a hard timeout, returning flattened text.
+ *
+ * Handles both HTML pages and PDFs, because the two halves of the Austrian
+ * market publish differently: the direct banks put rates in HTML, while the
+ * branch networks publish a *Konditionenaushang* PDF and nothing else.
+ *
+ * The user agent stays identifiable on purpose. A site that refuses it is
+ * refusing us specifically, and the answer to that is to record the refusal —
+ * never to drop the identification until the request is let through.
+ */
+export async function fetchPage(url, { timeoutMs = 25_000, includeScripts = false } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -92,16 +148,20 @@ export async function fetchPage(url, { timeoutMs = 20_000 } = {}) {
       redirect: 'follow',
       signal: controller.signal,
       headers: {
-        // Identifiable rather than disguised: these are public condition pages,
-        // fetched once a day, and a bank that objects should be able to tell who.
         'User-Agent':
-          'ALMDeskBot/1.0 (+https://github.com/ChrisKrammer/FinanceDashboard; daily rate board)',
-        Accept: 'text/html,application/xhtml+xml',
+          'ALMDeskBot/1.0 (+https://github.com/JustChr/FinanceDashboard; daily rate board)',
+        Accept: 'text/html,application/xhtml+xml,application/pdf',
         'Accept-Language': 'de-AT,de;q=0.9',
       },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return htmlToText(await res.text());
+
+    const type = res.headers.get('content-type') ?? '';
+    if (type.includes('pdf') || new URL(res.url).pathname.toLowerCase().endsWith('.pdf')) {
+      const { pdfToText } = await import('./pdf.mjs');
+      return pdfToText(Buffer.from(await res.arrayBuffer()));
+    }
+    return htmlToText(await res.text(), { includeScripts });
   } finally {
     clearTimeout(timer);
   }

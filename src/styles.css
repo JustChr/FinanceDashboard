@@ -472,6 +472,14 @@ table.rates.layers td:first-child {
   margin-left: 0;
 }
 
+/* Not a failure: an institution we deliberately do not scrape, shown with its
+   reason so the board can account for who is missing. */
+.badge.status-unavailable {
+  color: var(--dim);
+  border-color: var(--border);
+  margin-left: 0;
+}
+
 .badge.status-failed {
   color: var(--negative);
   border-color: rgba(255, 107, 107, 0.35);

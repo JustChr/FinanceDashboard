@@ -57,6 +57,18 @@ export function formatTerm(months: number | null): string {
   return `${months} months`;
 }
 
+/**
+ * How a loan rate is fixed: "Variable", "Fixed 10y".
+ *
+ * The length matters as much as the fact of fixing — on the Austrian housing
+ * board the gap between a 10-year and a full-term fix is a real part of the
+ * price, and collapsing both to "Fixed" hides it.
+ */
+export function formatFixation(years: number | null): string {
+  if (years === null) return 'Fixed';
+  return years === 0 ? 'Variable' : `Fixed ${years}y`;
+}
+
 /** "today", "3 days ago" — the age of a scraped rate. */
 export function formatAge(days: number): string {
   if (!Number.isFinite(days)) return 'unknown';

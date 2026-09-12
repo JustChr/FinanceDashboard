@@ -70,8 +70,39 @@ send no CORS headers, so the browser cannot read them. Instead
 `scripts/scrape` once a day, writes `public/data/offers.json` and commits it;
 the page loads that file same-origin.
 
-Currently covered: Addiko Bank, Anadi Bank, bank99, easybank and Kommunalkredit
-Invest on the deposit side, and bank99 on consumer credit.
+The two halves of the Austrian market publish differently, and the scraper reads
+both:
+
+- **Direct banks** — Addiko, Anadi, bank99, easybank, Kommunalkredit Invest —
+  state their rates in HTML, one national rate per product.
+- **Branch networks** — BAWAG P.S.K., Raiffeisen — publish only a
+  *Konditionenaushang*, the PDF rate sheet they are legally obliged to display.
+  `scripts/scrape/pdf.mjs` extracts those without a PDF library.
+
+That distinction is not cosmetic. The best advertised instant-access rate is
+around 220 bp above the best branch-network rate for the same money, and the ECB
+volume-weighted average sits near the branch end — because that is where most
+Austrian retail deposits are. A board covering only direct banks would make the
+market look far better priced than it is.
+
+**Raiffeisen and the Sparkassen are not single banks.** Raiffeisen is roughly
+three hundred legally independent local cooperatives, each publishing its own
+Schalteraushang, so there is no such thing as "the" Raiffeisen savings rate. Two
+are carried here under their real names, and the same branded product pays
+materially different rates at each.
+
+Three institutions cannot be covered, and the board says so on the page rather
+than omitting them:
+
+| Institution | Why |
+| --- | --- |
+| Erste Bank / Sparkasse | Rates render client-side; the published Konditionenaushang covers fees, not interest |
+| UniCredit Bank Austria | Rejects any request identifying itself as automated, and blocks its own robots.txt |
+| Volksbank | Eight independent regional banks; the group site carries no figures |
+
+Bank Austria returns content only if the request sends no user agent at all.
+Getting past a block by dropping identification is not something this scraper
+does, so it is listed as unavailable instead.
 
 ## Two traps worth knowing
 
@@ -92,7 +123,8 @@ npm run inspect -- https://www.addiko.at/festgeld/   # see what text a page expo
 ```
 
 Adapters live in [`scripts/scrape/sources.mjs`](scripts/scrape/sources.mjs) as
-regex probes matched against the page flattened to text — deliberately not CSS
+regex probes matched against the document flattened to text — HTML and PDF both
+reduce to the same shape, so one probe style covers both. Deliberately not CSS
 selectors, which break on every redesign, while the words next to a rate do not.
 Three rules keep the board honest:
 
@@ -106,6 +138,12 @@ Three rules keep the board honest:
 
 If a page prints almost no text under `npm run inspect`, it is client-rendered
 and no probe will reach it.
+
+Two things about PDF rate sheets are worth knowing before writing a probe. They
+position every glyph separately, so a rate arrives as `1, 5 00 %` — probes match
+digits with optional internal spaces and `parseRate` strips them. And accessible
+PDFs emit their `/Lang` value into the text, so labels arrive as `de-DEBindung`
+until stripped.
 
 ### Why there are no housing loan offers
 
