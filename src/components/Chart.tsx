@@ -3,12 +3,19 @@ import { useEffect, useRef } from 'preact/hooks';
 // bundle at a fraction of the full library, which matters on a Pages site with
 // no server-side compression control.
 import * as echarts from 'echarts/core';
-import { LineChart } from 'echarts/charts';
-import { GridComponent, TooltipComponent } from 'echarts/components';
+import { BarChart, LineChart } from 'echarts/charts';
+import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption } from 'echarts';
 
-echarts.use([LineChart, GridComponent, TooltipComponent, CanvasRenderer]);
+echarts.use([
+  LineChart,
+  BarChart,
+  GridComponent,
+  TooltipComponent,
+  MarkLineComponent,
+  CanvasRenderer,
+]);
 
 export const CHART_COLORS = {
   asset: '#4da3ff',
@@ -18,6 +25,8 @@ export const CHART_COLORS = {
   euroArea: '#8b95a8',
   positive: '#3ecf8e',
   negative: '#ff6b6b',
+  /** Ordered ramp for ladder series: short fixation to long. */
+  ladder: ['#4da3ff', '#6ee7c9', '#f2a33c', '#ef6f9c', '#a78bfa'],
   grid: '#1f2836',
   axis: '#5d6b80',
 } as const;
@@ -92,5 +101,26 @@ export function Chart({ option, height = 240, ariaLabel }: ChartProps) {
       role="img"
       aria-label={ariaLabel}
     />
+  );
+}
+
+/** Colour swatches under a chart, matching the mark drawn above it. */
+export function Legend({
+  items,
+  shape = 'line',
+}: {
+  items: { label: string; color: string }[];
+  /** Ladder charts draw dots, so their key must show dots too. */
+  shape?: 'line' | 'dot';
+}) {
+  return (
+    <div class="legend">
+      {items.map((item) => (
+        <span key={item.label}>
+          <i class={shape} style={{ background: item.color }} />
+          {item.label}
+        </span>
+      ))}
+    </div>
   );
 }

@@ -1,0 +1,49 @@
+name: Refresh bank offers
+
+on:
+  schedule:
+    # 05:40 UTC daily. Off the hour deliberately: GitHub's scheduler is heavily
+    # oversubscribed on the hour and delays those runs the most.
+    - cron: '40 5 * * *'
+  workflow_dispatch:
+
+# The job commits the regenerated board back to the repository.
+permissions:
+  contents: write
+
+concurrency:
+  group: offers
+  cancel-in-progress: true
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Scrape published bank condition pages
+        run: node scripts/scrape/index.mjs
+
+      - name: Commit the refreshed board
+        # Committed on every run, not only when a rate moves. The dashboard greys
+        # out an offer once `observedAt` ages past two weeks, so "we checked today
+        # and nothing changed" is itself the information that keeps the board
+        # showing as current — skipping the commit would make live rates look stale.
+        run: |
+          if git diff --quiet -- public/data/offers.json; then
+            echo "Nothing to commit; the scrape produced an identical file."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/offers.json
+          git commit -m "Refresh bank offer board"
+          # Another push may have landed since checkout; rebase rather than
+          # force, so a human commit is never overwritten by the scheduler.
+          git pull --rebase --autostash
+          git push
