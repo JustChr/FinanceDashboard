@@ -83,9 +83,14 @@ Deployment is automatic: pushing to `main` triggers
 publishes to Pages. Enable it once under **Settings → Pages → Source → GitHub
 Actions**.
 
+> **First deploy on a fresh repo will fail.** `gh repo create --push` fires the
+> workflow within seconds, before Pages can be enabled, so `deploy-pages` exits
+> with `HttpError: Not Found`. The build itself is fine and the artifact is
+> uploaded. Enable Pages, then `gh run rerun <id> --failed` to deploy that same
+> artifact. Every later push works normally.
+
 ## Next
 
-- Curves panel: AAA and all-issuer yield curves, 3M–30Y, with 1W/1M/1Y overlay
-- Austrian sovereign spread versus Bund
-- ECB and OeNB news feed via a scheduled workflow
-- Inflation panel on the new `HICP` dataflow
+See [ROADMAP.md](ROADMAP.md). In short: the curves panel is next and is largely
+additive, then the news feed (which needs a scheduled workflow, since ECB RSS is
+the one source that is not CORS-enabled), then inflation.
