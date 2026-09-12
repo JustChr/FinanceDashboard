@@ -1,0 +1,14 @@
+{
+  "_comment": [
+    "Hand-verified offers, used only where the scraper cannot reach a rate.",
+    "A scraped offer with the same id always wins, so an entry here is a fallback,",
+    "not an override. Set observedAt to the date you actually opened the page:",
+    "the dashboard greys an entry out once it passes STALE_AFTER_DAYS.",
+    "",
+    "Mortgages are empty on purpose. Austrian banks publish housing-loan pricing",
+    "through credit-scored calculators rather than rate cards, so there is no",
+    "honest figure to scrape. Add an entry here only from a bank's own published",
+    "representative example under HIKrG, with the URL it came from."
+  ],
+  "offers": []
+}

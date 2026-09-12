@@ -88,31 +88,6 @@ export interface QueryOptions {
 }
 
 /**
- * Collapses keys that differ in exactly one dimension into a single query using
- * SDMX `+` alternation, so related series travel in one round trip.
- */
-export function groupKeys(keys: string[], dimensionIndex: number): string[] {
-  const groups = new Map<string, string[]>();
-
-  for (const key of keys) {
-    const parts = key.split('.');
-    const item = parts[dimensionIndex];
-    if (item === undefined) {
-      groups.set(key, []);
-      continue;
-    }
-    const shape = parts.map((p, i) => (i === dimensionIndex ? '*' : p)).join('.');
-    const bucket = groups.get(shape);
-    if (bucket) bucket.push(item);
-    else groups.set(shape, [item]);
-  }
-
-  return [...groups.entries()].map(([shape, items]) =>
-    items.length === 0 ? shape : shape.replace('*', [...new Set(items)].sort().join('+')),
-  );
-}
-
-/**
  * Fetches one SDMX query and groups the flat CSV rows back into series.
  *
  * `key` may use SDMX wildcards (empty segment) and `+` alternation, so several
