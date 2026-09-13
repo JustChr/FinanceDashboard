@@ -14,7 +14,7 @@ import {
   type WindowId,
 } from './catalog';
 import { toMonthEnd } from './metrics';
-import { loadOffers, type OfferBoard } from './offers';
+import { loadHousingHistory, loadOffers, type OfferBoard, type QuoteHistory } from './offers';
 
 /**
  * Collapses the catalogue into as few SDMX requests as possible.
@@ -95,6 +95,8 @@ export interface DashboardData {
   euribor3m: Series | undefined;
   /** What banks currently advertise, from the scheduled scrape. */
   offers: OfferBoard | undefined;
+  /** What banks advertised for housing loans before today. */
+  housingHistory: QuoteHistory | undefined;
   /** Latest MIR observation period across the Austrian block. */
   asOf: string | undefined;
   window: WindowId;
@@ -137,7 +139,8 @@ export async function loadDashboard(
   const startPeriod = windowStart(window);
   const eaDefs = ALL_DEFS.filter((d) => d.ea);
 
-  const [at, ea, estrList, dfrList, mroList, mlfList, euriborList, offers] = await Promise.all([
+  const [at, ea, estrList, dfrList, mroList, mlfList, euriborList, offers, housingHistory] =
+    await Promise.all([
     loadMir('AT', ALL_DEFS, startPeriod, signal),
     loadMir('U2', eaDefs, startPeriod, signal),
     fetchSeries('EST', ESTR_KEY, { startPeriod, signal }),
@@ -146,6 +149,7 @@ export async function loadDashboard(
     fetchSeries('FM', POLICY_RATES.mlf.key, { lastNObservations: 1, signal }),
     fetchSeries('FM', EURIBOR_3M_KEY, { startPeriod, signal }),
     loadOffers(signal),
+    loadHousingHistory(signal),
   ]);
 
   const estr = estrList[0];
@@ -171,6 +175,7 @@ export async function loadDashboard(
     },
     euribor3m: euriborList[0],
     offers,
+    housingHistory,
     asOf,
     window,
   };

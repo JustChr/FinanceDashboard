@@ -98,6 +98,82 @@ export function timeChart(specs: LineSpec[], options: TimeChartOptions = {}): EC
   };
 }
 
+export interface StepSpec {
+  name: string;
+  /** `[isoDate, value]` corners; a `null` value breaks the line. */
+  points: [string, number | null][];
+  color: string;
+  dashed?: boolean;
+  width?: number;
+  /**
+   * Dot the latest value. A quote first seen today is a zero-length step and
+   * would otherwise not be drawn at all; the dot also marks where "now" is.
+   */
+  marker?: boolean;
+}
+
+function withMarker(points: [string, number | null][]) {
+  let last = -1;
+  points.forEach((p, i) => {
+    if (p[1] !== null) last = i;
+  });
+  return points.map((p, i) => (i === last ? { value: p, symbol: 'circle', symbolSize: 7 } : p));
+}
+
+/**
+ * Series on a true calendar axis.
+ *
+ * `timeChart` spaces periods evenly, which is right for monthly statistics and
+ * wrong for offer quotes: a bank restates its example whenever it chooses, so
+ * two repricings a fortnight apart and two a year apart would sit the same
+ * distance apart on a category axis. Here distance is time. The caller supplies
+ * the corners, so a quote holds flat until the next one replaces it — nothing is
+ * interpolated between restatements, because nobody was ever offered the rate
+ * in between.
+ */
+export function stepTimeChart(
+  specs: StepSpec[],
+  options: { start?: string; decimals?: number } = {},
+): EChartsOption {
+  const { start, decimals = 2 } = options;
+  const base = baseOption();
+
+  return {
+    ...base,
+    tooltip: {
+      ...base.tooltip,
+      valueFormatter: (value) => (typeof value === 'number' ? `${value.toFixed(decimals)}%` : '–'),
+    },
+    xAxis: {
+      ...base.xAxis,
+      type: 'time',
+      min: start,
+      axisLabel: { color: CHART_COLORS.axis, fontSize: 11, hideOverlap: true },
+    },
+    yAxis: {
+      ...base.yAxis,
+      scale: true,
+      axisLabel: { color: CHART_COLORS.axis, fontSize: 11, formatter: '{value}%' },
+    },
+    series: specs.map((spec) => ({
+      name: spec.name,
+      type: 'line',
+      data: spec.marker ? withMarker(spec.points) : spec.points,
+      // Symbols are off per series and switched back on per datum by `marker`.
+      symbol: 'none',
+      showSymbol: spec.marker ?? false,
+      showAllSymbol: true,
+      connectNulls: false,
+      lineStyle: {
+        color: spec.color,
+        width: spec.width ?? 2,
+        type: spec.dashed ? 'dashed' : 'solid',
+      },
+      itemStyle: { color: spec.color },
+    })) as EChartsOption['series'],
+  };
+}
+
 export interface LadderSpec {
   name: string;
   values: (number | null)[];

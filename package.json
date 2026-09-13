@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "scrape": "node scripts/scrape/index.mjs",
-    "inspect": "node scripts/scrape/inspect.mjs"
+    "inspect": "node scripts/scrape/inspect.mjs",
+    "backfill": "node scripts/scrape/backfill.mjs"
   },
   "dependencies": {
     "echarts": "^5.5.1",
