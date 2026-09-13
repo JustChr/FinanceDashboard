@@ -11,6 +11,21 @@ Status as of 2026-09-12. The MVP is live at
 - [x] **Bank pricing & margin panel** — Austrian new-business loan and deposit
       rates vs the euro area, cumulative deposit beta, commercial margin over €STR
 - [x] Deploy workflow on Node 24 Active LTS
+- [x] **Advertised housing-loan history** — daily quotes kept as pricing episodes
+      in `public/data/housing-history.json`, backfilled from Internet Archive
+      captures (`npm run backfill`), shown on the Housing loans tab against the
+      ECB concluded APRC
+
+## Open — housing-loan coverage
+
+- [ ] Most lenders publish only a variable example; Erste is the only fixed-rate
+      ladder. Fixed-rate history needs more sources.
+- [ ] Arbeiterkammer Wien's *Hypothekarkredite im Vergleich* surveys named
+      banks' variable and fixed rates at two credit grades (2019, 2020, 2023,
+      Jan 2025 editions; archive at emedien.arbeiterkammer.at). Periodic, not a
+      feed — worth hand-entering as dated anchor points for fixed rates.
+- [ ] BKS's archived pages predate its current wording and yield nothing; a
+      second probe for the old layout would recover 2019–2025.
 
 ## Next — Curves panel
 

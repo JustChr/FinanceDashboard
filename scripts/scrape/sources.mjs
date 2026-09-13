@@ -470,6 +470,9 @@ export const SOURCES = [
     network: 'branch',
     category: 'mortgage',
     url: 'https://www.bawag.at/resource/blob/20702/decec9fd91baf6766724ca061004bd87/kreditbox-wohnen-produktinformationsblatt-data.pdf',
+    // The hash segment changes with every upload of the sheet, so the archive
+    // is searched by the stable blob prefix; the exact URL has no past captures.
+    archive: { url: 'https://www.bawag.at/resource/blob/20702/', match: 'prefix' },
     stand: STAND,
     offers: [
       {
@@ -510,6 +513,26 @@ export const SOURCES = [
         conditions: 'Representative example, €400,000 over 35 years; 6M-Euribor +1.50%, rounded to ⅛',
         rate: after('Sollzinssatz\\s*von'),
         effectiveRate: after('Effektiver\\s*Jahreszinssatz'),
+      },
+    ],
+  },
+  {
+    provider: 'Bank Burgenland',
+    network: 'branch',
+    category: 'mortgage',
+    url: 'https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit',
+    offers: [
+      {
+        id: 'bgld-wohnbaukredit-variabel',
+        product: 'Wohnbaukredit',
+        fixationYears: 0,
+        // The example is the calculator's server-rendered default state, and
+        // its end date rolls forward with the current month, so the page is
+        // regenerated rather than restated — but it publishes no Stand, and
+        // the age falls back to the scrape date. Verified 2026-09-13.
+        conditions: 'Representative example, €225,000 over 10 years; subject to credit check',
+        rate: after('Sollzinssatz:\\s*Variabel'),
+        effectiveRate: after('Effektivzinssatz\\s*für\\s*die\\s*Gesamtlaufzeit:'),
       },
     ],
   },

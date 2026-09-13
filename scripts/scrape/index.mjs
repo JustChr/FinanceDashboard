@@ -1,5 +1,6 @@
 /**
- * Builds `public/data/offers.json` — the advertised half of the dashboard.
+ * Builds `public/data/offers.json` — the advertised half of the dashboard — and
+ * extends `public/data/housing-history.json` with today's housing-loan quotes.
  *
  * Run by `.github/workflows/offers.yml` once a day. The output is committed to
  * the repository so the static site can load it same-origin; bank sites send no
@@ -21,36 +22,18 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { fetchPage, parseGermanDate, parseRate, plausible } from './html.mjs';
-import { BOUNDS, SOURCES, UNAVAILABLE } from './sources.mjs';
+import { fetchPage } from './html.mjs';
+import { readOffers } from './extract.mjs';
+import { loadHistory, record, saveHistory } from './history.mjs';
+import { SOURCES, UNAVAILABLE } from './sources.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '../..');
 const OUTPUT = resolve(ROOT, 'public/data/offers.json');
+const HISTORY = resolve(ROOT, 'public/data/housing-history.json');
 const CURATED = resolve(HERE, 'curated.json');
 
 const today = () => new Date().toISOString().slice(0, 10);
-
-/** Runs one probe and returns a rate only if it is present and plausible. */
-function probe(text, pattern, category) {
-  if (!pattern) return null;
-  const match = text.match(pattern);
-  if (!match) return null;
-  const value = parseRate(match[1]);
-  return plausible(value, BOUNDS[category]) ? value : null;
-}
-
-/**
- * The date the provider stamps on its own figures, if the page carries one.
- *
- * Deliberately looked up once per source rather than per offer: a page states
- * one `Stand` covering everything on it, and hunting for a nearer one per rate
- * would just find whichever date happened to sit closest in the flattened text.
- */
-function statedDate(text, pattern) {
-  if (!pattern) return null;
-  return parseGermanDate(text.match(pattern)?.[1]);
-}
 
 async function scrapeSource(source) {
   const checkedAt = today();
@@ -71,42 +54,38 @@ async function scrapeSource(source) {
     };
   }
 
-  const offers = [];
-  const missed = [];
-  const statedAt = statedDate(text, source.stand);
+  const { statedAt, found, missed, contradicted } = readOffers(source, text);
 
-  for (const spec of source.offers) {
-    const rate = probe(text, spec.rate, source.category);
-    const effectiveRate = probe(text, spec.effectiveRate, source.category);
-
-    if (rate === null && effectiveRate === null) {
-      missed.push(spec.id);
-      continue;
-    }
-
-    offers.push({
-      id: spec.id,
-      provider: source.provider,
-      product: spec.product,
-      category: source.category,
-      network: source.network,
-      termMonths: spec.termMonths ?? null,
-      fixationYears: spec.fixationYears ?? null,
-      rate,
-      effectiveRate,
-      amountMin: spec.amountMin ?? null,
-      amountMax: spec.amountMax ?? null,
-      conditions: spec.conditions ?? null,
-      sourceUrl: source.url,
-      method: 'scraped',
-      observedAt: checkedAt,
-      statedAt,
-    });
-  }
+  const offers = found.map(({ spec, rate, effectiveRate }) => ({
+    id: spec.id,
+    provider: source.provider,
+    product: spec.product,
+    category: source.category,
+    network: source.network,
+    termMonths: spec.termMonths ?? null,
+    fixationYears: spec.fixationYears ?? null,
+    rate,
+    effectiveRate,
+    amountMin: spec.amountMin ?? null,
+    amountMax: spec.amountMax ?? null,
+    conditions: spec.conditions ?? null,
+    sourceUrl: source.url,
+    method: 'scraped',
+    observedAt: checkedAt,
+    statedAt,
+  }));
 
   // A source that publishes a Stand and stops publishing it is worth saying out
   // loud: the rates keep scraping fine, and their age silently becomes a guess.
   const lostDate = source.stand && statedAt === null;
+
+  const notes = [
+    missed.length > 0 ? `No rate found for: ${missed.join(', ')}` : null,
+    contradicted.length > 0
+      ? `Effective rate below nominal, not published: ${contradicted.join(', ')}`
+      : null,
+    lostDate ? 'No Stand date found; age falls back to the scrape date' : null,
+  ].filter(Boolean);
 
   return {
     offers,
@@ -115,16 +94,7 @@ async function scrapeSource(source) {
       url: source.url,
       status: missed.length === 0 ? 'ok' : offers.length === 0 ? 'failed' : 'partial',
       checkedAt,
-      ...(missed.length > 0 || lostDate
-        ? {
-            note: [
-              missed.length > 0 ? `No rate found for: ${missed.join(', ')}` : null,
-              lostDate ? 'No Stand date found; age falls back to the scrape date' : null,
-            ]
-              .filter(Boolean)
-              .join('. '),
-          }
-        : {}),
+      ...(notes.length > 0 ? { note: notes.join('. ') } : {}),
     },
   };
 }
@@ -139,6 +109,34 @@ async function loadCurated() {
   } catch {
     return [];
   }
+}
+
+/**
+ * Appends today's housing-loan quotes to the history.
+ *
+ * Only housing loans are historised. Their quotes change a few times a year, so
+ * the history is small and every episode in it is a pricing decision; deposit
+ * rates would need a different shape to stay readable.
+ */
+async function extendHistory(offers) {
+  const history = await loadHistory(HISTORY);
+  const mortgages = offers.filter((o) => o.category === 'mortgage');
+
+  for (const offer of mortgages) {
+    record(history, offer, [
+      {
+        seenAt: offer.observedAt,
+        statedAt: offer.statedAt,
+        rate: offer.rate,
+        effectiveRate: offer.effectiveRate,
+        via: offer.method === 'curated' ? 'curated' : 'scrape',
+        evidence: offer.sourceUrl,
+      },
+    ]);
+  }
+
+  await saveHistory(HISTORY, history);
+  return mortgages.length;
 }
 
 async function main() {
@@ -188,6 +186,9 @@ async function main() {
   console.log(
     `\nWrote ${board.offers.length} offers (${scraped.length} scraped, ${curated.length} curated) to public/data/offers.json`,
   );
+
+  const recorded = await extendHistory(board.offers);
+  console.log(`Recorded ${recorded} housing-loan quotes in public/data/housing-history.json`);
 
   // A run where nothing at all was reachable is a real failure worth a red
   // build; a run that lost one bank is not.

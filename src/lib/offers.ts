@@ -170,6 +170,174 @@ export function splitDeposits(offers: Offer[]): { instant: Offer[]; term: Offer[
   };
 }
 
+/* ------------------------------------------------------------------ *
+ * Housing-loan history
+ *
+ * `offers.json` says what a bank advertises today. `housing-history.json`
+ * says what it advertised before, as pricing episodes: one per distinct quote,
+ * with the first and last day it was seen. It is written by the daily scrape
+ * and backfilled from Internet Archive captures of the same pages — see
+ * `scripts/scrape/history.mjs`.
+ * ------------------------------------------------------------------ */
+
+export interface QuoteEpisode {
+  rate: number | null;
+  effectiveRate: number | null;
+  /** Earliest Stand the bank stamped on this quote. */
+  statedAt: string | null;
+  /** Latest Stand, where the bank re-dated the quote without changing it. */
+  restatedAt?: string;
+  firstSeen: string;
+  lastSeen: string;
+  via: 'scrape' | 'archive' | 'curated';
+  /** Where the quote can be checked: the live page, or the archive capture. */
+  evidence: string;
+}
+
+export interface QuoteSeries {
+  provider: string;
+  product: string;
+  network: ProviderNetwork;
+  fixationYears: number | null;
+  conditions: string | null;
+  sourceUrl: string;
+  episodes: QuoteEpisode[];
+}
+
+export interface QuoteHistory {
+  generatedAt: string;
+  series: Record<string, QuoteSeries>;
+}
+
+/** Loads the committed history; like the board, its absence is not fatal. */
+export async function loadHousingHistory(signal: AbortSignal): Promise<QuoteHistory | undefined> {
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}data/housing-history.json`, { signal });
+    if (!res.ok) return undefined;
+    const history = (await res.json()) as QuoteHistory;
+    return history?.series && typeof history.series === 'object' ? history : undefined;
+  } catch (err) {
+    if (signal.aborted) throw err;
+    return undefined;
+  }
+}
+
+export type QuoteBasis = 'effective' | 'nominal';
+
+/**
+ * Which figure a lender's history is drawn in.
+ *
+ * Effective wherever the lender publishes one, because only the effective rate
+ * includes fees and is defined identically across banks. A lender that never
+ * publishes one is drawn in nominal rather than dropped, and labelled so.
+ * Switching between the two inside one lender's line would draw its fee load as
+ * a repricing.
+ */
+export const basisOf = (series: QuoteSeries): QuoteBasis =>
+  series.episodes.some((e) => e.effectiveRate !== null) ? 'effective' : 'nominal';
+
+export const quoteOf = (episode: QuoteEpisode, basis: QuoteBasis): number | null =>
+  basis === 'effective' ? episode.effectiveRate : episode.rate;
+
+const addDays = (iso: string, days: number): string =>
+  new Date(Date.parse(iso) + days * 86_400_000).toISOString().slice(0, 10);
+
+/**
+ * The day an episode's price took effect, as far as the evidence reaches.
+ *
+ * The bank's Stand where it gave one, because the first day a quote was seen —
+ * above all in a monthly archive capture — can be weeks after the bank set it.
+ * Never earlier than the previous quote was last seen, though: a Stand claiming
+ * otherwise was stamped on a page that visibly still showed the old rate.
+ */
+export function effectiveFrom(episode: QuoteEpisode, previous?: QuoteEpisode): string {
+  const claimed =
+    episode.statedAt !== null && episode.statedAt < episode.firstSeen
+      ? episode.statedAt
+      : episode.firstSeen;
+  return previous && claimed < previous.lastSeen ? previous.lastSeen : claimed;
+}
+
+/**
+ * The day a stamped quote stops counting as a current offer, or `null` for a
+ * lender that stamps none.
+ *
+ * Quotes are held to the board's own staleness rule: once the latest Stand is
+ * older than `STALE_AFTER_DAYS.mortgage`, the quote is a disclosure nobody
+ * updated, not a price. bank99 left a 0,51 % example online until late 2023,
+ * while the lenders beside it quoted over 4 %; drawn at face value, that would
+ * be the cheapest mortgage in Austria for two years of the hiking cycle.
+ */
+export function lapseOf(episode: QuoteEpisode): string | null {
+  const stamp = episode.restatedAt ?? episode.statedAt;
+  return stamp === null ? null : addDays(stamp, STALE_AFTER_DAYS.mortgage);
+}
+
+export const isQuoteStale = (episode: QuoteEpisode, now = new Date()): boolean =>
+  daysSince(episode.restatedAt ?? episode.statedAt ?? episode.lastSeen, now) >
+  STALE_AFTER_DAYS.mortgage;
+
+export interface Repricing {
+  id: string;
+  series: QuoteSeries;
+  date: string;
+  before: number;
+  after: number;
+  basis: QuoteBasis;
+  episode: QuoteEpisode;
+  /**
+   * Set when the evidence brackets the repricing rather than pinning it: the
+   * last day the old quote was seen. A Stand pins the date only if it predates
+   * the first sighting — Hypo NOE stamps its example with the day it is
+   * generated, which says when we looked, not when the bank decided.
+   */
+  earliest?: string;
+}
+
+/**
+ * Every change in a lender's headline quote, newest first.
+ *
+ * Compared on the lender's drawing basis only, and across a missing figure
+ * rather than to it: an effective rate the scraper discarded is a gap in the
+ * evidence, not a repricing to nothing. Moves under a basis point are left out
+ * — effective rates are recomputed from fees and wobble in the fourth decimal
+ * without the bank deciding anything.
+ */
+export function repricings(history: QuoteHistory): Repricing[] {
+  const log: Repricing[] = [];
+
+  for (const [id, series] of Object.entries(history.series)) {
+    const basis = basisOf(series);
+    let last: number | undefined;
+
+    series.episodes.forEach((episode, i) => {
+      const value = quoteOf(episode, basis);
+      if (value === null) return;
+      if (last !== undefined && Math.abs(value - last) >= 0.01) {
+        const previous = series.episodes[i - 1];
+        const date = effectiveFrom(episode, previous);
+        const pinned = episode.statedAt !== null && episode.statedAt < episode.firstSeen;
+        // Within a month is the archive's normal capture spacing; call that a date.
+        const bracketed =
+          !pinned && previous !== undefined && daysSince(previous.lastSeen, new Date(date)) > 31;
+        log.push({
+          id,
+          series,
+          date,
+          before: last,
+          after: value,
+          basis,
+          episode,
+          ...(bracketed ? { earliest: previous.lastSeen } : {}),
+        });
+      }
+      last = value;
+    });
+  }
+
+  return log.sort((a, b) => b.date.localeCompare(a.date));
+}
+
 /** Highest advertised rate within one kind of provider, for the direct/branch gap. */
 export function bestIn(
   offers: Offer[],

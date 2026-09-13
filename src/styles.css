@@ -574,3 +574,11 @@ footer.foot a {
   table.rates td,
   table.rates th { font-size: 12.5px; }
 }
+
+/* Filter row above a chart — the same control as the history window picker. */
+.chart-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 10px;
+}

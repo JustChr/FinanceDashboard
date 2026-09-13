@@ -27,6 +27,13 @@ export const CHART_COLORS = {
   negative: '#ff6b6b',
   /** Ordered ramp for ladder series: short fixation to long. */
   ladder: ['#4da3ff', '#6ee7c9', '#f2a33c', '#ef6f9c', '#a78bfa'],
+  /**
+   * One hue per lender, assigned in this fixed order by provider name so a
+   * lender keeps its colour when a filter hides the others. The order is the
+   * colour-vision safety mechanism, validated as a set against the panel
+   * surface — do not reorder or append a ninth; fold extra lenders instead.
+   */
+  lenders: ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767'],
   grid: '#1f2836',
   axis: '#5d6b80',
 } as const;

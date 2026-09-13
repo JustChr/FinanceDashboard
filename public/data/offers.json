@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-13T10:36:53.332Z",
+  "generatedAt": "2026-09-13T12:06:36.065Z",
   "offers": [
     {
       "id": "bank99-rundumkredit-fix",
@@ -830,6 +830,24 @@
       "statedAt": null
     },
     {
+      "id": "bgld-wohnbaukredit-variabel",
+      "provider": "Bank Burgenland",
+      "product": "Wohnbaukredit",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 0,
+      "rate": 3.625,
+      "effectiveRate": 3.76,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Representative example, €225,000 over 10 years; subject to credit check",
+      "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
+      "method": "scraped",
+      "observedAt": "2026-09-13",
+      "statedAt": null
+    },
+    {
       "id": "bank99-wohnkredit-variabel",
       "provider": "bank99",
       "product": "wohnkredit99",
@@ -1087,6 +1105,12 @@
     {
       "provider": "Hypo Vorarlberg",
       "url": "https://www.hypovbg.at/download/5332/2603_BRO_Wohnbaufinanzierung_W030.pdf?cHash=ba8b6d76eaedb74efe323580972517c3",
+      "status": "ok",
+      "checkedAt": "2026-09-13"
+    },
+    {
+      "provider": "Bank Burgenland",
+      "url": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
       "status": "ok",
       "checkedAt": "2026-09-13"
     },

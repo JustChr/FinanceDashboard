@@ -9,6 +9,8 @@
  * no HTML parser dependency in the workflow.
  */
 
+import { pdfToText } from './pdf.mjs';
+
 /**
  * Blocks whose text content is markup machinery, never visible rate copy.
  *
@@ -130,16 +132,32 @@ export function plausible(value, { min = 0, max = 25 } = {}) {
 }
 
 /**
- * A polite, identifiable fetch with a hard timeout, returning flattened text.
- *
- * Handles both HTML pages and PDFs, because the two halves of the Austrian
- * market publish differently: the direct banks put rates in HTML, while the
- * branch networks publish a *Konditionenaushang* PDF and nothing else.
- *
  * The user agent stays identifiable on purpose. A site that refuses it is
  * refusing us specifically, and the answer to that is to record the refusal —
  * never to drop the identification until the request is let through.
  */
+export const USER_AGENT =
+  'ALMDeskBot/1.0 (+https://github.com/JustChr/FinanceDashboard; daily rate board)';
+
+/**
+ * Flattens a fetched body, HTML or PDF, to text.
+ *
+ * Both halves of the Austrian market have to be handled, because they publish
+ * differently: the direct banks put rates in HTML, while the branch networks
+ * publish a *Konditionenaushang* PDF and nothing else. The magic bytes are
+ * checked as well as the headers, because an archive capture does not always
+ * replay the original content type.
+ */
+export function bodyToText(buffer, { contentType = '', url = '', includeScripts = false } = {}) {
+  const isPdf =
+    contentType.includes('pdf') ||
+    buffer.subarray(0, 5).toString('latin1') === '%PDF-' ||
+    (url && new URL(url).pathname.toLowerCase().endsWith('.pdf'));
+  if (isPdf) return pdfToText(buffer);
+  return htmlToText(buffer.toString('utf8'), { includeScripts });
+}
+
+/** A polite, identifiable fetch with a hard timeout, returning flattened text. */
 export async function fetchPage(url, { timeoutMs = 25_000, includeScripts = false } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -148,20 +166,18 @@ export async function fetchPage(url, { timeoutMs = 25_000, includeScripts = fals
       redirect: 'follow',
       signal: controller.signal,
       headers: {
-        'User-Agent':
-          'ALMDeskBot/1.0 (+https://github.com/JustChr/FinanceDashboard; daily rate board)',
+        'User-Agent': USER_AGENT,
         Accept: 'text/html,application/xhtml+xml,application/pdf',
         'Accept-Language': 'de-AT,de;q=0.9',
       },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const type = res.headers.get('content-type') ?? '';
-    if (type.includes('pdf') || new URL(res.url).pathname.toLowerCase().endsWith('.pdf')) {
-      const { pdfToText } = await import('./pdf.mjs');
-      return pdfToText(Buffer.from(await res.arrayBuffer()));
-    }
-    return htmlToText(await res.text(), { includeScripts });
+    return bodyToText(Buffer.from(await res.arrayBuffer()), {
+      contentType: res.headers.get('content-type') ?? '',
+      url: res.url,
+      includeScripts,
+    });
   } finally {
     clearTimeout(timer);
   }
