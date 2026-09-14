@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-14T17:21:55.379Z",
+  "generatedAt": "2026-09-14T17:45:49.161Z",
   "offers": [
     {
       "id": "bank99-rundumkredit-fix",
@@ -1170,6 +1170,132 @@
       "method": "scraped",
       "observedAt": "2026-09-14",
       "statedAt": "2026-07-08"
+    },
+    {
+      "id": "oberbank-rechner-variabel",
+      "provider": "Oberbank",
+      "product": "Wohnbaufinanzierung, calculator quote",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 0,
+      "rate": 3.36,
+      "effectiveRate": 3.734,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 incl. fees over 25 years; 3M-Euribor",
+      "sourceUrl": "https://www.oberbank.at/eshop-wohnbau",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bankaustria-rechner-variabel",
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 0,
+      "rate": 3.625,
+      "effectiveRate": 3.9125,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 over 25 years; variable",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=25&interest_rate_1=3.625",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bankaustria-rechner-fix-5j",
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 5,
+      "rate": 3.1,
+      "effectiveRate": 3.6984,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed 5 years, effective rate assumes today's variable rate after",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=5&interest_rate_1=3.10&interest_rate_2=3.625",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bankaustria-rechner-fix-10j",
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 10,
+      "rate": 3.75,
+      "effectiveRate": 3.9998,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed 10 years, effective rate assumes today's variable rate after",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=10&interest_rate_1=3.75&interest_rate_2=3.625",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bankaustria-rechner-fix-15j",
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 15,
+      "rate": 3.95,
+      "effectiveRate": 4.1992,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed 15 years, effective rate assumes today's variable rate after",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=15&interest_rate_1=3.95&interest_rate_2=3.625",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bankaustria-rechner-fix-20j",
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 20,
+      "rate": 4.05,
+      "effectiveRate": 4.3289,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed 20 years, effective rate assumes today's variable rate after",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=20&interest_rate_1=4.05&interest_rate_2=3.625",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bankaustria-rechner-fix-25j",
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 25,
+      "rate": 4.25,
+      "effectiveRate": 4.5432,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed for the whole term",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=25&interest_rate_1=4.25",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
     }
   ],
   "sources": [
@@ -1289,6 +1415,25 @@
       "checkedAt": "2026-09-14"
     },
     {
+      "provider": "UniCredit Bank Austria",
+      "url": "https://www.bankaustria.at/kreditrechner.jsp",
+      "status": "ok",
+      "checkedAt": "2026-09-14"
+    },
+    {
+      "provider": "Raiffeisen Bausparkasse",
+      "url": "https://wohntraumrechner.bausparen.at/finanzierungsrechner",
+      "status": "failed",
+      "checkedAt": "2026-09-14",
+      "note": "Page could not be read: HTTP 403"
+    },
+    {
+      "provider": "Oberbank",
+      "url": "https://www.oberbank.at/eshop-wohnbau",
+      "status": "ok",
+      "checkedAt": "2026-09-14"
+    },
+    {
       "provider": "Erste Bank / Sparkasse — savings",
       "url": "https://www.sparkasse.at/sgruppe/privatkunden/sparen-anlegen",
       "status": "unavailable",
@@ -1296,11 +1441,11 @@
       "note": "Savings rates appear only after JavaScript runs, and the published Konditionenaushang covers fees rather than interest. No static document states a deposit rate. Its housing-loan example is published and is on the board."
     },
     {
-      "provider": "UniCredit Bank Austria",
-      "url": "https://www.bankaustria.at/privatkunden-finanzierungen-und-kredite-wohnkredit.jsp",
+      "provider": "UniCredit Bank Austria — savings",
+      "url": "https://www.bankaustria.at/privatkunden-sparen-und-anlegen.jsp",
       "status": "unavailable",
       "checkedAt": "2026-09-14",
-      "note": "Returns HTTP 403 to an identified client on every path, its own robots.txt included, so no crawl policy can even be read. Re-checked for the housing board on 2026-09-12, and its Wohnkredit calculator on 2026-09-14, with the same result. Getting past that would mean removing the identification, which this scraper will not do."
+      "note": "The site returns HTTP 403 to identified clients. Its housing calculator is read under a named browser-user-agent exception and is on the board; savings are outside that exception."
     },
     {
       "provider": "Volksbank",
@@ -1321,7 +1466,7 @@
       "url": "https://www.sbausparkasse.at/de/finanzieren/darlehen-infos/produktseite-finanzieren-ueberblick",
       "status": "unavailable",
       "checkedAt": "2026-09-14",
-      "note": "Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs; Raiffeisen Bausparkasse additionally refuses identified clients with HTTP 403, and its WohnTraumRechner calculator sits behind a browser challenge. Wüstenrot is the one that states its band in a static document."
+      "note": "Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs. Raiffeisen Bausparkasse is on the board from its WohnTraumRechner catalogue; Wüstenrot states only a cap/floor band."
     }
   ]
 }

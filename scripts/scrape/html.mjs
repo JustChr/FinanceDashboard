@@ -140,6 +140,53 @@ export const USER_AGENT =
   'ALMDeskBot/1.0 (+https://github.com/JustChr/FinanceDashboard; daily rate board)';
 
 /**
+ * A browser user agent, for the few sources marked `browser: true`.
+ *
+ * Identification above is the default, and this is a deliberate, named
+ * exception decided on 2026-09-14: Bank Austria refuses identified clients
+ * outright, and Raiffeisen Bausparkasse's bot management challenges them, yet
+ * both publish their housing calculators to every browser. The exception came
+ * with limits, and they are the contract of this constant: the user agent is
+ * the only thing changed — no challenge is solved, no headless browser runs —
+ * each source is asked once a day, and a day the site still refuses reports
+ * `failed` rather than being retried around. Do not extend it to another source
+ * without the same explicit decision.
+ */
+export const BROWSER_USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
+
+/**
+ * A plain HTTP request with a hard timeout, for calculator flows that need more
+ * than one GET — a session cookie, a form POST, a JSON API call.
+ *
+ * Returns the body as text alongside status and headers; a non-2xx status is
+ * not thrown, because a calculator's error body usually says what was wrong.
+ */
+export async function request(
+  url,
+  { method = 'GET', headers = {}, body, browser = false, timeoutMs = 25_000 } = {},
+) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      method,
+      body,
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: {
+        'User-Agent': browser ? BROWSER_USER_AGENT : USER_AGENT,
+        'Accept-Language': 'de-AT,de;q=0.9',
+        ...headers,
+      },
+    });
+    return { status: res.status, ok: res.ok, headers: res.headers, text: await res.text() };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
  * Flattens a fetched body, HTML or PDF, to text.
  *
  * Both halves of the Austrian market have to be handled, because they publish
@@ -168,7 +215,7 @@ export function bodyToText(
 /** A polite, identifiable fetch with a hard timeout, returning flattened text. */
 export async function fetchPage(
   url,
-  { timeoutMs = 25_000, includeScripts = false, raw = false } = {},
+  { timeoutMs = 25_000, includeScripts = false, raw = false, browser = false } = {},
 ) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -177,7 +224,7 @@ export async function fetchPage(
       redirect: 'follow',
       signal: controller.signal,
       headers: {
-        'User-Agent': USER_AGENT,
+        'User-Agent': browser ? BROWSER_USER_AGENT : USER_AGENT,
         Accept: 'text/html,application/xhtml+xml,application/pdf,application/xml',
         'Accept-Language': 'de-AT,de;q=0.9',
       },
