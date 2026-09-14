@@ -154,12 +154,21 @@ board reads the two things banks do publish:
 - **Representative examples** under §6 HIKrG — a worked example at one profile
   the bank picks, usually with a `Stand`. Comparable only loosely, since every
   bank picks a different loan.
-- **Calculators**, where one can be read without a browser. bank99's calculator
-  answers a public XML endpoint, which is asked for one fixed profile (€300,000
-  financed over 25 years) at each fixation from variable to 20 years. Bank
-  Burgenland's ships its whole rate grid in the page. An offer with its own
-  `url` in `sources.mjs` is a calculator question; that URL is the evidence
-  linked from the board, and the archive backfill skips it.
+- **Calculators**, read without running a browser. bank99, Bank Austria and
+  Oberbank are asked for one fixed profile (€300,000 over 25 years) — bank99
+  and Bank Austria across their fixation ladders, Oberbank's calculator being
+  variable only. Bank Burgenland and Raiffeisen Bausparkasse publish rate tables
+  in the calculator page itself. An offer with its own `url`, or a source with
+  a `documents` flow (see `scripts/scrape/calculators.mjs`), is a calculator
+  question, and the archive backfill skips both.
+
+Requests identify themselves as `ALMDeskBot`, with named exceptions decided
+explicitly: Bank Austria's and Raiffeisen Bausparkasse's calculator pages
+refuse identified clients and are read with a browser user agent, and
+Oberbank's eShop calculator is queried although its robots.txt disallows those
+URLs. Nothing else is changed to get through: no challenge is solved, no
+headless browser runs, each is asked once a day, and a refused day shows as
+`failed`.
 
 Comparison portals stay out: their terms forbid automated reading, and their
 figures are broker-negotiated. Add an entry to `curated.json` only from a bank's

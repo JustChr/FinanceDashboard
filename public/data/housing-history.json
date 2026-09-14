@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-14T17:21:55.527Z",
+  "generatedAt": "2026-09-14T17:45:49.185Z",
   "series": {
     "bank99-rechner-fix-10j": {
       "provider": "bank99",
@@ -157,6 +157,120 @@
           "lastSeen": "2026-09-14",
           "via": "archive",
           "evidence": "https://web.archive.org/web/20260505120316/https://bank99.at/wohnfinanzierung/wohnkredit99"
+        }
+      ]
+    },
+    "bankaustria-rechner-fix-10j": {
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "network": "branch",
+      "fixationYears": 10,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed 10 years, effective rate assumes today's variable rate after",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=10&interest_rate_1=3.75&interest_rate_2=3.625",
+      "episodes": [
+        {
+          "rate": 3.75,
+          "effectiveRate": 3.9998,
+          "statedAt": null,
+          "firstSeen": "2026-09-14",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=10&interest_rate_1=3.75&interest_rate_2=3.625"
+        }
+      ]
+    },
+    "bankaustria-rechner-fix-15j": {
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "network": "branch",
+      "fixationYears": 15,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed 15 years, effective rate assumes today's variable rate after",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=15&interest_rate_1=3.95&interest_rate_2=3.625",
+      "episodes": [
+        {
+          "rate": 3.95,
+          "effectiveRate": 4.1992,
+          "statedAt": null,
+          "firstSeen": "2026-09-14",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=15&interest_rate_1=3.95&interest_rate_2=3.625"
+        }
+      ]
+    },
+    "bankaustria-rechner-fix-20j": {
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "network": "branch",
+      "fixationYears": 20,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed 20 years, effective rate assumes today's variable rate after",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=20&interest_rate_1=4.05&interest_rate_2=3.625",
+      "episodes": [
+        {
+          "rate": 4.05,
+          "effectiveRate": 4.3289,
+          "statedAt": null,
+          "firstSeen": "2026-09-14",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=20&interest_rate_1=4.05&interest_rate_2=3.625"
+        }
+      ]
+    },
+    "bankaustria-rechner-fix-25j": {
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "network": "branch",
+      "fixationYears": 25,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed for the whole term",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=25&interest_rate_1=4.25",
+      "episodes": [
+        {
+          "rate": 4.25,
+          "effectiveRate": 4.5432,
+          "statedAt": null,
+          "firstSeen": "2026-09-14",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=25&interest_rate_1=4.25"
+        }
+      ]
+    },
+    "bankaustria-rechner-fix-5j": {
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "network": "branch",
+      "fixationYears": 5,
+      "conditions": "Calculator quote, €300,000 over 25 years; fixed 5 years, effective rate assumes today's variable rate after",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=5&interest_rate_1=3.10&interest_rate_2=3.625",
+      "episodes": [
+        {
+          "rate": 3.1,
+          "effectiveRate": 3.6984,
+          "statedAt": null,
+          "firstSeen": "2026-09-14",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=5&interest_rate_1=3.10&interest_rate_2=3.625"
+        }
+      ]
+    },
+    "bankaustria-rechner-variabel": {
+      "provider": "UniCredit Bank Austria",
+      "product": "WohnKredit, calculator quote",
+      "network": "branch",
+      "fixationYears": 0,
+      "conditions": "Calculator quote, €300,000 over 25 years; variable",
+      "sourceUrl": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=25&interest_rate_1=3.625",
+      "episodes": [
+        {
+          "rate": 3.625,
+          "effectiveRate": 3.9125,
+          "statedAt": null,
+          "firstSeen": "2026-09-14",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://rechner.bankaustria.at/api/calculate-mortgage-periods/?credit_value=300000&retention=25&typ=1&new=1&accountFeeMonthly=7.54&processingFeePerc=1.25&riskFeePerc=0.0&entryFeePerc=1.20&estimateFee=750&estimateFeePerc=&interest_period_1=25&interest_rate_1=3.625"
         }
       ]
     },
@@ -486,6 +600,25 @@
           "lastSeen": "2026-09-14",
           "via": "scrape",
           "evidence": "https://www.hypovbg.at/download/5332/2603_BRO_Wohnbaufinanzierung_W030.pdf?cHash=ba8b6d76eaedb74efe323580972517c3"
+        }
+      ]
+    },
+    "oberbank-rechner-variabel": {
+      "provider": "Oberbank",
+      "product": "Wohnbaufinanzierung, calculator quote",
+      "network": "branch",
+      "fixationYears": 0,
+      "conditions": "Calculator quote, €300,000 incl. fees over 25 years; 3M-Euribor",
+      "sourceUrl": "https://www.oberbank.at/eshop-wohnbau",
+      "episodes": [
+        {
+          "rate": 3.36,
+          "effectiveRate": 3.734,
+          "statedAt": null,
+          "firstSeen": "2026-09-14",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.oberbank.at/eshop-wohnbau"
         }
       ]
     },

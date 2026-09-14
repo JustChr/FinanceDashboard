@@ -181,9 +181,9 @@ function AdvertisedNow({ data, history }: { data: DashboardData; history: QuoteH
       <Callout>
         Most rows are the representative examples Austrian lenders must publish under §6 HIKrG —
         the closest thing to a public rate card, but each at a loan size and term the bank picks.
-        Where a lender&rsquo;s own calculator can be read, it supplies the fixation ladder instead:
-        bank99&rsquo;s is asked for one fixed profile, €300,000 over 25 years, and Bank
-        Burgenland&rsquo;s publishes a rate grid that ignores loan size. The freshness that matters
+        Where a lender&rsquo;s own calculator can be read, it supplies quotes instead: bank99, Bank
+        Austria and Oberbank are asked for one fixed profile, €300,000 over 25 years, while Bank
+        Burgenland and Raiffeisen Bausparkasse publish rate tables that ignore loan size. The freshness that matters
         for an example is its <em>Stand</em>: a bank can leave one untouched for a year while we
         confirm it daily. A calculator quote is live pricing, current on the day it was checked. Rows older than {STALE_AFTER_DAYS.mortgage} days by their own Stand are greyed
         out and left out of the figures above.

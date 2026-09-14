@@ -54,6 +54,52 @@ function byUrl(source) {
   return groups;
 }
 
+/**
+ * The documents a source's offers are read from, one at a time.
+ *
+ * Declarative sources are fetched by URL. A source with a `documents` function
+ * runs its own flow instead — a calculator that must first be loaded for its
+ * rates or its session and then asked, as Bank Austria's and Oberbank's are —
+ * and hands back `{ offer, url, text }` per offer, or `{ offer, url, error }`
+ * for one it could not get. Either way the probes still do the reading, so a
+ * custom flow cannot put a number on the board that a probe did not match.
+ */
+async function* documentsOf(source) {
+  if (source.documents) {
+    let docs;
+    try {
+      docs = await source.documents();
+    } catch (err) {
+      yield { url: source.url, specs: source.offers, error: err };
+      return;
+    }
+    const byId = new Map(source.offers.map((spec) => [spec.id, spec]));
+    for (const doc of docs) {
+      const spec = byId.get(doc.offer);
+      if (spec) yield { url: doc.url, specs: [spec], text: doc.text, error: doc.error };
+    }
+    return;
+  }
+
+  let first = true;
+  for (const [url, specs] of byUrl(source)) {
+    // A pause between a calculator's questions, so a ladder of five quotes
+    // arrives like someone moving a slider rather than as a burst.
+    if (!first) await sleep(1000);
+    first = false;
+    try {
+      const text = await fetchPage(url, {
+        includeScripts: source.includeScripts ?? false,
+        raw: source.raw ?? false,
+        browser: source.browser ?? false,
+      });
+      yield { url, specs, text };
+    } catch (err) {
+      yield { url, specs, error: err };
+    }
+  }
+}
+
 async function scrapeSource(source) {
   const checkedAt = today();
   const offers = [];
@@ -61,23 +107,13 @@ async function scrapeSource(source) {
   const failed = [];
   const contradicted = [];
   const unreadable = new Set();
+  const seen = new Set();
   let lostDate = false;
-  let first = true;
 
-  for (const [url, specs] of byUrl(source)) {
-    // A pause between a calculator's questions, so a ladder of five quotes
-    // arrives like someone moving a slider rather than as a burst.
-    if (!first) await sleep(1000);
-    first = false;
-
-    let text;
-    try {
-      text = await fetchPage(url, {
-        includeScripts: source.includeScripts ?? false,
-        raw: source.raw ?? false,
-      });
-    } catch (err) {
-      unreadable.add(err.message);
+  for await (const { url, specs, text, error } of documentsOf(source)) {
+    specs.forEach((spec) => seen.add(spec.id));
+    if (error) {
+      unreadable.add(error.message);
       failed.push(...specs.map((spec) => spec.id));
       continue;
     }
@@ -112,6 +148,9 @@ async function scrapeSource(source) {
       });
     }
   }
+
+  // An offer a custom flow never produced a document for is a miss, not silence.
+  missed.push(...source.offers.filter((spec) => !seen.has(spec.id)).map((spec) => spec.id));
 
   const notes = [
     unreadable.size > 0 ? `Page could not be read: ${[...unreadable].join(', ')}` : null,

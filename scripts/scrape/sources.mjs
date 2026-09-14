@@ -13,6 +13,8 @@
  * the board silently emptying.
  */
 
+import { bankAustriaQuotes, oberbankQuote } from './calculators.mjs';
+
 /**
  * Institutions that cannot be covered, and why.
  *
@@ -30,10 +32,10 @@ export const UNAVAILABLE = [
       'Savings rates appear only after JavaScript runs, and the published Konditionenaushang covers fees rather than interest. No static document states a deposit rate. Its housing-loan example is published and is on the board.',
   },
   {
-    provider: 'UniCredit Bank Austria',
-    url: 'https://www.bankaustria.at/privatkunden-finanzierungen-und-kredite-wohnkredit.jsp',
+    provider: 'UniCredit Bank Austria — savings',
+    url: 'https://www.bankaustria.at/privatkunden-sparen-und-anlegen.jsp',
     reason:
-      'Returns HTTP 403 to an identified client on every path, its own robots.txt included, so no crawl policy can even be read. Re-checked for the housing board on 2026-09-12, and its Wohnkredit calculator on 2026-09-14, with the same result. Getting past that would mean removing the identification, which this scraper will not do.',
+      'The site returns HTTP 403 to identified clients. Its housing calculator is read under a named browser-user-agent exception and is on the board; savings are outside that exception.',
   },
   {
     provider: 'Volksbank',
@@ -51,7 +53,7 @@ export const UNAVAILABLE = [
     provider: 'Bausparkassen (s Bausparkasse, start:bausparkasse)',
     url: 'https://www.sbausparkasse.at/de/finanzieren/darlehen-infos/produktseite-finanzieren-ueberblick',
     reason:
-      'Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs; Raiffeisen Bausparkasse additionally refuses identified clients with HTTP 403, and its WohnTraumRechner calculator sits behind a browser challenge. Wüstenrot is the one that states its band in a static document.',
+      'Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs. Raiffeisen Bausparkasse is on the board from its WohnTraumRechner catalogue; Wüstenrot states only a cap/floor band.',
   },
 ];
 
@@ -634,5 +636,111 @@ export const SOURCES = [
       rate: /<anfangsSollZinssatz>(\d+(?:\.\d+)?)<\/anfangsSollZinssatz>/,
       effectiveRate: /<effektivZinssatz>(\d+(?:\.\d+)?)<\/effektivZinssatz>/,
     })),
+  },
+
+  /*
+   * Bank Austria's Wohnkredit calculator: rates from its page, effective rates
+   * from its own amortisation API at the same €300,000 / 25-year profile as
+   * bank99's. The flow and why it is shaped so live in `calculators.mjs`.
+   *
+   * The page refuses identified clients, so the flow loads it with the browser
+   * user agent — one of the named exceptions documented at `BROWSER_USER_AGENT`.
+   */
+  {
+    provider: 'UniCredit Bank Austria',
+    network: 'branch',
+    category: 'mortgage',
+    url: 'https://www.bankaustria.at/kreditrechner.jsp',
+    documents: () => bankAustriaQuotes({ amount: 300_000, years: 25, fixations: [0, 5, 10, 15, 20, 25] }),
+    offers: [0, 5, 10, 15, 20, 25].map((years) => ({
+      id: years === 0 ? 'bankaustria-rechner-variabel' : `bankaustria-rechner-fix-${years}j`,
+      product: 'WohnKredit, calculator quote',
+      fixationYears: years,
+      conditions: `Calculator quote, €300,000 over 25 years; ${
+        years === 0
+          ? 'variable'
+          : years === 25
+            ? 'fixed for the whole term'
+            : `fixed ${years} years, effective rate assumes today's variable rate after`
+      }`,
+      rate: /"Sollzinssatz":\s*(\d+(?:\.\d+)?)/,
+      effectiveRate: /"Effektivzinssatz":\s*(\d+(?:\.\d+)?)/,
+    })),
+  },
+
+  /*
+   * Raiffeisen Bausparkasse's WohnTraumRechner.
+   *
+   * The calculator page embeds the product catalogue as JSON props, and each
+   * product's name carries its rate: "Bausparfinanzierung mit 3,65 % fix für
+   * 10 Jahre und Rumpfjahr". Those names are the rates, verified against the
+   * default product's rendered text on 2026-09-14. The per-loan recalculation
+   * (which would give effective rates) is a POST the site's bot management
+   * challenges after a few requests, so only the catalogue is read: nominal
+   * rates, one GET a day, with the browser user agent this source is a named
+   * exception for. A challenged day reports `failed`.
+   *
+   * "und Rumpfjahr": each fixation runs to the end of the calendar year after
+   * the stated span. The 1.5-year Bausparfinanzierung is fixed until the
+   * Bauspar loan is allotted, then variable under a free 20-year rate cap.
+   * All carry a brokerage fee of up to 3%, which is why the effective rate
+   * would matter here and is not shown.
+   */
+  {
+    provider: 'Raiffeisen Bausparkasse',
+    network: 'branch',
+    category: 'mortgage',
+    url: 'https://wohntraumrechner.bausparen.at/finanzierungsrechner',
+    browser: true,
+    includeScripts: true,
+    offers: [
+      ['FiT_1_5JFix', 1.5, 'Bausparfinanzierung'],
+      ['WBSK_6JFix', 6, 'Wohnbau Sofortkredit'],
+      ['FiT_10JFix', 10, 'Bausparfinanzierung'],
+      ['WBSK_15JFix', 15, 'Wohnbau Sofortkredit'],
+      ['FiT_20JFix', 20, 'Bausparfinanzierung'],
+    ].map(([productId, years, product]) => ({
+      id: `rbsk-${productId.toLowerCase().replace(/_/g, '-')}`,
+      product,
+      fixationYears: years,
+      conditions:
+        years === 1.5
+          ? 'Catalogue rate, fixed until allotment (~1.5 years) then variable under a rate cap; nominal only; fee up to 3%'
+          : `Catalogue rate, fixed ${years} years plus the rest of that year; nominal only; fee up to 3%`,
+      // Anchored on the product id, so each name is read for its own product;
+      // `[^}]` keeps the match inside that product's JSON object.
+      rate: new RegExp(`"ProduktId":"${productId}"[^}]{0,160}?"BezeichnungLang":"[^"]*?mit\\s*${RATE}\\s*%`),
+    })),
+  },
+
+  /*
+   * Oberbank's eShop calculator, asked for the same €300,000 / 25-year profile.
+   *
+   * It prices one product only — variable, 3M-Euribor — and on 2026-09-14 it
+   * returned exactly the representative example above (3,36 % / 3,734 %), whose
+   * profile happens to match ours. It is carried anyway because it is live
+   * pricing: the example is restated when Oberbank chooses, the calculator
+   * answers today. If the two ever part, the example is the stale one.
+   *
+   * Its robots.txt disallows these URLs; querying them is a named exception —
+   * see `oberbankQuote` in `calculators.mjs`.
+   */
+  {
+    provider: 'Oberbank',
+    network: 'branch',
+    category: 'mortgage',
+    url: 'https://www.oberbank.at/eshop-wohnbau',
+    documents: () =>
+      oberbankQuote({ offer: 'oberbank-rechner-variabel', amount: 300_000, years: 25 }),
+    offers: [
+      {
+        id: 'oberbank-rechner-variabel',
+        product: 'Wohnbaufinanzierung, calculator quote',
+        fixationYears: 0,
+        conditions: 'Calculator quote, €300,000 incl. fees over 25 years; 3M-Euribor',
+        rate: after('Zinssatz\\s*\\(Bindung[^)]{0,20}\\):'),
+        effectiveRate: after('Effektiver\\s*Jahreszins:'),
+      },
+    ],
   },
 ];
