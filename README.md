@@ -145,16 +145,25 @@ digits with optional internal spaces and `parseRate` strips them. And accessible
 PDFs emit their `/Lang` value into the text, so labels arrive as `de-DEBindung`
 until stripped.
 
-### Why there are no housing loan offers
+### Where housing loan offers come from
 
-Austrian banks publish savings rates as firm numbers but price mortgages through
-credit-scored calculators — the rate depends on the borrower, the property and
-the loan-to-value, so no comparable figure is published to scrape. Rather than
-fill the gap with a broker's proprietary index or a representative example whose
-assumptions differ by bank, the mortgage board is empty by design and the
-housing analysis rests on the ECB series, which is actual concluded business
-broken down by fixation period. Add an entry to `curated.json` only from a
-bank's own published example under HIKrG, with its source URL.
+Austrian banks publish savings rates as firm numbers but price mortgages by
+borrower, property and loan-to-value, so there is no rate card. The housing
+board reads the two things banks do publish:
+
+- **Representative examples** under §6 HIKrG — a worked example at one profile
+  the bank picks, usually with a `Stand`. Comparable only loosely, since every
+  bank picks a different loan.
+- **Calculators**, where one can be read without a browser. bank99's calculator
+  answers a public XML endpoint, which is asked for one fixed profile (€300,000
+  financed over 25 years) at each fixation from variable to 20 years. Bank
+  Burgenland's ships its whole rate grid in the page. An offer with its own
+  `url` in `sources.mjs` is a calculator question; that URL is the evidence
+  linked from the board, and the archive backfill skips it.
+
+Comparison portals stay out: their terms forbid automated reading, and their
+figures are broker-negotiated. Add an entry to `curated.json` only from a bank's
+own published example or calculator, with its source URL.
 
 ## Deliberate omissions
 

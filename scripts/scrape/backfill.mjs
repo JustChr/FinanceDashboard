@@ -152,7 +152,11 @@ async function main() {
     (s) =>
       s.category === 'mortgage' &&
       (!args.provider || s.provider.toLowerCase().includes(args.provider.toLowerCase())),
-  );
+  )
+    // An offer with its own `url` is a calculator answer: it exists only when
+    // asked, and the archive never asked, so there is nothing to replay.
+    .map((s) => ({ ...s, offers: s.offers.filter((spec) => !spec.url) }))
+    .filter((s) => s.offers.length > 0);
   if (sources.length === 0) {
     console.error(`No housing source matches "${args.provider}".`);
     process.exitCode = 1;

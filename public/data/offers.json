@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-14T10:58:24.399Z",
+  "generatedAt": "2026-09-14T17:14:30.156Z",
   "offers": [
     {
       "id": "bank99-rundumkredit-fix",
@@ -848,6 +848,78 @@
       "statedAt": null
     },
     {
+      "id": "bgld-wohnbaukredit-fix-5j",
+      "provider": "Bank Burgenland",
+      "product": "Wohnbaukredit",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 5,
+      "rate": 4.25,
+      "effectiveRate": null,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator rate grid, fixed 5 years; equity under 30% of project cost, any loan size; €950 fee",
+      "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bgld-wohnbaukredit-fix-10j",
+      "provider": "Bank Burgenland",
+      "product": "Wohnbaukredit",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 10,
+      "rate": 4.38,
+      "effectiveRate": null,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator rate grid, fixed 10 years; equity under 30% of project cost, any loan size; €950 fee",
+      "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bgld-wohnbaukredit-fix-15j",
+      "provider": "Bank Burgenland",
+      "product": "Wohnbaukredit",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 15,
+      "rate": 4.5,
+      "effectiveRate": null,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator rate grid, fixed 15 years; equity under 30% of project cost, any loan size; €950 fee",
+      "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bgld-wohnbaukredit-fix-20j",
+      "provider": "Bank Burgenland",
+      "product": "Wohnbaukredit",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 20,
+      "rate": 4.63,
+      "effectiveRate": null,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator rate grid, fixed 20 years; equity under 30% of project cost, any loan size; €950 fee",
+      "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
       "id": "bank99-wohnkredit-variabel",
       "provider": "bank99",
       "product": "wohnkredit99",
@@ -864,6 +936,96 @@
       "method": "scraped",
       "observedAt": "2026-09-14",
       "statedAt": "2026-05-01"
+    },
+    {
+      "id": "bank99-rechner-variabel",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 0,
+      "rate": 3.51,
+      "effectiveRate": 3.76,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; variable, 3M-Euribor",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=V",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bank99-rechner-fix-5j",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 5,
+      "rate": 3.5,
+      "effectiveRate": 3.75,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; fixed 5 years",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=F&zinsbindungsFrist=5",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bank99-rechner-fix-10j",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 10,
+      "rate": 3.82,
+      "effectiveRate": 4.08,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; fixed 10 years",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=F&zinsbindungsFrist=10",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bank99-rechner-fix-15j",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 15,
+      "rate": 3.75,
+      "effectiveRate": 4.01,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; fixed 15 years",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=F&zinsbindungsFrist=15",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bank99-rechner-fix-20j",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 20,
+      "rate": 4.06,
+      "effectiveRate": 4.33,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; fixed 20 years",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=F&zinsbindungsFrist=20",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
     },
     {
       "id": "bawag-kreditbox-wohnen",
@@ -1121,6 +1283,12 @@
       "checkedAt": "2026-09-14"
     },
     {
+      "provider": "bank99",
+      "url": "https://bank99.at/wohnfinanzierung/wohnkredit99#rechner",
+      "status": "ok",
+      "checkedAt": "2026-09-14"
+    },
+    {
       "provider": "Erste Bank / Sparkasse — savings",
       "url": "https://www.sparkasse.at/sgruppe/privatkunden/sparen-anlegen",
       "status": "unavailable",
@@ -1132,7 +1300,7 @@
       "url": "https://www.bankaustria.at/privatkunden-finanzierungen-und-kredite-wohnkredit.jsp",
       "status": "unavailable",
       "checkedAt": "2026-09-14",
-      "note": "Returns HTTP 403 to an identified client on every path, its own robots.txt included, so no crawl policy can even be read. Re-checked for the housing board on 2026-09-12 with the same result. Getting past that would mean removing the identification, which this scraper will not do."
+      "note": "Returns HTTP 403 to an identified client on every path, its own robots.txt included, so no crawl policy can even be read. Re-checked for the housing board on 2026-09-12, and its Wohnkredit calculator on 2026-09-14, with the same result. Getting past that would mean removing the identification, which this scraper will not do."
     },
     {
       "provider": "Volksbank",
@@ -1153,7 +1321,7 @@
       "url": "https://www.sbausparkasse.at/de/finanzieren/darlehen-infos/produktseite-finanzieren-ueberblick",
       "status": "unavailable",
       "checkedAt": "2026-09-14",
-      "note": "Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs; Raiffeisen Bausparkasse additionally refuses identified clients with HTTP 403. Wüstenrot is the one that states its band in a static document."
+      "note": "Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs; Raiffeisen Bausparkasse additionally refuses identified clients with HTTP 403, and its WohnTraumRechner calculator sits behind a browser challenge. Wüstenrot is the one that states its band in a static document."
     }
   ]
 }

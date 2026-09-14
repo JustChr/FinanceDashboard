@@ -147,8 +147,16 @@ export const USER_AGENT =
  * publish a *Konditionenaushang* PDF and nothing else. The magic bytes are
  * checked as well as the headers, because an archive capture does not always
  * replay the original content type.
+ *
+ * `raw` hands the body back untouched. It exists for calculator APIs that answer
+ * in XML: there the tag names *are* the labels a probe anchors on, and
+ * flattening would strip exactly them and leave a row of unlabelled numbers.
  */
-export function bodyToText(buffer, { contentType = '', url = '', includeScripts = false } = {}) {
+export function bodyToText(
+  buffer,
+  { contentType = '', url = '', includeScripts = false, raw = false } = {},
+) {
+  if (raw) return buffer.toString('utf8');
   const isPdf =
     contentType.includes('pdf') ||
     buffer.subarray(0, 5).toString('latin1') === '%PDF-' ||
@@ -158,7 +166,10 @@ export function bodyToText(buffer, { contentType = '', url = '', includeScripts 
 }
 
 /** A polite, identifiable fetch with a hard timeout, returning flattened text. */
-export async function fetchPage(url, { timeoutMs = 25_000, includeScripts = false } = {}) {
+export async function fetchPage(
+  url,
+  { timeoutMs = 25_000, includeScripts = false, raw = false } = {},
+) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -167,7 +178,7 @@ export async function fetchPage(url, { timeoutMs = 25_000, includeScripts = fals
       signal: controller.signal,
       headers: {
         'User-Agent': USER_AGENT,
-        Accept: 'text/html,application/xhtml+xml,application/pdf',
+        Accept: 'text/html,application/xhtml+xml,application/pdf,application/xml',
         'Accept-Language': 'de-AT,de;q=0.9',
       },
     });
@@ -177,6 +188,7 @@ export async function fetchPage(url, { timeoutMs = 25_000, includeScripts = fals
       contentType: res.headers.get('content-type') ?? '',
       url: res.url,
       includeScripts,
+      raw,
     });
   } finally {
     clearTimeout(timer);
