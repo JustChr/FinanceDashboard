@@ -56,6 +56,50 @@ export function reconcile(rate, effectiveRate) {
   return { rate, effectiveRate, contradicted: false };
 }
 
+/** A rate at basis-point precision: examples round to two places, calculators do not. */
+const bp = (value) => (value === null ? null : Math.round(value * 100));
+
+/**
+ * Lists each housing quote once per day.
+ *
+ * Two offers from one lender at the same fixation, with the same nominal and
+ * effective rate to the basis point, are one price read twice. Oberbank's
+ * calculator answers exactly its published example, whose profile happens to
+ * match ours; listed twice, that price would count twice in the board's median
+ * and draw two identical lines in the history.
+ *
+ * The one kept carries a Stand — a representative example with history behind
+ * it — over a quote without one, which adds nothing while it agrees; otherwise
+ * the source listed first wins. When the two part, both are kept again, which is
+ * exactly when the second reading becomes information.
+ *
+ * Housing only: two deposit products at one rate and term are often genuinely
+ * different products, and are left alone.
+ *
+ * Returns the offers without duplicates, and a map of each dropped id to the id
+ * it duplicated.
+ */
+export function dedupeQuotes(offers) {
+  const held = new Map();
+  const duplicates = new Map();
+
+  for (const offer of offers) {
+    if (offer.category !== 'mortgage') continue;
+    const key = [offer.provider, offer.fixationYears, bp(offer.rate), bp(offer.effectiveRate)].join('|');
+    const first = held.get(key);
+    if (!first) {
+      held.set(key, offer);
+      continue;
+    }
+    const [keep, drop] =
+      first.statedAt === null && offer.statedAt !== null ? [offer, first] : [first, offer];
+    held.set(key, keep);
+    duplicates.set(drop.id, keep.id);
+  }
+
+  return { offers: offers.filter((offer) => !duplicates.has(offer.id)), duplicates };
+}
+
 /**
  * Every offer a source's probes can find in `text`.
  *

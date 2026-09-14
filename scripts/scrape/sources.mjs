@@ -720,7 +720,8 @@ export const SOURCES = [
    * returned exactly the representative example above (3,36 % / 3,734 %), whose
    * profile happens to match ours. It is carried anyway because it is live
    * pricing: the example is restated when Oberbank chooses, the calculator
-   * answers today. If the two ever part, the example is the stale one.
+   * answers today. While the two agree the board lists the example only (see
+   * `dedupeQuotes`); if they ever part, both show, and the example is the stale one.
    *
    * Its robots.txt disallows these URLs; querying them is a named exception —
    * see `oberbankQuote` in `calculators.mjs`.
