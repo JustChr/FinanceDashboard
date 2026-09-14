@@ -1172,24 +1172,6 @@
       "statedAt": "2026-07-08"
     },
     {
-      "id": "oberbank-rechner-variabel",
-      "provider": "Oberbank",
-      "product": "Wohnbaufinanzierung, calculator quote",
-      "category": "mortgage",
-      "network": "branch",
-      "termMonths": null,
-      "fixationYears": 0,
-      "rate": 3.36,
-      "effectiveRate": 3.734,
-      "amountMin": null,
-      "amountMax": null,
-      "conditions": "Calculator quote, €300,000 incl. fees over 25 years; 3M-Euribor",
-      "sourceUrl": "https://www.oberbank.at/eshop-wohnbau",
-      "method": "scraped",
-      "observedAt": "2026-09-14",
-      "statedAt": null
-    },
-    {
       "id": "bankaustria-rechner-variabel",
       "provider": "UniCredit Bank Austria",
       "product": "WohnKredit, calculator quote",
@@ -1431,7 +1413,8 @@
       "provider": "Oberbank",
       "url": "https://www.oberbank.at/eshop-wohnbau",
       "status": "ok",
-      "checkedAt": "2026-09-14"
+      "checkedAt": "2026-09-14",
+      "note": "Same quote as another listing today, shown once: oberbank-rechner-variabel (same as oberbank-wohnbau-variabel)"
     },
     {
       "provider": "Erste Bank / Sparkasse — savings",

@@ -603,25 +603,6 @@
         }
       ]
     },
-    "oberbank-rechner-variabel": {
-      "provider": "Oberbank",
-      "product": "Wohnbaufinanzierung, calculator quote",
-      "network": "branch",
-      "fixationYears": 0,
-      "conditions": "Calculator quote, €300,000 incl. fees over 25 years; 3M-Euribor",
-      "sourceUrl": "https://www.oberbank.at/eshop-wohnbau",
-      "episodes": [
-        {
-          "rate": 3.36,
-          "effectiveRate": 3.734,
-          "statedAt": null,
-          "firstSeen": "2026-09-14",
-          "lastSeen": "2026-09-14",
-          "via": "scrape",
-          "evidence": "https://www.oberbank.at/eshop-wohnbau"
-        }
-      ]
-    },
     "oberbank-wohnbau-variabel": {
       "provider": "Oberbank",
       "product": "Wohnbaufinanzierung",

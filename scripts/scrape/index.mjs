@@ -23,7 +23,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { fetchPage } from './html.mjs';
-import { readOffers } from './extract.mjs';
+import { dedupeQuotes, readOffers } from './extract.mjs';
 import { loadHistory, record, saveHistory } from './history.mjs';
 import { SOURCES, UNAVAILABLE } from './sources.mjs';
 
@@ -228,8 +228,19 @@ async function main() {
     if (result.source.note) console.log(`        ${result.source.note}`);
   }
 
-  const scraped = results.flatMap((r) => r.offers);
-  const scrapedIds = new Set(scraped.map((o) => o.id));
+  // One price read twice — an example and a calculator agreeing — is listed
+  // once, and the source that lost its row says why.
+  const { offers: scraped, duplicates } = dedupeQuotes(results.flatMap((r) => r.offers));
+  for (const result of results) {
+    const same = result.offers
+      .filter((o) => duplicates.has(o.id))
+      .map((o) => `${o.id} (same as ${duplicates.get(o.id)})`);
+    if (same.length === 0) continue;
+    const note = `Same quote as another listing today, shown once: ${same.join(', ')}`;
+    result.source.note = result.source.note ? `${result.source.note}. ${note}` : note;
+    console.log(`        ${note}`);
+  }
+  const scrapedIds = new Set(results.flatMap((r) => r.offers).map((o) => o.id));
 
   // Curated entries fill gaps rather than override: a live rate always wins.
   const curated = (await loadCurated()).filter((o) => !scrapedIds.has(o.id));
