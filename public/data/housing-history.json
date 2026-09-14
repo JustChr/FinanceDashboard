@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-13T12:13:22.623Z",
+  "generatedAt": "2026-09-14T10:58:24.417Z",
   "series": {
     "bank99-wohnkredit-variabel": {
       "provider": "bank99",
@@ -59,7 +59,7 @@
           "effectiveRate": 5.3559,
           "statedAt": "2026-05-01",
           "firstSeen": "2026-05-05",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "archive",
           "evidence": "https://web.archive.org/web/20260505120316/https://bank99.at/wohnfinanzierung/wohnkredit99"
         }
@@ -150,7 +150,7 @@
           "effectiveRate": 4.1,
           "statedAt": "2025-09-22",
           "firstSeen": "2025-10-16",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "archive",
           "evidence": "https://web.archive.org/web/20251016035101/https://www.bawag.at/resource/blob/20702/4761ecf57b92ef6e817ed4b5f73246ba/kreditbox-wohnen-produktinformationsblatt-data.pdf"
         }
@@ -169,7 +169,7 @@
           "effectiveRate": 3.76,
           "statedAt": null,
           "firstSeen": "2026-09-13",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "scrape",
           "evidence": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit"
         }
@@ -188,7 +188,7 @@
           "effectiveRate": 4.163,
           "statedAt": null,
           "firstSeen": "2026-09-13",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "scrape",
           "evidence": "https://www.bks.at/wohnkredit"
         }
@@ -207,7 +207,7 @@
           "effectiveRate": 4.5,
           "statedAt": "2026-09-04",
           "firstSeen": "2026-09-13",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "scrape",
           "evidence": "https://www.sparkasse.at/wohnbaufinanzierung"
         }
@@ -226,7 +226,7 @@
           "effectiveRate": 4.6,
           "statedAt": "2026-09-04",
           "firstSeen": "2026-09-13",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "scrape",
           "evidence": "https://www.sparkasse.at/wohnbaufinanzierung"
         }
@@ -245,7 +245,7 @@
           "effectiveRate": 4.2,
           "statedAt": "2026-09-04",
           "firstSeen": "2026-09-13",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "scrape",
           "evidence": "https://www.sparkasse.at/wohnbaufinanzierung"
         }
@@ -292,9 +292,10 @@
           "effectiveRate": null,
           "statedAt": "2026-09-13",
           "firstSeen": "2026-09-13",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "scrape",
-          "evidence": "https://www.hyponoe.at/wohnkredit/berechnungsbeispiel"
+          "evidence": "https://www.hyponoe.at/wohnkredit/berechnungsbeispiel",
+          "restatedAt": "2026-09-14"
         }
       ]
     },
@@ -311,7 +312,7 @@
           "effectiveRate": 3.9,
           "statedAt": "2026-03-12",
           "firstSeen": "2026-09-13",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "scrape",
           "evidence": "https://www.hypovbg.at/download/5332/2603_BRO_Wohnbaufinanzierung_W030.pdf?cHash=ba8b6d76eaedb74efe323580972517c3"
         }
@@ -430,7 +431,7 @@
           "effectiveRate": 3.73,
           "statedAt": "2026-07-08",
           "firstSeen": "2026-09-13",
-          "lastSeen": "2026-09-13",
+          "lastSeen": "2026-09-14",
           "via": "archive",
           "evidence": "https://web.archive.org/web/20250806061421/https://www.oberbank.at/wohnbaufinanzierung"
         }
