@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-13T12:06:36.065Z",
+  "generatedAt": "2026-09-14T17:11:24.029Z",
   "offers": [
     {
       "id": "bank99-rundumkredit-fix",
@@ -16,7 +16,7 @@
       "conditions": "Representative example under §5 VKrG; rate is not credit-scored",
       "sourceUrl": "https://bank99.at/kredit/rundumkredit99",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -34,7 +34,7 @@
       "conditions": "Representative example under §5 VKrG; rate is not credit-scored",
       "sourceUrl": "https://bank99.at/kredit/rundumkredit99",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -52,7 +52,7 @@
       "conditions": "New customers, first 4 months",
       "sourceUrl": "https://www.addiko.at/tagesgeld/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -70,7 +70,7 @@
       "conditions": "Rate once the promotion expires",
       "sourceUrl": "https://www.addiko.at/tagesgeld/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -88,7 +88,7 @@
       "conditions": "Guaranteed rate, before 25% KESt",
       "sourceUrl": "https://www.addiko.at/festgeld/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -106,7 +106,7 @@
       "conditions": "Guaranteed rate, before 25% KESt",
       "sourceUrl": "https://www.addiko.at/festgeld/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -124,7 +124,7 @@
       "conditions": "Guaranteed rate, before 25% KESt",
       "sourceUrl": "https://www.addiko.at/festgeld/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -142,7 +142,7 @@
       "conditions": "Guaranteed rate, before 25% KESt",
       "sourceUrl": "https://www.addiko.at/festgeld/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -160,7 +160,7 @@
       "conditions": "Guaranteed rate, before 25% KESt",
       "sourceUrl": "https://www.addiko.at/festgeld/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -178,7 +178,7 @@
       "conditions": "Guaranteed rate, before 25% KESt",
       "sourceUrl": "https://www.addiko.at/festgeld/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -196,7 +196,7 @@
       "conditions": "New customers, first three months",
       "sourceUrl": "https://anadibank.com/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -214,7 +214,7 @@
       "conditions": "Rate once the promotion expires",
       "sourceUrl": "https://anadibank.com/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -232,7 +232,7 @@
       "conditions": "Before 25% KESt",
       "sourceUrl": "https://anadibank.com/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -250,7 +250,7 @@
       "conditions": "Before 25% KESt",
       "sourceUrl": "https://anadibank.com/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -268,7 +268,7 @@
       "conditions": "Before 25% KESt",
       "sourceUrl": "https://anadibank.com/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -286,7 +286,7 @@
       "conditions": "Before 25% KESt",
       "sourceUrl": "https://anadibank.com/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -304,7 +304,7 @@
       "conditions": "New customers, first 3 months",
       "sourceUrl": "https://bank99.at/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -322,7 +322,7 @@
       "conditions": "Base rate after the promotion; bonus is discretionary",
       "sourceUrl": "https://bank99.at/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -340,7 +340,7 @@
       "conditions": "Single deposit, paid out at maturity",
       "sourceUrl": "https://bank99.at/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -358,7 +358,7 @@
       "conditions": "Single deposit, paid out at maturity",
       "sourceUrl": "https://bank99.at/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -376,7 +376,7 @@
       "conditions": "Single deposit, paid out at maturity",
       "sourceUrl": "https://bank99.at/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -394,7 +394,7 @@
       "conditions": "Single deposit, paid out at maturity",
       "sourceUrl": "https://bank99.at/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -412,7 +412,7 @@
       "conditions": "Single deposit, paid out at maturity",
       "sourceUrl": "https://bank99.at/sparen",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -430,7 +430,7 @@
       "conditions": "Base rate, eBanking required",
       "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -448,7 +448,7 @@
       "conditions": "Branch rate sheet; no early withdrawal",
       "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -466,7 +466,7 @@
       "conditions": "Branch rate sheet; no early withdrawal",
       "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -484,7 +484,7 @@
       "conditions": "Branch rate sheet; no early withdrawal",
       "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -502,7 +502,7 @@
       "conditions": "Branch rate sheet; no early withdrawal",
       "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -520,7 +520,7 @@
       "conditions": "Branch rate sheet; no early withdrawal",
       "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -538,7 +538,7 @@
       "conditions": "Branch rate sheet; no early withdrawal",
       "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -556,7 +556,7 @@
       "conditions": "Fixed rate; balance earns 0.01% after maturity",
       "sourceUrl": "https://www.easybank.at/easybank/sparen/easy-geldmarkt",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -574,7 +574,7 @@
       "conditions": "Fixed rate; balance earns 0.01% after maturity",
       "sourceUrl": "https://www.easybank.at/easybank/sparen/easy-geldmarkt",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -592,7 +592,7 @@
       "conditions": "Fixed rate; balance earns 0.01% after maturity",
       "sourceUrl": "https://www.easybank.at/easybank/sparen/easy-geldmarkt",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -610,7 +610,7 @@
       "conditions": "Fixed rate; balance earns 0.01% after maturity",
       "sourceUrl": "https://www.easybank.at/easybank/sparen/easy-geldmarkt",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -628,7 +628,7 @@
       "conditions": "Base rate, no lock-up",
       "sourceUrl": "https://www.kommunalkreditinvest.at/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -646,7 +646,7 @@
       "conditions": "Headline tier; other terms priced from the Konditionenblatt",
       "sourceUrl": "https://www.kommunalkreditinvest.at/",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -664,7 +664,7 @@
       "conditions": "Base plus premium rate, via Mein ELBA",
       "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -682,7 +682,7 @@
       "conditions": "Reverts to the base rate at maturity",
       "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -700,7 +700,7 @@
       "conditions": "Passbook with a fixed term",
       "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -718,7 +718,7 @@
       "conditions": "Reverts to the base rate at maturity",
       "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -736,7 +736,7 @@
       "conditions": "Passbook with a fixed term",
       "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -754,7 +754,7 @@
       "conditions": "Reverts to the base rate at maturity",
       "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -772,7 +772,7 @@
       "conditions": "Passbook with a fixed term",
       "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -790,7 +790,7 @@
       "conditions": "Same product name as at other Raiffeisen banks, different rate",
       "sourceUrl": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -808,7 +808,7 @@
       "conditions": "Classic passbook, one-month notice",
       "sourceUrl": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -826,7 +826,7 @@
       "conditions": "Branch rate sheet",
       "sourceUrl": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -844,7 +844,79 @@
       "conditions": "Representative example, €225,000 over 10 years; subject to credit check",
       "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bgld-wohnbaukredit-fix-5j",
+      "provider": "Bank Burgenland",
+      "product": "Wohnbaukredit",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 5,
+      "rate": 4.25,
+      "effectiveRate": null,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator rate grid, fixed 5 years; equity under 30% of project cost, any loan size; €950 fee",
+      "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bgld-wohnbaukredit-fix-10j",
+      "provider": "Bank Burgenland",
+      "product": "Wohnbaukredit",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 10,
+      "rate": 4.38,
+      "effectiveRate": null,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator rate grid, fixed 10 years; equity under 30% of project cost, any loan size; €950 fee",
+      "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bgld-wohnbaukredit-fix-15j",
+      "provider": "Bank Burgenland",
+      "product": "Wohnbaukredit",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 15,
+      "rate": 4.5,
+      "effectiveRate": null,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator rate grid, fixed 15 years; equity under 30% of project cost, any loan size; €950 fee",
+      "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bgld-wohnbaukredit-fix-20j",
+      "provider": "Bank Burgenland",
+      "product": "Wohnbaukredit",
+      "category": "mortgage",
+      "network": "branch",
+      "termMonths": null,
+      "fixationYears": 20,
+      "rate": 4.63,
+      "effectiveRate": null,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator rate grid, fixed 20 years; equity under 30% of project cost, any loan size; €950 fee",
+      "sourceUrl": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -862,8 +934,98 @@
       "conditions": "§6 HIKrG example, €200,000 over 20 years; tracks the 3M-Euribor average",
       "sourceUrl": "https://bank99.at/wohnfinanzierung/wohnkredit99",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": "2026-05-01"
+    },
+    {
+      "id": "bank99-rechner-variabel",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 0,
+      "rate": 3.51,
+      "effectiveRate": 3.76,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; variable, 3M-Euribor",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=V",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bank99-rechner-fix-5j",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 5,
+      "rate": 3.5,
+      "effectiveRate": 3.75,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; fixed 5 years",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=F&zinsbindungsFrist=5",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bank99-rechner-fix-10j",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 10,
+      "rate": 3.82,
+      "effectiveRate": 4.08,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; fixed 10 years",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=F&zinsbindungsFrist=10",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bank99-rechner-fix-15j",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 15,
+      "rate": 3.75,
+      "effectiveRate": 4.01,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; fixed 15 years",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=F&zinsbindungsFrist=15",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
+    },
+    {
+      "id": "bank99-rechner-fix-20j",
+      "provider": "bank99",
+      "product": "wohnkredit99, calculator quote",
+      "category": "mortgage",
+      "network": "direct",
+      "termMonths": null,
+      "fixationYears": 20,
+      "rate": 4.06,
+      "effectiveRate": 4.33,
+      "amountMin": null,
+      "amountMax": null,
+      "conditions": "Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; fixed 20 years",
+      "sourceUrl": "https://pwa.bank99.at/public-web-api/baufirechner-kauf?kaufpreis=350000&eigenmittel=93250&laufzeit=25&produkt=F&zinsbindungsFrist=20",
+      "method": "scraped",
+      "observedAt": "2026-09-14",
+      "statedAt": null
     },
     {
       "id": "bawag-kreditbox-wohnen",
@@ -880,7 +1042,7 @@
       "conditions": "§6 HIKrG example, €260,000 over 30 years",
       "sourceUrl": "https://www.bawag.at/resource/blob/20702/decec9fd91baf6766724ca061004bd87/kreditbox-wohnen-produktinformationsblatt-data.pdf",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": "2025-09-22"
     },
     {
@@ -898,7 +1060,7 @@
       "conditions": "Musterrechnung, variable; loan size not stated on the page",
       "sourceUrl": "https://www.bks.at/wohnkredit",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": null
     },
     {
@@ -916,7 +1078,7 @@
       "conditions": "§6 HIKrG example, €100,000 over 25 years; variable tracks 3M-Euribor +1.00%",
       "sourceUrl": "https://www.sparkasse.at/wohnbaufinanzierung",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": "2026-09-04"
     },
     {
@@ -934,7 +1096,7 @@
       "conditions": "§6 HIKrG example, €100,000 over 25 years; variable tracks 3M-Euribor +1.00%",
       "sourceUrl": "https://www.sparkasse.at/wohnbaufinanzierung",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": "2026-09-04"
     },
     {
@@ -952,7 +1114,7 @@
       "conditions": "§6 HIKrG example, €100,000 over 25 years; variable tracks 3M-Euribor +1.00%",
       "sourceUrl": "https://www.sparkasse.at/wohnbaufinanzierung",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": "2026-09-04"
     },
     {
@@ -970,8 +1132,8 @@
       "conditions": "§6 HIKrG example, €200,000 over 25 years; 3M-Euribor +1.125%",
       "sourceUrl": "https://www.hyponoe.at/wohnkredit/berechnungsbeispiel",
       "method": "scraped",
-      "observedAt": "2026-09-13",
-      "statedAt": "2026-09-13"
+      "observedAt": "2026-09-14",
+      "statedAt": "2026-09-14"
     },
     {
       "id": "hypovbg-wohnbau-variabel",
@@ -988,7 +1150,7 @@
       "conditions": "Representative example, €400,000 over 35 years; 6M-Euribor +1.50%, rounded to ⅛",
       "sourceUrl": "https://www.hypovbg.at/download/5332/2603_BRO_Wohnbaufinanzierung_W030.pdf?cHash=ba8b6d76eaedb74efe323580972517c3",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": "2026-03-12"
     },
     {
@@ -1006,7 +1168,7 @@
       "conditions": "§6 HIKrG example, €300,000 incl. fees over 25 years; pegged to 3M-Euribor",
       "sourceUrl": "https://www.oberbank.at/wohnbaufinanzierung",
       "method": "scraped",
-      "observedAt": "2026-09-13",
+      "observedAt": "2026-09-14",
       "statedAt": "2026-07-08"
     }
   ],
@@ -1015,145 +1177,151 @@
       "provider": "Addiko Bank",
       "url": "https://www.addiko.at/festgeld/",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Addiko Bank",
       "url": "https://www.addiko.at/tagesgeld/",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Anadi Bank",
       "url": "https://anadibank.com/sparen",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "bank99",
       "url": "https://bank99.at/sparen",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "easybank",
       "url": "https://www.easybank.at/easybank/sparen/easy-geldmarkt",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Kommunalkredit Invest",
       "url": "https://www.kommunalkreditinvest.at/",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "BAWAG P.S.K.",
       "url": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Raiffeisenbank Montfort",
       "url": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Raiffeisenbank Region St. Pölten",
       "url": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "bank99",
       "url": "https://bank99.at/kredit/rundumkredit99",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Erste Bank / Sparkasse",
       "url": "https://www.sparkasse.at/wohnbaufinanzierung",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Oberbank",
       "url": "https://www.oberbank.at/wohnbaufinanzierung",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Hypo NOE",
       "url": "https://www.hyponoe.at/wohnkredit/berechnungsbeispiel",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "BKS Bank",
       "url": "https://www.bks.at/wohnkredit",
       "status": "ok",
-      "checkedAt": "2026-09-13",
+      "checkedAt": "2026-09-14",
       "note": "No Stand date found; age falls back to the scrape date"
     },
     {
       "provider": "BAWAG P.S.K.",
       "url": "https://www.bawag.at/resource/blob/20702/decec9fd91baf6766724ca061004bd87/kreditbox-wohnen-produktinformationsblatt-data.pdf",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Hypo Vorarlberg",
       "url": "https://www.hypovbg.at/download/5332/2603_BRO_Wohnbaufinanzierung_W030.pdf?cHash=ba8b6d76eaedb74efe323580972517c3",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Bank Burgenland",
       "url": "https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "bank99",
       "url": "https://bank99.at/wohnfinanzierung/wohnkredit99",
       "status": "ok",
-      "checkedAt": "2026-09-13"
+      "checkedAt": "2026-09-14"
+    },
+    {
+      "provider": "bank99",
+      "url": "https://bank99.at/wohnfinanzierung/wohnkredit99#rechner",
+      "status": "ok",
+      "checkedAt": "2026-09-14"
     },
     {
       "provider": "Erste Bank / Sparkasse — savings",
       "url": "https://www.sparkasse.at/sgruppe/privatkunden/sparen-anlegen",
       "status": "unavailable",
-      "checkedAt": "2026-09-13",
+      "checkedAt": "2026-09-14",
       "note": "Savings rates appear only after JavaScript runs, and the published Konditionenaushang covers fees rather than interest. No static document states a deposit rate. Its housing-loan example is published and is on the board."
     },
     {
       "provider": "UniCredit Bank Austria",
       "url": "https://www.bankaustria.at/privatkunden-finanzierungen-und-kredite-wohnkredit.jsp",
       "status": "unavailable",
-      "checkedAt": "2026-09-13",
-      "note": "Returns HTTP 403 to an identified client on every path, its own robots.txt included, so no crawl policy can even be read. Re-checked for the housing board on 2026-09-12 with the same result. Getting past that would mean removing the identification, which this scraper will not do."
+      "checkedAt": "2026-09-14",
+      "note": "Returns HTTP 403 to an identified client on every path, its own robots.txt included, so no crawl policy can even be read. Re-checked for the housing board on 2026-09-12, and its Wohnkredit calculator on 2026-09-14, with the same result. Getting past that would mean removing the identification, which this scraper will not do."
     },
     {
       "provider": "Volksbank",
       "url": "https://www.volksbank.at/zib/private/sparen/sparprodukte.page",
       "status": "unavailable",
-      "checkedAt": "2026-09-13",
+      "checkedAt": "2026-09-14",
       "note": "Eight independent regional Volksbanks, each setting its own rates; the group site carries product descriptions but no figures, on savings or on housing loans."
     },
     {
       "provider": "Raiffeisen — housing loans",
       "url": "https://www.raiffeisen.at/de/privatkunden/kredit-leasing/wohnfinanzierung.html",
       "status": "unavailable",
-      "checkedAt": "2026-09-13",
+      "checkedAt": "2026-09-14",
       "note": "The housing pages render their calculator client-side and state no example. The one Raiffeisen document that does — the generic HIKrG information sheet — is boilerplate quoting 1,75%, a rate from the negative-rate era, so it is not a current offer. Savings are covered separately from the branch rate sheets."
     },
     {
       "provider": "Bausparkassen (s Bausparkasse, start:bausparkasse)",
       "url": "https://www.sbausparkasse.at/de/finanzieren/darlehen-infos/produktseite-finanzieren-ueberblick",
       "status": "unavailable",
-      "checkedAt": "2026-09-13",
-      "note": "Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs; Raiffeisen Bausparkasse additionally refuses identified clients with HTTP 403. Wüstenrot is the one that states its band in a static document."
+      "checkedAt": "2026-09-14",
+      "note": "Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs; Raiffeisen Bausparkasse additionally refuses identified clients with HTTP 403, and its WohnTraumRechner calculator sits behind a browser challenge. Wüstenrot is the one that states its band in a static document."
     }
   ]
 }

@@ -35,51 +35,86 @@ const CURATED = resolve(HERE, 'curated.json');
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+
+/**
+ * Groups a source's offers by the URL each is read from.
+ *
+ * Most sources are one page carrying every offer. A calculator is asked one
+ * question per offer instead — bank99's answers a single loan profile and
+ * fixation per request — so an offer may carry its own `url`, and each distinct
+ * URL is fetched once.
+ */
+function byUrl(source) {
+  const groups = new Map();
+  for (const spec of source.offers) {
+    const url = spec.url ?? source.url;
+    groups.set(url, [...(groups.get(url) ?? []), spec]);
+  }
+  return groups;
+}
+
 async function scrapeSource(source) {
   const checkedAt = today();
-  let text;
+  const offers = [];
+  const missed = [];
+  const failed = [];
+  const contradicted = [];
+  const unreadable = new Set();
+  let lostDate = false;
+  let first = true;
 
-  try {
-    text = await fetchPage(source.url, { includeScripts: source.includeScripts ?? false });
-  } catch (err) {
-    return {
-      offers: [],
-      source: {
+  for (const [url, specs] of byUrl(source)) {
+    // A pause between a calculator's questions, so a ladder of five quotes
+    // arrives like someone moving a slider rather than as a burst.
+    if (!first) await sleep(1000);
+    first = false;
+
+    let text;
+    try {
+      text = await fetchPage(url, {
+        includeScripts: source.includeScripts ?? false,
+        raw: source.raw ?? false,
+      });
+    } catch (err) {
+      unreadable.add(err.message);
+      failed.push(...specs.map((spec) => spec.id));
+      continue;
+    }
+
+    const read = readOffers({ ...source, offers: specs }, text);
+    missed.push(...read.missed);
+    contradicted.push(...read.contradicted);
+    // A source that publishes a Stand and stops publishing it is worth saying
+    // out loud: the rates keep scraping fine, and their age silently becomes a guess.
+    if (source.stand && read.statedAt === null) lostDate = true;
+
+    for (const { spec, rate, effectiveRate } of read.found) {
+      offers.push({
+        id: spec.id,
         provider: source.provider,
-        url: source.url,
-        status: 'failed',
-        checkedAt,
-        note: `Page could not be read: ${err.message}`,
-      },
-    };
+        product: spec.product,
+        category: source.category,
+        network: source.network,
+        termMonths: spec.termMonths ?? null,
+        fixationYears: spec.fixationYears ?? null,
+        rate,
+        effectiveRate,
+        amountMin: spec.amountMin ?? null,
+        amountMax: spec.amountMax ?? null,
+        conditions: spec.conditions ?? null,
+        // The URL the figure was actually read from — for a calculator, the
+        // exact question asked, so the quote can be re-asked and checked.
+        sourceUrl: url,
+        method: 'scraped',
+        observedAt: checkedAt,
+        statedAt: read.statedAt,
+      });
+    }
   }
 
-  const { statedAt, found, missed, contradicted } = readOffers(source, text);
-
-  const offers = found.map(({ spec, rate, effectiveRate }) => ({
-    id: spec.id,
-    provider: source.provider,
-    product: spec.product,
-    category: source.category,
-    network: source.network,
-    termMonths: spec.termMonths ?? null,
-    fixationYears: spec.fixationYears ?? null,
-    rate,
-    effectiveRate,
-    amountMin: spec.amountMin ?? null,
-    amountMax: spec.amountMax ?? null,
-    conditions: spec.conditions ?? null,
-    sourceUrl: source.url,
-    method: 'scraped',
-    observedAt: checkedAt,
-    statedAt,
-  }));
-
-  // A source that publishes a Stand and stops publishing it is worth saying out
-  // loud: the rates keep scraping fine, and their age silently becomes a guess.
-  const lostDate = source.stand && statedAt === null;
-
   const notes = [
+    unreadable.size > 0 ? `Page could not be read: ${[...unreadable].join(', ')}` : null,
     missed.length > 0 ? `No rate found for: ${missed.join(', ')}` : null,
     contradicted.length > 0
       ? `Effective rate below nominal, not published: ${contradicted.join(', ')}`
@@ -92,7 +127,8 @@ async function scrapeSource(source) {
     source: {
       provider: source.provider,
       url: source.url,
-      status: missed.length === 0 ? 'ok' : offers.length === 0 ? 'failed' : 'partial',
+      status:
+        missed.length + failed.length === 0 ? 'ok' : offers.length === 0 ? 'failed' : 'partial',
       checkedAt,
       ...(notes.length > 0 ? { note: notes.join('. ') } : {}),
     },

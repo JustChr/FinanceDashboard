@@ -33,7 +33,7 @@ export const UNAVAILABLE = [
     provider: 'UniCredit Bank Austria',
     url: 'https://www.bankaustria.at/privatkunden-finanzierungen-und-kredite-wohnkredit.jsp',
     reason:
-      'Returns HTTP 403 to an identified client on every path, its own robots.txt included, so no crawl policy can even be read. Re-checked for the housing board on 2026-09-12 with the same result. Getting past that would mean removing the identification, which this scraper will not do.',
+      'Returns HTTP 403 to an identified client on every path, its own robots.txt included, so no crawl policy can even be read. Re-checked for the housing board on 2026-09-12, and its Wohnkredit calculator on 2026-09-14, with the same result. Getting past that would mean removing the identification, which this scraper will not do.',
   },
   {
     provider: 'Volksbank',
@@ -51,7 +51,7 @@ export const UNAVAILABLE = [
     provider: 'Bausparkassen (s Bausparkasse, start:bausparkasse)',
     url: 'https://www.sbausparkasse.at/de/finanzieren/darlehen-infos/produktseite-finanzieren-ueberblick',
     reason:
-      'Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs; Raiffeisen Bausparkasse additionally refuses identified clients with HTTP 403. Wüstenrot is the one that states its band in a static document.',
+      'Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs; Raiffeisen Bausparkasse additionally refuses identified clients with HTTP 403, and its WohnTraumRechner calculator sits behind a browser challenge. Wüstenrot is the one that states its band in a static document.',
   },
 ];
 
@@ -410,6 +410,9 @@ export const SOURCES = [
     network: 'branch',
     category: 'mortgage',
     url: 'https://www.oberbank.at/wohnbaufinanzierung',
+    // The eShop calculator (/eshop-wohnbau) is a server-side JSF form, and every
+    // request it makes carries `p_p_id`, which Oberbank's robots.txt disallows —
+    // so the example is the only Oberbank figure this board reads.
     stand: STAND,
     offers: [
       {
@@ -521,6 +524,9 @@ export const SOURCES = [
     network: 'branch',
     category: 'mortgage',
     url: 'https://www.bank-bgld.at/de/privatkunden/finanzieren/wohnbaukredit',
+    // The calculator's whole rate grid ships in the page's React payload, inside
+    // a <script>; the fixed ladder below reads it from there.
+    includeScripts: true,
     offers: [
       {
         id: 'bgld-wohnbaukredit-variabel',
@@ -534,6 +540,31 @@ export const SOURCES = [
         rate: after('Sollzinssatz:\\s*Variabel'),
         effectiveRate: after('Effektivzinssatz\\s*für\\s*die\\s*Gesamtlaufzeit:'),
       },
+      /*
+       * The calculator does not price per loan: it looks rates up in a grid,
+       * `loanCalculatorHome.interest`, in thousandths of a per cent. Its code
+       * (verified 2026-09-14) picks the smallest of the 5/10/15/20-year buckets
+       * covering the chosen fixation, and a second, lower column once equity
+       * reaches 30% of project cost. Loan size never enters the rate — a
+       * €300,000 loan is quoted exactly what a €100,000 one is. The standard
+       * column is read, being the one a typical 300k purchase lands in.
+       *
+       * Not read: `fixedRate30YearsPlus`. Despite the name it is the follow-on
+       * rate the calculator assumes once a fixation ends, and it equals the
+       * variable rate; it is not a 30-year fixed offer.
+       *
+       * No effective rate is taken for these. The calculator computes one in
+       * the browser for whatever the visitor enters; the bank publishes none.
+       */
+      ...[5, 10, 15, 20].map((years) => ({
+        id: `bgld-wohnbaukredit-fix-${years}j`,
+        product: 'Wohnbaukredit',
+        fixationYears: years,
+        conditions: `Calculator rate grid, fixed ${years} years; equity under 30% of project cost, any loan size; €950 fee`,
+        // The `":` right after `Years` keeps this off the `…Years30Equity` column.
+        rate: new RegExp(`"fixedRate${years}Years":(\\d{3,5})[,}]`),
+        scale: 1000,
+      })),
     ],
   },
   {
@@ -557,5 +588,51 @@ export const SOURCES = [
         effectiveRate: after('Effektiver\\s*Jahreszinssatz:'),
       },
     ],
+  },
+
+  /*
+   * bank99's Wohnkredit-Rechner, asked directly.
+   *
+   * Unlike a representative example, this is priced for a loan we choose, so it
+   * can be held to one profile across the whole fixation ladder. The calculator
+   * on the product page calls a public, unauthenticated endpoint on
+   * `pwa.bank99.at` — a different host from the `cms.bank99.at` API that
+   * refuses this scraper — which answers one profile per request in XML.
+   *
+   * Unlike Bank Burgenland's grid it genuinely prices the loan: verified
+   * 2026-09-14, the rate falls with volume and, much more steeply, with
+   * loan-to-value (28% equity quoted ~55 bp under 20%), while the total term
+   * moves only the effective rate. The profile is therefore part of the
+   * number, and changing it starts a different series rather than a repricing.
+   *
+   * The profile: €350,000 purchase price and €93,250 equity, which the
+   * calculator turns into €300,000 financing after purchase costs, over 25
+   * years. Equity sits above the calculator's own minimum for that price
+   * (€78,700); a profile below it is still answered, but not one a visitor can
+   * enter.
+   */
+  {
+    provider: 'bank99',
+    network: 'direct',
+    category: 'mortgage',
+    url: 'https://bank99.at/wohnfinanzierung/wohnkredit99#rechner',
+    raw: true,
+    offers: [0, 5, 10, 15, 20].map((years) => ({
+      id: years === 0 ? 'bank99-rechner-variabel' : `bank99-rechner-fix-${years}j`,
+      product: 'wohnkredit99, calculator quote',
+      fixationYears: years,
+      url: `https://pwa.bank99.at/public-web-api/baufirechner-kauf?${new URLSearchParams({
+        kaufpreis: '350000',
+        eigenmittel: '93250',
+        laufzeit: '25',
+        produkt: years === 0 ? 'V' : 'F',
+        ...(years === 0 ? {} : { zinsbindungsFrist: String(years) }),
+      })}`,
+      conditions: `Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; ${
+        years === 0 ? 'variable, 3M-Euribor' : `fixed ${years} years`
+      }`,
+      rate: /<anfangsSollZinssatz>(\d+(?:\.\d+)?)<\/anfangsSollZinssatz>/,
+      effectiveRate: /<effektivZinssatz>(\d+(?:\.\d+)?)<\/effektivZinssatz>/,
+    })),
   },
 ];

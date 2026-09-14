@@ -10,12 +10,20 @@
 import { parseGermanDate, parseRate, plausible } from './html.mjs';
 import { BOUNDS } from './sources.mjs';
 
-/** Runs one probe and returns a rate only if it is present and plausible. */
-function probe(text, pattern, category) {
+/**
+ * Runs one probe and returns a rate only if it is present and plausible.
+ *
+ * `scale` divides the captured number before the plausibility check, for sources
+ * that store a rate in other units: Bank Burgenland's calculator config holds
+ * 4,38 % as `4380`. Checking after scaling means a wrong scale fails as
+ * implausible instead of publishing a 4380 % mortgage.
+ */
+function probe(text, pattern, category, scale = 1) {
   if (!pattern) return null;
   const match = text.match(pattern);
   if (!match) return null;
-  const value = parseRate(match[1]);
+  const parsed = parseRate(match[1]);
+  const value = parsed === null ? null : parsed / scale;
   return plausible(value, BOUNDS[category]) ? value : null;
 }
 
@@ -62,8 +70,8 @@ export function readOffers(source, text) {
 
   for (const spec of source.offers) {
     const pair = reconcile(
-      probe(text, spec.rate, source.category),
-      probe(text, spec.effectiveRate, source.category),
+      probe(text, spec.rate, source.category, spec.scale),
+      probe(text, spec.effectiveRate, source.category, spec.scale),
     );
 
     if (pair.rate === null && pair.effectiveRate === null) {

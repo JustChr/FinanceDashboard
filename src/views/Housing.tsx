@@ -179,10 +179,13 @@ function AdvertisedNow({ data, history }: { data: DashboardData; history: QuoteH
         </table>
       </div>
       <Callout>
-        These are the representative examples Austrian lenders must publish under §6 HIKrG — the
-        closest thing to a public rate card, but each at a loan size and term the bank picks. The
-        freshness that matters is the <em>Stand</em>: a bank can leave an example untouched for a
-        year while we confirm it daily. Rows older than {STALE_AFTER_DAYS.mortgage} days by their own Stand are greyed
+        Most rows are the representative examples Austrian lenders must publish under §6 HIKrG —
+        the closest thing to a public rate card, but each at a loan size and term the bank picks.
+        Where a lender&rsquo;s own calculator can be read, it supplies the fixation ladder instead:
+        bank99&rsquo;s is asked for one fixed profile, €300,000 over 25 years, and Bank
+        Burgenland&rsquo;s publishes a rate grid that ignores loan size. The freshness that matters
+        for an example is its <em>Stand</em>: a bank can leave one untouched for a year while we
+        confirm it daily. A calculator quote is live pricing, current on the day it was checked. Rows older than {STALE_AFTER_DAYS.mortgage} days by their own Stand are greyed
         out and left out of the figures above.
         {gap !== undefined ? (
           <>
@@ -200,11 +203,22 @@ function AdvertisedNow({ data, history }: { data: DashboardData; history: QuoteH
 
 /* ------------------------------------------------------------------ */
 
-type FixationGroup = 'variable' | 'fixed';
+type FixationGroup = 'variable' | 'fixed-short' | 'fixed-long';
 
+/**
+ * Fixed rates split at ten years — where the ECB's own buckets split (5–10Y
+ * against over 10Y). It also keeps every lender to at most two lines per view,
+ * which matters: a lender's fixations share its colour and only the dash tells
+ * two apart, so a ladder of four in one view would be unreadable.
+ */
 const GROUPS: { id: FixationGroup; label: string; holds: (s: QuoteSeries) => boolean }[] = [
   { id: 'variable', label: 'Variable', holds: (s) => s.fixationYears === 0 },
-  { id: 'fixed', label: 'Fixed', holds: (s) => s.fixationYears !== 0 },
+  {
+    id: 'fixed-short',
+    label: 'Fixed up to 10Y',
+    holds: (s) => s.fixationYears !== 0 && (s.fixationYears ?? 0) <= 10,
+  },
+  { id: 'fixed-long', label: 'Fixed over 10Y', holds: (s) => (s.fixationYears ?? 0) > 10 },
 ];
 
 /** A repricing's date, or the window it fell in when the evidence only brackets it. */
@@ -266,7 +280,7 @@ function AdvertisedHistory({ data, history }: { data: DashboardData; history: Qu
       const basis = basisOf(series);
       // Two fixations from one lender share its colour; the longer is dashed.
       const sibling = i > 0 && shown[i - 1]?.provider === series.provider;
-      const fixation = group === 'fixed' ? ` · ${formatFixation(series.fixationYears)}` : '';
+      const fixation = group !== 'variable' ? ` · ${formatFixation(series.fixationYears)}` : '';
       return {
         name: `${series.provider}${fixation}${basis === 'nominal' ? ' (nominal)' : ''}`,
         color: colors.get(series.provider) ?? CHART_COLORS.benchmark,
@@ -315,7 +329,7 @@ function AdvertisedHistory({ data, history }: { data: DashboardData; history: Qu
     <Card
       span={12}
       title="How advertised housing loan rates have moved"
-      sub="Each lender's representative example over time, effective rate where published, against what borrowers concluded"
+      sub="Each lender's representative example or calculator quote over time, effective rate where published, against what borrowers concluded"
     >
       <div class="chart-filter" role="group" aria-label="Rate type">
         {GROUPS.map((g) => (
@@ -387,7 +401,7 @@ function AdvertisedHistory({ data, history }: { data: DashboardData; history: Qu
       {recentlyTracked ? (
         <Callout>
           <strong>
-            {group === 'fixed' ? 'Fixed-rate' : 'This'} history starts on{' '}
+            {group !== 'variable' ? 'Fixed-rate' : 'This'} history starts on{' '}
             {formatPeriod(trackedSince)}.
           </strong>{' '}
           The Internet Archive holds no usable captures of these pages, so their record builds up
