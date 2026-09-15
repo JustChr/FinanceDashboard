@@ -3,6 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Also dispatched by offers.yml after each refresh: its bot commit cannot
+  # trigger the push event above.
   workflow_dispatch:
 
 # Allow the workflow to publish to Pages.
