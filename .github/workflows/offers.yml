@@ -7,9 +7,11 @@ on:
     - cron: '40 5 * * *'
   workflow_dispatch:
 
-# The job commits the regenerated board back to the repository.
+# The job commits the regenerated board back to the repository, then starts a
+# Pages deploy so the live site serves it.
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: offers
@@ -52,3 +54,13 @@ jobs:
           # force, so a human commit is never overwritten by the scheduler.
           git pull --rebase --autostash
           git push
+
+      - name: Deploy the refreshed board
+        # A push made with GITHUB_TOKEN never starts another workflow, so the
+        # commit above does not trigger deploy.yml, and the live site would keep
+        # whatever data the last merge shipped. workflow_dispatch is exempt from
+        # that rule, so ask for the deploy explicitly.
+        run: gh workflow run deploy.yml --ref "${{ github.event.repository.default_branch }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}

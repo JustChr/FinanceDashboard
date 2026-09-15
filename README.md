@@ -218,8 +218,9 @@ scraper writes — offer conditions, source notes — carries a German twin
 Deployment is automatic: pushing to `main` triggers
 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which builds and
 publishes to Pages. Enable it once under **Settings → Pages → Source → GitHub
-Actions**. The offer-refresh workflow needs no setup beyond default
-`contents: write` permissions.
+Actions**. The offer-refresh workflow commits the new data and then dispatches
+the deploy itself, because a push made with the workflow's own token never
+triggers another workflow. It needs no setup beyond the permissions it declares.
 
 ## Next
 
