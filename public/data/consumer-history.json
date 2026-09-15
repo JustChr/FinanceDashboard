@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-14T18:21:14.520Z",
+  "generatedAt": "2026-09-15T05:40:28.546Z",
   "series": {
     "bank99-rundumkredit-fix": {
       "provider": "bank99",
@@ -14,7 +14,7 @@
           "effectiveRate": 8.18,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://bank99.at/kredit/rundumkredit99"
         }
@@ -33,7 +33,7 @@
           "effectiveRate": 7.72,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://bank99.at/kredit/rundumkredit99"
         }

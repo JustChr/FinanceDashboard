@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-14T18:21:14.515Z",
+  "generatedAt": "2026-09-15T05:40:28.545Z",
   "series": {
     "addiko-festgeld-12m": {
       "provider": "Addiko Bank",
@@ -15,7 +15,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.addiko.at/festgeld/"
         }
@@ -35,7 +35,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.addiko.at/festgeld/"
         }
@@ -55,7 +55,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.addiko.at/festgeld/"
         }
@@ -75,7 +75,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.addiko.at/festgeld/"
         }
@@ -95,7 +95,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.addiko.at/festgeld/"
         }
@@ -115,7 +115,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.addiko.at/festgeld/"
         }
@@ -135,7 +135,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.addiko.at/tagesgeld/"
         }
@@ -155,7 +155,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.addiko.at/tagesgeld/"
         }
@@ -175,7 +175,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://anadibank.com/sparen"
         }
@@ -195,7 +195,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://anadibank.com/sparen"
         }
@@ -215,7 +215,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://anadibank.com/sparen"
         }
@@ -235,7 +235,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://anadibank.com/sparen"
         }
@@ -255,7 +255,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://anadibank.com/sparen"
         }
@@ -275,7 +275,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://anadibank.com/sparen"
         }
@@ -295,7 +295,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://bank99.at/sparen"
         }
@@ -315,7 +315,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://bank99.at/sparen"
         }
@@ -335,7 +335,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://bank99.at/sparen"
         }
@@ -355,7 +355,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://bank99.at/sparen"
         }
@@ -375,7 +375,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://bank99.at/sparen"
         }
@@ -395,7 +395,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://bank99.at/sparen"
         }
@@ -415,7 +415,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://bank99.at/sparen"
         }
@@ -435,7 +435,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
         }
@@ -455,7 +455,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
         }
@@ -475,7 +475,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
         }
@@ -495,7 +495,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
         }
@@ -515,7 +515,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
         }
@@ -535,7 +535,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
         }
@@ -555,7 +555,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
         }
@@ -575,7 +575,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.easybank.at/easybank/sparen/easy-geldmarkt"
         }
@@ -595,7 +595,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.easybank.at/easybank/sparen/easy-geldmarkt"
         }
@@ -615,7 +615,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.easybank.at/easybank/sparen/easy-geldmarkt"
         }
@@ -635,7 +635,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.easybank.at/easybank/sparen/easy-geldmarkt"
         }
@@ -655,7 +655,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.kommunalkreditinvest.at/"
         }
@@ -675,7 +675,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.kommunalkreditinvest.at/"
         }
@@ -695,7 +695,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
         }
@@ -715,7 +715,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
         }
@@ -735,7 +735,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
         }
@@ -755,7 +755,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
         }
@@ -775,7 +775,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
         }
@@ -795,7 +795,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
         }
@@ -815,7 +815,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
         }
@@ -835,7 +835,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf"
         }
@@ -855,7 +855,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf"
         }
@@ -875,7 +875,7 @@
           "effectiveRate": null,
           "statedAt": null,
           "firstSeen": "2026-09-12",
-          "lastSeen": "2026-09-14",
+          "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf"
         }
