@@ -199,14 +199,17 @@ board reads the two things banks do publish:
 - **Calculators**, read without running a browser. bank99, Bank Austria and
   Oberbank are asked for one fixed profile (€300,000 over 25 years) — bank99
   and Bank Austria across their fixation ladders, Oberbank's calculator being
-  variable only. Bank Burgenland and Raiffeisen Bausparkasse publish rate tables
-  in the calculator page itself. An offer with its own `url`, or a source with
+  variable only. Bank Burgenland publishes a rate table in the calculator page
+  itself. An offer with its own `url`, or a source with
   a `documents` flow (see `scripts/scrape/calculators.mjs`), is a calculator
-  question, and the archive backfill skips both.
+  question, and the archive backfill skips both. A source marked `archiveOnly`
+  is the reverse, read only from the archive: Raiffeisen Bausparkasse's
+  calculator catalogue, whose product names stated their rates in 2020–22 and
+  again from 2026, and give its example series their past.
 
 Requests identify themselves as `ALMDeskBot`, with named exceptions decided
-explicitly: Bank Austria's and Raiffeisen Bausparkasse's calculator pages
-refuse identified clients and are read with a browser user agent, and
+explicitly: Bank Austria's calculator page refuses identified clients and is
+read with a browser user agent, and
 Oberbank's eShop calculator is queried although its robots.txt disallows those
 URLs. Nothing else is changed to get through: no challenge is solved, no
 headless browser runs, each is asked once a day, and a refused day shows as

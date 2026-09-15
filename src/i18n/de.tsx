@@ -198,9 +198,8 @@ export const de: Messages = {
       <>
         <p>
           <strong>Rechnerangebote</strong> stammen aus den Kreditrechnern der Banken. bank99, Bank Austria und Oberbank
-          werden für ein einheitliches Profil abgefragt, 300.000 € über 25 Jahre; Bank Burgenland und Raiffeisen
-          Bausparkasse veröffentlichen Zinstabellen, die die Kredithöhe nicht berücksichtigen. Sie gelten am Tag des
-          Abrufs.
+          werden für ein einheitliches Profil abgefragt, 300.000 € über 25 Jahre; Bank Burgenland veröffentlicht eine
+          Zinstabelle, die die Kredithöhe nicht berücksichtigt. Sie gelten am Tag des Abrufs.
         </p>
         <p>
           <strong>Repräsentative Beispiele</strong> sind die Musterrechnungen, die Kreditgeber nach § 6 HIKrG

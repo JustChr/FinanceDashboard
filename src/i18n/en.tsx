@@ -191,8 +191,8 @@ export const en = {
       <>
         <p>
           <strong>Calculator quotes</strong> are read from the banks&rsquo; own calculators. bank99, Bank Austria and
-          Oberbank are asked for one profile, €300,000 over 25 years; Bank Burgenland and Raiffeisen Bausparkasse
-          publish rate tables that ignore loan size. They are current on the day they were read.
+          Oberbank are asked for one profile, €300,000 over 25 years; Bank Burgenland publishes a rate table that
+          ignores loan size. They are current on the day they were read.
         </p>
         <p>
           <strong>Representative examples</strong> are the worked examples lenders must publish under §6 HIKrG, each

@@ -144,8 +144,9 @@ export const USER_AGENT =
  *
  * Identification above is the default, and this is a deliberate, named
  * exception decided on 2026-09-14: Bank Austria refuses identified clients
- * outright, and Raiffeisen Bausparkasse's bot management challenges them, yet
- * both publish their housing calculators to every browser. The exception came
+ * outright, yet publishes its housing calculator to every browser. (Raiffeisen
+ * Bausparkasse was covered too until 2026-09-15, when its §6 HIKrG example
+ * pages, which answer the identified bot, replaced its calculator.) The exception came
  * with limits, and they are the contract of this constant: the user agent is
  * the only thing changed — no challenge is solved, no headless browser runs —
  * each source is asked once a day, and a day the site still refuses reports
