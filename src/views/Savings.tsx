@@ -3,6 +3,7 @@ import { useMemo, useState } from 'preact/hooks';
 import { CYCLE_START } from '../lib/catalog';
 import { latest } from '../lib/sdmx';
 import { betaSeries } from '../lib/metrics';
+import { oenbObs } from '../lib/oenb';
 import { STALE_AFTER_DAYS, repricings } from '../lib/offers';
 import { dodgeOffsets, lenderStyles, nearest, quotesFor, type Quote } from '../lib/quotes';
 import { day, esc, eur, formatPeriod, formatTerm, lowerFirst, pct, productName, termShort } from '../lib/format';
@@ -76,6 +77,25 @@ const VIEWS: MarketView[] = [
     ],
   },
   {
+    id: 'notice',
+    label: t.savings.notice,
+    lines: (e, pal) => [
+      { name: t.savings.noticeTo3m, observations: obs(e, 'dep_notice_le3'), color: pal.series[0] ?? pal.ink },
+      { name: t.savings.noticeOver3m, observations: obs(e, 'dep_notice_3p'), color: pal.series[1] ?? pal.ink },
+      { name: deposits.overnight, observations: obs(e, 'dep_on'), color: pal.market },
+    ],
+  },
+  {
+    id: 'savingsDeposits',
+    label: t.savings.savingsDeposits,
+    lines: (e, pal, oenb) => [
+      { name: t.savings.savingsTo1, observations: oenbObs(oenb, 'savings_le1'), color: pal.series[0] ?? pal.ink },
+      { name: t.savings.savings1to2, observations: oenbObs(oenb, 'savings_1_2'), color: pal.series[1] ?? pal.ink },
+      { name: t.savings.savingsOver2, observations: oenbObs(oenb, 'savings_2p'), color: pal.series[2] ?? pal.ink },
+      { name: t.savings.allTermTo1, observations: obs(e, 'dep_term_le1'), color: pal.market },
+    ],
+  },
+  {
     id: 'book',
     label: t.common.newVsExisting,
     lines: (e, pal) => [
@@ -94,7 +114,11 @@ const VIEWS: MarketView[] = [
       { name: t.savings.overnightEuroArea, observations: betaSeries(e.ea.get('dep_on'), e.dfrMonthly, CYCLE_START), color: pal.market },
     ],
   },
-  { id: 'volume', label: t.common.volume, volume: (e) => obs(e, 'dep_term_volume') },
+  {
+    id: 'volume',
+    label: t.common.volume,
+    bars: (e, pal) => [{ name: t.charts.newLending, observations: obs(e, 'dep_term_volume'), color: pal.series[0] ?? pal.ink }],
+  },
 ];
 
 const truncate = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
@@ -295,6 +319,7 @@ export function Savings({ offers, ecb, ecbWindow, onWindow }: PageProps) {
         meta={t.savings.panelMeta}
         views={VIEWS}
         ecb={ecb}
+        oenb={offers.oenb}
         window={ecbWindow}
         onWindow={onWindow}
       />

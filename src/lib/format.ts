@@ -32,7 +32,14 @@ export const bps = (v: number | undefined | null): string => {
 export const bpsAbs = (v: number | undefined | null): string =>
   valid(v) ? `${Math.abs(Math.round(v * 100))} ${t.format.bp}` : DASH;
 
-export const ratio = (v: number | undefined | null): string => (valid(v) ? num(v, 2) : DASH);
+/** A change in a share, in percentage points: `+3.1 pp`. */
+export const pp = (v: number | undefined | null): string => {
+  if (!valid(v)) return DASH;
+  const r = Math.round(v * 10) / 10;
+  return `${r > 0 ? '+' : ''}${num(r, 1)} ${t.format.pp}`;
+};
+
+export const ratio =(v: number | undefined | null): string => (valid(v) ? num(v, 2) : DASH);
 
 /** An amount in millions as billions, one decimal: axis ticks. */
 export const eurBillions = (millions: number): string => t.format.billions(num(millions / 1000, 1));

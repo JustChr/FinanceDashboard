@@ -90,6 +90,9 @@ export function App() {
             <a href="https://data.ecb.europa.eu/" target="_blank" rel="noreferrer">
               ECB Data Portal
             </a>,
+            <a href="https://www.oenb.at/en/Statistics/User-Defined-Tables/webservice.html" target="_blank" rel="noreferrer">
+              OeNB
+            </a>,
             <a href="https://github.com/JustChr/FinanceDashboard" target="_blank" rel="noreferrer">
               GitHub
             </a>,

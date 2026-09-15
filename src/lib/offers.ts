@@ -111,7 +111,8 @@ export const ratedAt = (offer: Offer): string => offer.statedAt ?? offer.observe
 export const isStale = (offer: Offer, now = new Date()): boolean =>
   daysSince(ratedAt(offer), now) > STALE_AFTER_DAYS[offer.category];
 
-async function loadJson<T>(file: string, signal: AbortSignal, valid: (v: T) => boolean) {
+/** Loads a committed data file; missing or malformed is `undefined`, never an error. */
+export async function loadJson<T>(file: string, signal: AbortSignal, valid: (v: T) => boolean) {
   try {
     const res = await fetch(`${import.meta.env.BASE_URL}data/${file}`, { signal });
     if (!res.ok) return undefined;

@@ -74,6 +74,7 @@ const GROUPS: { title: string; rows: { id: string; label: string }[] }[] = [
       { id: 'cc_var', label: buckets.variable },
       { id: 'cc_1_5', label: buckets.fixed1to5 },
       { id: 'cc_5p', label: buckets.fixedOver5 },
+      { id: 'cc_sec', label: t.consumer.secured },
       { id: 'od_hh', label: t.common.overdrafts },
       { id: 'cc_stock', label: t.market.outstanding },
     ],

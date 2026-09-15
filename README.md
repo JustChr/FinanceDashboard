@@ -26,18 +26,24 @@ row of controls — rate basis, lenders, tax — scopes every chart on the page,
 every chart's numbers sit behind a collapsed *Show numbers*.
 
 **Housing loans** — every advertised quote plotted by fixation period against
-the ECB concluded average for its bucket; click a fixation to follow its
-history, with the latest repricings listed underneath. The ECB panel switches
-between the fixation ladder, new against outstanding loans, renegotiations, the
-APRC fee load and lending volume.
+the ECB concluded average for its bucket, taken from loans secured by collateral
+or guarantees as the banks' examples are; click a fixation to follow its
+history, with the latest repricings listed underneath. The statistics panel
+switches between the secured fixation ladder, the fixation mix of new lending
+(Austria from the OeNB, the euro area from the ECB), new against outstanding
+loans, renegotiations, the APRC fee load, and volume split into genuinely new
+and renegotiated contracts.
 
 **Savings** — advertised rates by term (on a square-root axis, so 1–12 months
 stay readable) against the ECB maturity buckets, optionally after 25% KESt, with
-each term's history. The ECB panel covers products, new against outstanding
+each term's history. The statistics panel covers products, notice deposits by
+notice period, OeNB rates on Spareinlagen by maturity, new against outstanding
 deposits, pass-through of the deposit facility rate, and volume.
 
 **Consumer credit** — the published representative examples, and ECB rates by
-fixation, against the APRC and against other household lending.
+fixation, secured against all consumer credit, against the APRC and against
+other household lending, with the variable share and the new/renegotiated split
+of volume.
 
 **Rates & ECB** — policy rates, €STR and Euribor, bank margins over €STR, and
 Austria against the euro area for every series as small-multiple dumbbells.
@@ -66,11 +72,37 @@ Three MIR dimensions carry the analysis, and all three are easy to misread:
   but the **original maturity** on outstanding amounts. Labelling an outstanding
   breakdown as a fixation period is wrong, and the codes look identical.
 - `DATA_TYPE_MIR` selects the agreed rate (`R`), the APRC including fees (`C`),
-  or new-business volume (`B`). Volumes exist **only at the un-split total**, so
-  there is no volume mix per fixation band from this source.
+  or new-business volume (`B`). For Austria, volumes exist **only at the
+  un-split total**; the euro area has them per fixation bucket. Austria's
+  fixation mix therefore comes from the OeNB (below).
 - `IR_BUS_COV` separates new business (`N`), new business excluding
   renegotiations (`P`), renegotiated loans only (`R`) and the outstanding stock
   (`O`). `N` versus `O` is the front-book/back-book split.
+
+Worth knowing before looking for more: for Austrian households the finest
+fixation split is *over ten years*, and the finest deposit split is *over two
+years*. `BS_ITEM` adds collateralised twins (`A2CC` housing, `A2BC` consumer,
+from June 2010) and `L23` splits notice deposits at three months. Loan-size
+buckets (`AMOUNT_CAT`) and the six-step fixation ladder exist only for
+corporates.
+
+### OeNB web service (read daily, committed)
+
+The Oesterreichische Nationalbank publishes what the ECB does not: new
+housing and consumer lending volume for the two shortest fixation buckets, and
+rates on Spareinlagen by agreed maturity. Its web service answers XML without
+CORS headers, so `scripts/stats/oenb.mjs` reads it in the same daily workflow
+as the offers and writes `public/data/oenb.json`. A series the OeNB fails to
+return keeps its previous values.
+
+```bash
+npm run oenb    # rebuild public/data/oenb.json
+```
+
+Positions live in hierarchy 23 ("Interest rates of credit institutions"); list
+them with `https://www.oenb.at/isadataservice/content?lang=EN&hierid=23`. The
+variable/fixed split of the *outstanding* stock in hierarchy 100140002 stopped
+at August 2025 and is not used.
 
 ### Bank condition pages (scraped daily, committed)
 

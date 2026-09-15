@@ -2,32 +2,35 @@ import { useMemo, useState } from 'preact/hooks';
 import type { EChartsOption } from 'echarts';
 
 import type { EcbData, LoadState } from '../lib/data';
-import type { WindowId } from '../lib/catalog';
+import { windowStart, type WindowId } from '../lib/catalog';
+import type { OenbData } from '../lib/oenb';
 import type { Observation } from '../lib/sdmx';
 import { observationAt, shiftMonths } from '../lib/sdmx';
-import { bps, eurMillions, formatPeriod, num, pct } from '../lib/format';
+import { bps, eurMillions, formatPeriod, num, pct, pp } from '../lib/format';
 import { t } from '../i18n';
-import { rollingSum } from '../lib/metrics';
+import { rollingSum, sumByPeriod } from '../lib/metrics';
 import { usePalette, type Palette } from '../lib/theme';
 import { Chart } from './Chart';
-import { timeChart, volumeChart, type LineSpec } from './charts';
+import { timeChart, volumeChart, type BarSpec, type LineSpec } from './charts';
 import { Numbers, Pending, Section, Segmented, WindowPicker } from './ui';
 
 /**
- * One view of the ECB statistics behind a product: a set of monthly lines, or
- * a volume column chart. A page offers several views of the same panel rather
- * than a card for each, so the question changes and the page length does not.
+ * One view of the statistics behind a product: a set of monthly lines, or
+ * volume columns. A page offers several views of the same panel rather than a
+ * card for each, so the question changes and the page length does not.
  */
 export interface MarketView {
   id: string;
   label: string;
-  /** Monthly lines. */
-  lines?: (ecb: EcbData, pal: Palette) => LineSpec[];
-  /** A single volume series instead of lines. */
-  volume?: (ecb: EcbData) => Observation[];
+  /** Monthly lines. OeNB series arrive in full and are cut to the ECB window. */
+  lines?: (ecb: EcbData, pal: Palette, oenb: OenbData | undefined) => LineSpec[];
+  /** Volume columns instead of lines, stacked when there is more than one. */
+  bars?: (ecb: EcbData, pal: Palette) => BarSpec[];
   suffix?: string;
   decimals?: number;
   zeroLine?: boolean;
+  /** The lines are shares of a whole, so a change reads in percentage points. */
+  share?: boolean;
 }
 
 export const obs = (ecb: EcbData, id: string, area: 'at' | 'ea' = 'at'): Observation[] =>
@@ -38,6 +41,7 @@ export function MarketPanel({
   meta,
   views,
   ecb,
+  oenb,
   window,
   onWindow,
 }: {
@@ -45,6 +49,7 @@ export function MarketPanel({
   meta: string;
   views: MarketView[];
   ecb: LoadState<EcbData>;
+  oenb?: OenbData;
   window: WindowId;
   onWindow: (id: WindowId) => void;
 }) {
@@ -55,23 +60,50 @@ export function MarketPanel({
 
   const built = useMemo(() => {
     if (!data || !view) return undefined;
-    if (view.volume) {
-      const series = view.volume(data);
-      const annual = rollingSum(series, 12).at(-1);
-      const last = series.at(-1);
+    // The ECB answers for the chosen window; committed OeNB files hold everything.
+    const start = windowStart(data.window);
+    const clip = <S extends { observations: Observation[] }>(s: S): S => ({
+      ...s,
+      observations: s.observations.filter((o) => o.period >= start),
+    });
+
+    if (view.bars) {
+      const specs = view
+        .bars(data, pal)
+        .map(clip)
+        .filter((s) => s.observations.length > 0);
+      const totals = sumByPeriod(specs.map((s) => s.observations));
+      const annual = rollingSum(totals, 12).at(-1);
+      const last = totals.at(-1);
+      const split = specs.length > 1;
+      const valueIn = (s: BarSpec, period: string) => s.observations.find((o) => o.period === period)?.value;
       return {
-        option: volumeChart(pal, series, pal.series[0] ?? pal.ink) as EChartsOption,
+        option: volumeChart(pal, specs) as EChartsOption,
         summary: last
-          ? `${formatPeriod(last.period)}: ${eurMillions(last.value)} · ${t.panel.lastYear(eurMillions(annual?.value))}`
+          ? [
+              `${formatPeriod(last.period)}: ${eurMillions(last.value)}`,
+              ...(split
+                ? specs.flatMap((s) => {
+                    const v = valueIn(s, last.period);
+                    return v === undefined ? [] : [`${s.name} ${eurMillions(v)}`];
+                  })
+                : []),
+              t.panel.lastYear(eurMillions(annual?.value)),
+            ].join(' · ')
           : '',
-        rows: series
+        rows: totals
           .slice(-13)
           .reverse()
-          .map((o) => [formatPeriod(o.period), eurMillions(o.value)]),
-        head: t.panel.volumeHead,
+          .map((o) => [
+            formatPeriod(o.period),
+            ...(split ? specs.map((s) => eurMillions(valueIn(s, o.period))) : []),
+            eurMillions(o.value),
+          ]),
+        head: split ? [t.panel.volumeHead[0] ?? '', ...specs.map((s) => s.name), t.panel.total] : t.panel.volumeHead,
       };
     }
-    const specs = view.lines?.(data, pal) ?? [];
+    const specs = (view.lines?.(data, pal, oenb) ?? []).map(clip);
+    const change = view.share ? pp : bps;
     const suffix = view.suffix ?? '%';
     const decimals = view.decimals ?? 2;
     const fmt = (v: number | undefined) =>
@@ -104,11 +136,11 @@ export function MarketPanel({
           fmt(now?.value),
           formatPeriod(now?.period),
           fmt(then?.value),
-          now && then && suffix === '%' ? bps(now.value - then.value) : '–',
+          now && then && suffix === '%' ? change(now.value - then.value) : '–',
         ];
       }),
     };
-  }, [data, view, pal]);
+  }, [data, oenb, view, pal]);
 
   return (
     <Section

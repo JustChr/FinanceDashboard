@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'preact/hooks';
 
-import { HOUSING_FIXATION } from '../lib/catalog';
+import { HOUSING_SECURED } from '../lib/catalog';
+import { residual, shareOf } from '../lib/metrics';
+import { oenbObs } from '../lib/oenb';
 import { latest } from '../lib/sdmx';
 import { STALE_AFTER_DAYS, daysSince, repricings, type QuoteBasis } from '../lib/offers';
 import { dodgeOffsets, lenderStyles, nearest, quotesFor, quoteValue, type Quote } from '../lib/quotes';
@@ -52,12 +54,13 @@ import {
 /**
  * The ECB's fixation buckets, as extents on the fixation axis. A 5-year fix
  * belongs to "over 1 and up to 5", a 10-year fix to "over 5 and up to 10".
+ * Secured loans, because every offer on the curve is a mortgage-secured loan.
  */
 const BANDS = [
-  { id: 'hl_var', label: t.housing.bands.hl_var, from: -1.9, to: 1 },
-  { id: 'hl_1_5', label: t.housing.bands.hl_1_5, from: 1, to: 5 },
-  { id: 'hl_5_10', label: t.housing.bands.hl_5_10, from: 5, to: 10 },
-  { id: 'hl_10p', label: t.housing.bands.hl_10p, from: 10, to: 26.9 },
+  { id: 'hl_sec_var', label: t.housing.bands.hl_var, from: -1.9, to: 1 },
+  { id: 'hl_sec_1_5', label: t.housing.bands.hl_1_5, from: 1, to: 5 },
+  { id: 'hl_sec_5_10', label: t.housing.bands.hl_5_10, from: 5, to: 10 },
+  { id: 'hl_sec_10p', label: t.housing.bands.hl_10p, from: 10, to: 26.9 },
 ] as const;
 
 function bandFor(years: number) {
@@ -72,11 +75,13 @@ const BASES: { id: QuoteBasis; label: string }[] = [
   { id: 'nominal', label: t.common.basisRate.nominal },
 ];
 
+const { buckets } = t.common;
+
 const SHORT: Record<string, string> = {
-  hl_var: t.common.buckets.variable,
-  hl_1_5: t.common.buckets.fixed1to5,
-  hl_5_10: t.common.buckets.fixed5to10,
-  hl_10p: t.common.buckets.fixedOver10,
+  hl_sec_var: buckets.variable,
+  hl_sec_1_5: buckets.fixed1to5,
+  hl_sec_5_10: buckets.fixed5to10,
+  hl_sec_10p: buckets.fixedOver10,
 };
 
 const VIEWS: MarketView[] = [
@@ -84,11 +89,36 @@ const VIEWS: MarketView[] = [
     id: 'fixation',
     label: t.common.byFixation,
     lines: (e, pal) =>
-      HOUSING_FIXATION.map((d, i) => ({
+      HOUSING_SECURED.map((d, i) => ({
         name: SHORT[d.id] ?? d.label,
         observations: obs(e, d.id),
         color: pal.series[i] ?? pal.ink,
       })),
+  },
+  {
+    id: 'mix',
+    label: t.common.fixationMix,
+    share: true,
+    decimals: 1,
+    lines: (e, pal, oenb) => {
+      const total = oenbObs(oenb, 'housing_volume');
+      const variable = oenbObs(oenb, 'housing_volume_var');
+      const fixed1to5 = oenbObs(oenb, 'housing_volume_1_5');
+      return [
+        { name: `${buckets.variable}, ${t.common.austria}`, observations: shareOf(variable, total), color: pal.series[0] ?? pal.ink },
+        { name: `${buckets.fixed1to5}, ${t.common.austria}`, observations: shareOf(fixed1to5, total), color: pal.series[1] ?? pal.ink },
+        {
+          name: `${buckets.fixedOver5}, ${t.common.austria}`,
+          observations: shareOf(residual(total, [variable, fixed1to5]), total),
+          color: pal.series[2] ?? pal.ink,
+        },
+        {
+          name: `${buckets.variable}, ${t.common.euroArea}`,
+          observations: shareOf(obs(e, 'hl_volume_var', 'ea'), obs(e, 'hl_volume', 'ea')),
+          color: pal.market,
+        },
+      ];
+    },
   },
   {
     id: 'book',
@@ -114,7 +144,19 @@ const VIEWS: MarketView[] = [
       { name: t.common.aprcFees, observations: obs(e, 'hl_aprc'), color: pal.series[1] ?? pal.ink },
     ],
   },
-  { id: 'volume', label: t.common.volume, volume: (e) => obs(e, 'hl_volume') },
+  {
+    id: 'volume',
+    label: t.common.volume,
+    bars: (e, pal) => {
+      const pure = obs(e, 'hl_volume_pure');
+      const reneg = obs(e, 'hl_volume_reneg');
+      return [
+        { name: t.common.genuinelyNew, observations: pure, color: pal.series[0] ?? pal.ink },
+        { name: t.common.renegotiated, observations: reneg, color: pal.series[1] ?? pal.ink },
+        { name: t.common.notSplit, observations: residual(obs(e, 'hl_volume'), [pure, reneg]), color: pal.muted },
+      ];
+    },
+  },
 ];
 
 const truncate = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
@@ -223,7 +265,7 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
       if (basis === 'effective') return aprc ? `${t.housing.ecbAprcAll}: ${pct(aprc.value)}` : '';
       const b = bandFor(q.x);
       const o = bucket(b.id);
-      return o ? `${t.common.ecbConcluded(b.label)}: ${pct(o.value)}` : '';
+      return o ? `${t.housing.ecbSecured(b.label)}: ${pct(o.value)}` : '';
     };
 
     const lines = buildCurveLines({
@@ -257,7 +299,7 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
       ? [
           {
             name: t.common.ecbAverage,
-            label: basis === 'effective' ? t.housing.ecbAprcAll : t.common.ecbConcluded(band.label),
+            label: basis === 'effective' ? t.housing.ecbAprcAll : t.housing.ecbSecured(band.label),
             color: pal.market,
             reference: true,
             points: obs(data, basis === 'effective' ? 'hl_aprc' : band.id).map(
@@ -392,6 +434,7 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
         meta={t.housing.panelMeta}
         views={VIEWS}
         ecb={ecb}
+        oenb={offers.oenb}
         window={ecbWindow}
         onWindow={onWindow}
       />

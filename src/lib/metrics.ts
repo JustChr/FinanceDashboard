@@ -115,6 +115,48 @@ export function marginOverBenchmark(
 }
 
 /* ------------------------------------------------------------------ */
+/* Parts of a whole                                                    */
+/* ------------------------------------------------------------------ */
+
+/** One series as a per-cent share of another, over the months both report. */
+export function shareOf(part: Observation[], total: Observation[]): Observation[] {
+  const totalAt = new Map(total.map((o) => [o.period, o.value]));
+  const out: Observation[] = [];
+  for (const o of part) {
+    const whole = totalAt.get(o.period);
+    if (whole !== undefined && whole > 0) out.push({ period: o.period, value: (o.value / whole) * 100 });
+  }
+  return out;
+}
+
+/**
+ * What a total leaves once its reported parts are taken out, month by month.
+ *
+ * A part missing in a month counts as nothing: MIR began splitting
+ * renegotiations out of new business years after it began recording the total,
+ * so before then the whole volume is residual. Months the parts account for
+ * entirely, to rounding, are left out rather than drawn as a sliver.
+ */
+export function residual(total: Observation[], parts: Observation[][]): Observation[] {
+  const partAt = parts.map((p) => new Map(p.map((o) => [o.period, o.value])));
+  const out: Observation[] = [];
+  for (const o of total) {
+    const rest = partAt.reduce((left, at) => left - (at.get(o.period) ?? 0), o.value);
+    if (rest >= 0.5) out.push({ period: o.period, value: rest });
+  }
+  return out;
+}
+
+/** Month-by-month sum of several series, over every month any of them reports. */
+export function sumByPeriod(series: Observation[][]): Observation[] {
+  const sums = new Map<string, number>();
+  for (const s of series) for (const o of s) sums.set(o.period, (sums.get(o.period) ?? 0) + o.value);
+  return [...sums]
+    .map(([period, value]) => ({ period, value }))
+    .sort((a, b) => a.period.localeCompare(b.period));
+}
+
+/* ------------------------------------------------------------------ */
 /* Front book versus back book                                         */
 /* ------------------------------------------------------------------ */
 

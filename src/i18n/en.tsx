@@ -24,10 +24,10 @@ export const en = {
     pages: { housing: 'Housing loans', savings: 'Savings', consumer: 'Consumer credit', market: 'Rates & ECB' },
     offersChecked: (date: string) => `Offers checked ${date}`,
     ecbTo: (period: string) => `ECB statistics to ${period}`,
-    footer: (ecb: ComponentChildren, github: ComponentChildren) => (
+    footer: (ecb: ComponentChildren, oenb: ComponentChildren, github: ComponentChildren) => (
       <>
-        Rate statistics from the {ecb}, fetched live. Offers are read once a day from each bank&rsquo;s own pages and
-        calculators; they are indicative, not an offer. Source code on {github}.
+        Rate statistics from the {ecb}, fetched live, and from the {oenb}, read daily. Offers are read once a day from
+        each bank&rsquo;s own pages and calculators; they are indicative, not an offer. Source code on {github}.
       </>
     ),
   },
@@ -40,6 +40,7 @@ export const en = {
     ],
     day: (day: number, month: string, year: string) => `${day} ${month} ${year}`,
     bp: 'bp',
+    pp: 'pp',
     euro: (amount: string) => `€${amount}`,
     millions: (amount: string) => `€${amount}m`,
     billions: (amount: string) => `€${amount}bn`,
@@ -92,6 +93,10 @@ export const en = {
     byFixation: 'By fixation',
     newVsExisting: 'New vs existing',
     volume: 'Volume',
+    fixationMix: 'Fixation mix',
+    genuinelyNew: 'Genuinely new',
+    renegotiated: 'Renegotiated',
+    notSplit: 'Not split out',
     buckets: {
       variable: 'Variable / up to 1y',
       fixed1to5: 'Fixed 1–5y',
@@ -121,6 +126,7 @@ export const en = {
   panel: {
     lastYear: (amount: string) => `last 12 months ${amount}`,
     volumeHead: ['Month', 'Volume'],
+    total: 'Total',
     linesHead: ['Series', 'Latest', 'Month', '12 months earlier', 'Change'],
   },
 
@@ -145,7 +151,8 @@ export const en = {
     outdated: (days: number) => `Outdated: the bank's own date is more than ${days} days old`,
     noQuote: 'No current quote',
     aprcNewLoans: 'APRC, new housing loans',
-    newLoansIn: (band: string) => `new loans ${band}`,
+    newLoansIn: (band: string) => `new secured loans ${band}`,
+    ecbSecured: (band: string) => `ECB concluded, secured loans ${band}`,
     allFixations: 'all fixation periods',
     agreedRate: 'agreed rate',
     ecbAprcAll: 'ECB concluded APRC, all fixations',
@@ -160,7 +167,7 @@ export const en = {
     curveMeta: "One dot per quote. A lender's calculator ladder is joined by a line.",
     curveAria:
       'Advertised Austrian housing loan rates by initial fixation period, one marker per lender, against ECB concluded averages',
-    bandPerBucket: 'ECB concluded average per fixation bucket',
+    bandPerBucket: 'ECB concluded average per fixation bucket, secured loans',
     hollow: (days: number) => `Example older than ${days} days by the bank's own date`,
     unpublished: (lenders: string[], basis: Basis) =>
       `Not shown: ${lenders.join(', ')} publish${plural(lenders.length, 'es', '')} no ${basis} rate — switch to ${other(basis)} to include ${plural(lenders.length, 'it', 'them')}.`,
@@ -179,7 +186,7 @@ export const en = {
     changesHead: ['Repriced', 'Lender', 'Before', 'After', 'Change'],
     panelTitle: 'Concluded new lending',
     panelMeta:
-      'ECB MFI interest rate statistics for Austria: all new housing loans, volume-weighted, monthly, published about five weeks later.',
+      'ECB and OeNB interest rate statistics for Austria: new housing loans, volume-weighted, monthly, published about five weeks later. The fixation ladder covers loans secured by collateral or guarantees.',
     about: (staleDays: number) => (
       <>
         <p>
@@ -199,9 +206,15 @@ export const en = {
           capture that shows it.
         </p>
         <p>
-          <strong>ECB averages</strong> cover every new housing loan in Austria that month, volume-weighted. The agreed
-          rate is split by fixation bucket; the APRC, which includes fees, exists only across all fixations. Effective
-          rates are the ones to compare between banks.
+          <strong>ECB averages</strong> cover every new housing loan in Austria that month, volume-weighted. The bucket
+          drawn behind each fixation is loans secured by collateral or guarantees, the kind a representative example
+          describes. The APRC, which includes fees, exists only across all loans and fixations. Effective rates are the
+          ones to compare between banks.
+        </p>
+        <p>
+          <strong>Fixation mix</strong> is each bucket&rsquo;s share of new lending volume: for Austria from the OeNB,
+          which publishes volumes for the two shortest buckets, for the euro area from the ECB. Neither splits fixation
+          beyond ten years, so 15-, 20- and 25-year offers all fall in one bucket.
         </p>
       </>
     ),
@@ -215,6 +228,14 @@ export const en = {
       dep_term_2p: 'term deposits over 2 years',
     },
     byProduct: 'By product',
+    notice: 'Notice periods',
+    noticeTo3m: 'Notice up to 3 months',
+    noticeOver3m: 'Notice over 3 months',
+    savingsDeposits: 'Savings deposits',
+    savingsTo1: 'Savings deposits up to 1y',
+    savings1to2: 'Savings deposits 1–2y',
+    savingsOver2: 'Savings deposits over 2y',
+    allTermTo1: 'All term deposits up to 1y',
     passThrough: 'Pass-through',
     newTerm: 'New term deposits',
     outstandingTerm: 'All outstanding term deposits',
@@ -254,7 +275,7 @@ export const en = {
     noChange: 'No rate change recorded for this term since daily reading began.',
     panelTitle: 'Concluded deposits',
     panelMeta:
-      "ECB MFI interest rate statistics for Austrian households: new business, volume-weighted, monthly. Pass-through is the share of the ECB's move since mid-2022 that reached savers.",
+      "ECB and OeNB interest rate statistics for Austrian households: new business, volume-weighted, monthly. Pass-through is the share of the ECB's move since mid-2022 that reached savers.",
     about: () => (
       <>
         <p>
@@ -271,12 +292,20 @@ export const en = {
           sit close to the branch networks where most money is. Erste Bank, Bank Austria and Volksbank publish no
           readable savings rates and are missing.
         </p>
+        <p>
+          <strong>Notice deposits</strong> are split by notice period, up to and over three months.{' '}
+          <strong>Savings deposits</strong> shows the rates on Sparbuch and Kapitalsparbuch money within term deposits,
+          per maturity bucket: an Austrian breakdown the OeNB publishes and the ECB does not.
+        </p>
       </>
     ),
   },
 
   consumer: {
     vsOther: 'vs other lending',
+    secured: 'With collateral',
+    allConsumer: 'All consumer credit',
+    securedLoans: 'With collateral or guarantee',
     consumerEuroArea: 'Consumer credit, euro area',
     lede: (period: string | undefined) =>
       `What Austrian households concluded${period ? ` in ${period}` : ''}, and the few consumer-loan examples a bank publishes in readable form.`,
@@ -292,7 +321,7 @@ export const en = {
     since: (date: string) => `Recorded daily from ${date}; no change so far.`,
     noHistory: 'No history recorded yet.',
     panelTitle: 'Concluded consumer credit',
-    panelMeta: 'ECB MFI interest rate statistics for Austrian households: new business, volume-weighted, monthly.',
+    panelMeta: 'ECB and OeNB interest rate statistics for Austrian households: new business, volume-weighted, monthly.',
     about: () => (
       <>
         <p>
@@ -302,6 +331,12 @@ export const en = {
         <p>
           The ECB splits consumer credit by initial rate fixation: variable or up to one year, over one and up to five
           years, and over five years.
+        </p>
+        <p>
+          Loans with collateral or a guarantee are shown on their own; the gap to all consumer credit is roughly what
+          lending unsecured costs. Volumes separate genuinely new contracts from renegotiated ones, and the fixation mix
+          is the share of new lending that is variable or fixed for up to a year: for Austria from the OeNB, for the
+          euro area from the ECB.
         </p>
       </>
     ),
