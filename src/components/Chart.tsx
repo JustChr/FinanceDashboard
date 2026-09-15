@@ -1,92 +1,66 @@
 import { useEffect, useRef } from 'preact/hooks';
 // Importing from `echarts/core` and registering only what we draw keeps the
-// bundle at a fraction of the full library, which matters on a Pages site with
-// no server-side compression control.
+// bundle at a fraction of the full library.
 import * as echarts from 'echarts/core';
-import { BarChart, LineChart } from 'echarts/charts';
-import { GridComponent, MarkLineComponent, TooltipComponent } from 'echarts/components';
+import { BarChart, LineChart, ScatterChart } from 'echarts/charts';
+import {
+  GridComponent,
+  LegendComponent,
+  MarkAreaComponent,
+  MarkLineComponent,
+  TooltipComponent,
+} from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption } from 'echarts';
 
 echarts.use([
   LineChart,
   BarChart,
+  ScatterChart,
   GridComponent,
+  LegendComponent,
   TooltipComponent,
   MarkLineComponent,
+  MarkAreaComponent,
   CanvasRenderer,
 ]);
-
-export const CHART_COLORS = {
-  asset: '#4da3ff',
-  liability: '#f2a33c',
-  benchmark: '#7d8a9e',
-  austria: '#ef3340',
-  euroArea: '#8b95a8',
-  positive: '#3ecf8e',
-  negative: '#ff6b6b',
-  /** Ordered ramp for ladder series: short fixation to long. */
-  ladder: ['#4da3ff', '#6ee7c9', '#f2a33c', '#ef6f9c', '#a78bfa'],
-  /**
-   * One hue per lender, assigned in this fixed order by provider name so a
-   * lender keeps its colour when a filter hides the others. The order is the
-   * colour-vision safety mechanism, validated as a set against the panel
-   * surface — do not reorder or append a ninth; fold extra lenders instead.
-   */
-  lenders: ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767'],
-  grid: '#1f2836',
-  axis: '#5d6b80',
-} as const;
-
-/** Shared axis/grid styling so every chart in the dashboard reads as one system. */
-export function baseOption(): EChartsOption {
-  return {
-    backgroundColor: 'transparent',
-    grid: { left: 8, right: 12, top: 28, bottom: 4, containLabel: true },
-    textStyle: { fontFamily: 'inherit', color: '#7d8a9e' },
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(11, 15, 22, 0.95)',
-      borderColor: CHART_COLORS.grid,
-      borderWidth: 1,
-      textStyle: { color: '#e4e9f2', fontSize: 12 },
-      axisPointer: { type: 'line', lineStyle: { color: CHART_COLORS.axis, type: 'dashed' } },
-    },
-    xAxis: {
-      type: 'category',
-      axisLine: { lineStyle: { color: CHART_COLORS.grid } },
-      axisTick: { show: false },
-      axisLabel: { color: CHART_COLORS.axis, fontSize: 11 },
-      splitLine: { show: false },
-    },
-    yAxis: {
-      type: 'value',
-      axisLine: { show: false },
-      axisTick: { show: false },
-      axisLabel: { color: CHART_COLORS.axis, fontSize: 11 },
-      splitLine: { lineStyle: { color: CHART_COLORS.grid, type: 'dashed' } },
-    },
-  };
-}
 
 interface ChartProps {
   option: EChartsOption;
   height?: number;
-  /** Accessible description; charts are otherwise opaque to screen readers. */
+  /** Accessible description; the canvas is otherwise opaque to screen readers. */
   ariaLabel: string;
+  /**
+   * Called with the x-axis value under a click anywhere in the plot, so a
+   * column can be chosen without landing on a 10px marker.
+   */
+  onPick?: (x: number) => void;
+  /** Series name to emphasise, e.g. while a lender chip is hovered. */
+  highlight?: string | null;
 }
 
-export function Chart({ option, height = 240, ariaLabel }: ChartProps) {
+export function Chart({ option, height = 300, ariaLabel, onPick, highlight }: ChartProps) {
   const container = useRef<HTMLDivElement>(null);
   const instance = useRef<echarts.ECharts>();
+  const pick = useRef(onPick);
+  pick.current = onPick;
 
   useEffect(() => {
-    if (!container.current) return;
-    const chart = echarts.init(container.current, undefined, { renderer: 'canvas' });
+    const el = container.current;
+    if (!el) return;
+    const chart = echarts.init(el, undefined, { renderer: 'canvas' });
     instance.current = chart;
 
+    chart.getZr().on('click', (event) => {
+      if (!pick.current) return;
+      const point = [event.offsetX, event.offsetY];
+      if (!chart.containPixel({ gridIndex: 0 }, point)) return;
+      const [x] = chart.convertFromPixel({ gridIndex: 0 }, point) as number[];
+      if (x !== undefined && Number.isFinite(x)) pick.current(x);
+    });
+
     const observer = new ResizeObserver(() => chart.resize());
-    observer.observe(container.current);
+    observer.observe(el);
 
     return () => {
       observer.disconnect();
@@ -100,34 +74,20 @@ export function Chart({ option, height = 240, ariaLabel }: ChartProps) {
     instance.current?.setOption(option, true);
   }, [option]);
 
+  useEffect(() => {
+    const chart = instance.current;
+    if (!chart) return;
+    chart.dispatchAction({ type: 'downplay' });
+    if (highlight) chart.dispatchAction({ type: 'highlight', seriesName: highlight });
+  }, [highlight, option]);
+
   return (
     <div
       ref={container}
-      class="chart"
+      class={`chart${onPick ? ' pickable' : ''}`}
       style={{ height: `${height}px` }}
       role="img"
       aria-label={ariaLabel}
     />
-  );
-}
-
-/** Colour swatches under a chart, matching the mark drawn above it. */
-export function Legend({
-  items,
-  shape = 'line',
-}: {
-  items: { label: string; color: string }[];
-  /** Ladder charts draw dots, so their key must show dots too. */
-  shape?: 'line' | 'dot';
-}) {
-  return (
-    <div class="legend">
-      {items.map((item) => (
-        <span key={item.label}>
-          <i class={shape} style={{ background: item.color }} />
-          {item.label}
-        </span>
-      ))}
-    </div>
   );
 }

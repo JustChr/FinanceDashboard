@@ -57,6 +57,25 @@ export function formatTerm(months: number | null): string {
   return `${months} months`;
 }
 
+/** Axis-length term: "Instant", "6m", "2y". */
+export function termShort(months: number): string {
+  if (months <= 0) return 'Instant';
+  return months < 12 ? `${months}m` : `${months / 12}y`;
+}
+
+/** Sentence-length fixation: "Variable rate", "Fixed for 10 years". */
+export function fixationLong(years: number): string {
+  return years === 0 ? 'Variable rate' : `Fixed for ${years} years`;
+}
+
+/** Escapes text for the HTML tooltips ECharts renders; bank names are data. */
+export const esc = (s: string): string =>
+  s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+/** A date as "14 Sep 2026", for ISO dates from the scrape. */
+export const day = (iso: string | null | undefined): string =>
+  iso ? formatPeriod(iso.slice(0, 10)) : '–';
+
 /**
  * How a loan rate is fixed: "Variable", "Fixed 10y".
  *

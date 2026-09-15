@@ -1,90 +1,173 @@
 import type { ComponentChildren } from 'preact';
 
 import { HISTORY_WINDOWS, type WindowId } from '../lib/catalog';
+import type { OfferSource } from '../lib/offers';
+import type { LenderStyle } from '../lib/quotes';
 
-export function Card({
+export function PageHead({ title, children }: { title: string; children?: ComponentChildren }) {
+  return (
+    <div class="page-head">
+      <h1>{title}</h1>
+      {children}
+    </div>
+  );
+}
+
+export interface FactItem {
+  label: string;
+  value: string;
+  detail?: ComponentChildren;
+}
+
+/** The handful of figures a page leads with. Plain type, no tiles. */
+export function Facts({ items }: { items: FactItem[] }) {
+  return (
+    <dl class="facts">
+      {items.map((item) => (
+        <div class="fact" key={item.label}>
+          <dt>{item.label}</dt>
+          <dd class="fact-value">{item.value}</dd>
+          {item.detail ? <dd class="fact-detail">{item.detail}</dd> : null}
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+export function Section({
   title,
-  sub,
-  span = 12,
+  meta,
+  controls,
   children,
 }: {
   title: string;
-  sub?: ComponentChildren;
-  /** Twelve-column grid width. */
-  span?: 4 | 5 | 6 | 7 | 8 | 12;
+  meta?: ComponentChildren;
+  controls?: ComponentChildren;
   children: ComponentChildren;
 }) {
   return (
-    <section class={`card span-${span}`}>
-      <h2>{title}</h2>
-      {sub ? <p class="sub">{sub}</p> : null}
+    <section class="section">
+      <header class="section-head">
+        <div>
+          <h2>{title}</h2>
+          {meta ? <p class="meta">{meta}</p> : null}
+        </div>
+        {controls ? <div class="section-controls">{controls}</div> : null}
+      </header>
       {children}
     </section>
   );
 }
 
-/** A single figure with its label and a supporting line underneath. */
-export function Stat({
+/** The row of controls that scopes every chart below it on the page. */
+export function Controls({ children }: { children: ComponentChildren }) {
+  return <div class="controls">{children}</div>;
+}
+
+export function Segmented<T extends string | number>({
   label,
+  options,
   value,
-  note,
-  tone,
+  onChange,
+  disabled,
 }: {
   label: string;
-  value: string;
-  note?: ComponentChildren;
-  tone?: 'positive' | 'negative';
+  options: { id: T; label: string }[];
+  value: T;
+  onChange: (id: T) => void;
+  disabled?: boolean;
 }) {
   return (
-    <div class="stat">
-      <div class="stat-label">{label}</div>
-      <div class={`stat-value num${tone ? ` ${tone}` : ''}`}>{value}</div>
-      {note ? <div class="stat-note">{note}</div> : null}
+    <div class="seg" role="group" aria-label={label}>
+      {options.map((o) => (
+        <button
+          key={String(o.id)}
+          type="button"
+          aria-pressed={o.id === value}
+          disabled={disabled}
+          onClick={() => onChange(o.id)}
+        >
+          {o.label}
+        </button>
+      ))}
     </div>
   );
 }
 
-export function StatRow({ children }: { children: ComponentChildren }) {
-  return <div class="stat-row">{children}</div>;
-}
-
-export function Callout({ children }: { children: ComponentChildren }) {
-  return <div class="callout">{children}</div>;
-}
-
-export interface TabDef<T extends string> {
-  id: T;
-  label: string;
-}
-
-export function Tabs<T extends string>({
-  tabs,
-  active,
-  onSelect,
+export function Switch({
+  label,
+  checked,
+  onChange,
 }: {
-  tabs: TabDef<T>[];
-  active: T;
-  onSelect: (id: T) => void;
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
 }) {
   return (
-    <nav class="tabs" role="tablist" aria-label="Dashboard sections">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          type="button"
-          role="tab"
-          aria-selected={tab.id === active}
-          class={`tab${tab.id === active ? ' active' : ''}`}
-          onClick={() => onSelect(tab.id)}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </nav>
+    <label class="switch">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.currentTarget.checked)} />
+      <span class="switch-track" aria-hidden="true" />
+      {label}
+    </label>
   );
 }
 
-/** How far back every chart on the page reaches. */
+/**
+ * Lender filter and legend in one: the swatch shows how a lender is drawn,
+ * a click hides or shows it on every chart of the page, a hover emphasises it.
+ */
+export function LenderChips({
+  lenders,
+  styles,
+  hidden,
+  onChange,
+  onHover,
+}: {
+  lenders: string[];
+  styles: Map<string, LenderStyle>;
+  hidden: Set<string>;
+  onChange: (hidden: Set<string>) => void;
+  onHover: (lender: string | null) => void;
+}) {
+  const toggle = (name: string) => {
+    const next = new Set(hidden);
+    if (next.has(name)) next.delete(name);
+    else next.add(name);
+    onChange(next);
+  };
+
+  return (
+    <div class="chips" role="group" aria-label="Lenders">
+      {lenders.map((name) => {
+        const style = styles.get(name);
+        const off = hidden.has(name);
+        return (
+          <button
+            key={name}
+            type="button"
+            class="chip"
+            aria-pressed={!off}
+            onClick={() => toggle(name)}
+            onMouseEnter={() => !off && onHover(name)}
+            onMouseLeave={() => onHover(null)}
+            onFocus={() => !off && onHover(name)}
+            onBlur={() => onHover(null)}
+          >
+            <i class={`sw sw-${style?.symbol ?? 'circle'}`} style={`--c:${style?.color ?? 'currentColor'}`} />
+            {name}
+          </button>
+        );
+      })}
+      {hidden.size > 0 ? (
+        <button type="button" class="chip chip-reset" onClick={() => onChange(new Set())}>
+          Show all
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+/** How far back the ECB statistics reach; changing it refetches. */
 export function WindowPicker({
   active,
   loading,
@@ -95,30 +178,84 @@ export function WindowPicker({
   onSelect: (id: WindowId) => void;
 }) {
   return (
-    <div class="window-picker" role="group" aria-label="History window">
-      <span class="window-label">History</span>
-      {HISTORY_WINDOWS.map((w) => (
-        <button
-          key={w.id}
-          type="button"
-          aria-pressed={w.id === active}
-          class={`window-btn${w.id === active ? ' active' : ''}`}
-          disabled={loading}
-          onClick={() => onSelect(w.id)}
-        >
-          {w.label}
-        </button>
-      ))}
-    </div>
+    <Segmented
+      label="ECB history"
+      options={HISTORY_WINDOWS.map((w) => ({ id: w.id, label: w.label }))}
+      value={active}
+      onChange={onSelect}
+      disabled={loading}
+    />
   );
 }
 
-/** Coloured change cell, read from the bank's margin perspective. */
-export function changeTone(
-  change: number | undefined,
-  side: 'asset' | 'liability',
-): string {
-  if (change === undefined || Math.abs(change) < 0.005) return '';
-  const good = side === 'asset' ? change > 0 : change < 0;
-  return good ? 'up' : 'down';
+/** Every chart's numbers, one click away and out of the way until then. */
+export function Numbers({ head, rows }: { head: string[]; rows: ComponentChildren[][] }) {
+  if (rows.length === 0) return null;
+  return (
+    <details class="numbers">
+      <summary>Show numbers</summary>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              {head.map((h) => (
+                <th key={h}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i}>
+                {row.map((cell, j) => (
+                  <td key={j}>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  );
+}
+
+/** Method notes: present for anyone who wants them, invisible for everyone else. */
+export function About({ children }: { children: ComponentChildren }) {
+  return (
+    <details class="about">
+      <summary>About this data</summary>
+      <div class="about-body">{children}</div>
+    </details>
+  );
+}
+
+export function SourceList({ sources }: { sources: OfferSource[] }) {
+  if (sources.length === 0) return null;
+  const ok = sources.filter((s) => s.status === 'ok').length;
+  return (
+    <details class="about">
+      <summary>
+        Sources · {ok} of {sources.length} read on the last run
+      </summary>
+      <ul class="sources">
+        {sources.map((s) => (
+          <li key={s.url}>
+            <span class={`status status-${s.status}`}>{s.status === 'ok' ? 'read' : s.status}</span>
+            <a href={s.url} target="_blank" rel="noreferrer">
+              {s.provider}
+            </a>
+            {s.note ? <span class="source-note">{s.note}</span> : null}
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
+/** Holds the space an ECB chart will take, so nothing jumps when it arrives. */
+export function Pending({ error, height = 300 }: { error?: string; height?: number }) {
+  return (
+    <div class={`pending${error ? ' failed' : ''}`} style={{ height: `${height}px` }}>
+      {error ? `Could not reach the ECB Data Portal. ${error}` : 'Loading ECB statistics…'}
+    </div>
+  );
 }

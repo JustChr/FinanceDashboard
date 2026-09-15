@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-09-14T18:21:14.520Z",
+  "series": {
+    "bank99-rundumkredit-fix": {
+      "provider": "bank99",
+      "product": "rundumkredit99, fixed",
+      "network": "direct",
+      "fixationYears": null,
+      "conditions": "Representative example under §5 VKrG; rate is not credit-scored",
+      "sourceUrl": "https://bank99.at/kredit/rundumkredit99",
+      "episodes": [
+        {
+          "rate": 7.33,
+          "effectiveRate": 8.18,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://bank99.at/kredit/rundumkredit99"
+        }
+      ]
+    },
+    "bank99-rundumkredit-var": {
+      "provider": "bank99",
+      "product": "rundumkredit99, variable",
+      "network": "direct",
+      "fixationYears": 0,
+      "conditions": "Representative example under §5 VKrG; rate is not credit-scored",
+      "sourceUrl": "https://bank99.at/kredit/rundumkredit99",
+      "episodes": [
+        {
+          "rate": 6.9,
+          "effectiveRate": 7.72,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://bank99.at/kredit/rundumkredit99"
+        }
+      ]
+    }
+  }
+}

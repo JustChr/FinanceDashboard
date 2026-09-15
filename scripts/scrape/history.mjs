@@ -1,5 +1,7 @@
 /**
- * The housing-loan offer history — `public/data/housing-history.json`.
+ * Offer histories — `public/data/{housing,deposit,consumer}-history.json`.
+ * Housing loans came first and carry the archive backfill; savings and
+ * consumer credit are recorded from the daily scrape onward.
  *
  * `offers.json` is overwritten every morning, so on its own the board can only
  * say what a bank advertises today. This file keeps what it advertised before.
@@ -129,6 +131,8 @@ export function record(history, meta, observations) {
     product: meta.product,
     network: meta.network,
     fixationYears: meta.fixationYears ?? null,
+    // Deposits are told apart by term, not fixation; loan files stay as they were.
+    ...(meta.category === 'deposit' ? { termMonths: meta.termMonths ?? null } : {}),
     conditions: meta.conditions ?? null,
     sourceUrl: meta.sourceUrl,
     episodes: fold([...toObservations(existing?.episodes ?? []), ...observations]),

@@ -1,5 +1,5 @@
 /**
- * What Austrian banks currently advertise.
+ * What Austrian banks currently advertise, and what they advertised before.
  *
  * The ECB tells us what was *concluded* — volume-weighted, and about five weeks
  * late. It cannot tell us what is on offer today, and no public API anywhere
@@ -8,11 +8,10 @@
  *
  * So this half of the dashboard is built the other way round: a scheduled
  * workflow (`.github/workflows/offers.yml`) scrapes published condition pages,
- * writes `public/data/offers.json`, and commits it. The page then loads that
- * file same-origin. Rates a scraper cannot reach fall back to a hand-verified
- * entry in the same shape, and every figure carries the URL it came from and the
- * date it was last confirmed, so a stale number is visible as stale rather than
- * quietly wrong.
+ * writes `public/data/offers.json` plus one history file per product, and
+ * commits them. The page then loads those files same-origin. Every figure
+ * carries the URL it came from and the date it was last confirmed, so a stale
+ * number is visible as stale rather than quietly wrong.
  */
 
 export type OfferCategory = 'deposit' | 'mortgage' | 'consumer';
@@ -24,9 +23,7 @@ export type OfferMethod = 'scraped' | 'curated';
  * How the provider sets and publishes its rate.
  *
  * `direct` banks run one national rate and compete on it publicly. `branch`
- * networks price at the counter, often per local institution. The gap between
- * the two is wider than the gap between any two terms, and it is the main reason
- * the ECB volume-weighted average sits so far below the best advertised offer.
+ * networks price at the counter, often per local institution.
  */
 export type ProviderNetwork = 'direct' | 'branch';
 
@@ -57,12 +54,9 @@ export interface Offer {
    * The date the *provider* stamps on the figure — its `Stand`, where one is
    * published. `null` when the page states none.
    *
-   * This is not the same thing as `observedAt`, and on housing loans the
-   * difference is the whole point. A representative example under HIKrG is
-   * refreshed when the bank chooses, not when we read it, so a scrape today can
-   * faithfully report a rate the bank set a year ago. Without this field the
-   * board would show a fresh `observedAt` next to a stale number and imply a
-   * currency the figure does not have.
+   * A representative example under HIKrG is refreshed when the bank chooses,
+   * not when we read it, so a scrape today can faithfully report a rate the bank
+   * set a year ago.
    */
   statedAt: string | null;
 }
@@ -73,7 +67,7 @@ export interface OfferSource {
   /**
    * `partial` means the page loaded but not every expected rate was found;
    * `unavailable` is an institution we deliberately do not scrape, listed so the
-   * board can say why a bank that size is absent.
+   * page can say why a bank that size is absent.
    */
   status: 'ok' | 'partial' | 'failed' | 'unavailable';
   checkedAt: string;
@@ -89,12 +83,10 @@ export interface OfferBoard {
 /**
  * How long a figure stays current, by what it prices.
  *
- * These differ by an order of magnitude because the underlying publishing
- * behaviour does. Deposit pricing moves on days, so a fortnight is generous. A
- * housing-loan representative example is a legal disclosure a bank refreshes
- * when it feels like it — the observed spread across Austrian lenders runs from
- * same-day to a year — so holding mortgages to the deposit threshold would
- * paint the entire board stale and make the signal useless.
+ * Deposit pricing moves on days, so a fortnight is generous. A housing-loan
+ * representative example is a legal disclosure a bank refreshes when it feels
+ * like it, so holding mortgages to the deposit threshold would paint every
+ * example stale.
  */
 export const STALE_AFTER_DAYS: Record<OfferCategory, number> = {
   deposit: 14,
@@ -108,75 +100,37 @@ export function daysSince(iso: string, now = new Date()): number {
   return Math.floor((now.getTime() - then) / 86_400_000);
 }
 
-/**
- * The date a figure actually dates from.
- *
- * The provider's own `Stand` wins over the day we read the page: reading a
- * year-old rate sheet today does not make its rate a day old, and showing it as
- * one would be the single most misleading thing this board could do.
- */
+/** The provider's own `Stand` wins over the day we read the page. */
 export const ratedAt = (offer: Offer): string => offer.statedAt ?? offer.observedAt;
 
 export const isStale = (offer: Offer, now = new Date()): boolean =>
   daysSince(ratedAt(offer), now) > STALE_AFTER_DAYS[offer.category];
 
-/**
- * Loads the committed offer board.
- *
- * A missing or malformed file is not fatal: the ECB panels are the backbone of
- * the dashboard and must still render if a scrape run never landed.
- */
-export async function loadOffers(signal: AbortSignal): Promise<OfferBoard | undefined> {
+async function loadJson<T>(file: string, signal: AbortSignal, valid: (v: T) => boolean) {
   try {
-    const res = await fetch(`${import.meta.env.BASE_URL}data/offers.json`, { signal });
+    const res = await fetch(`${import.meta.env.BASE_URL}data/${file}`, { signal });
     if (!res.ok) return undefined;
-    const board = (await res.json()) as OfferBoard;
-    return Array.isArray(board?.offers) ? board : undefined;
+    const parsed = (await res.json()) as T;
+    return valid(parsed) ? parsed : undefined;
   } catch (err) {
     if (signal.aborted) throw err;
     return undefined;
   }
 }
 
-/** Highest advertised rate in a category, ignoring entries with no rate. */
-export function bestRate(offers: Offer[], category: OfferCategory): Offer | undefined {
-  return offers
-    .filter((o) => o.category === category && o.rate !== null)
-    .reduce<Offer | undefined>(
-      (best, o) => (best === undefined || (o.rate ?? 0) > (best.rate ?? 0) ? o : best),
-      undefined,
-    );
-}
-
-/** Lowest advertised rate in a category — the relevant extreme for borrowing. */
-export function cheapestRate(offers: Offer[], category: OfferCategory): Offer | undefined {
-  return offers
-    .filter((o) => o.category === category && o.rate !== null)
-    .reduce<Offer | undefined>(
-      (best, o) =>
-        best === undefined || (o.rate ?? Infinity) < (best.rate ?? Infinity) ? o : best,
-      undefined,
-    );
-}
-
-/** Groups a deposit board into instant-access and fixed-term buckets. */
-export function splitDeposits(offers: Offer[]): { instant: Offer[]; term: Offer[] } {
-  const deposits = offers.filter((o) => o.category === 'deposit');
-  return {
-    instant: deposits.filter((o) => o.termMonths === null),
-    term: deposits
-      .filter((o) => o.termMonths !== null)
-      .sort((a, b) => (a.termMonths ?? 0) - (b.termMonths ?? 0)),
-  };
-}
+/**
+ * Loads the committed offer board. A missing or malformed file is not fatal:
+ * the ECB panels must still render if a scrape run never landed.
+ */
+export const loadOffers = (signal: AbortSignal) =>
+  loadJson<OfferBoard>('offers.json', signal, (b) => Array.isArray(b?.offers));
 
 /* ------------------------------------------------------------------ *
- * Housing-loan history
+ * Offer history
  *
- * `offers.json` says what a bank advertises today. `housing-history.json`
- * says what it advertised before, as pricing episodes: one per distinct quote,
- * with the first and last day it was seen. It is written by the daily scrape
- * and backfilled from Internet Archive captures of the same pages — see
+ * One file per product, as pricing episodes: one per distinct quote, with the
+ * first and last day it was seen. Written by the daily scrape; the housing file
+ * is also backfilled from Internet Archive captures — see
  * `scripts/scrape/history.mjs`.
  * ------------------------------------------------------------------ */
 
@@ -199,6 +153,8 @@ export interface QuoteSeries {
   product: string;
   network: ProviderNetwork;
   fixationYears: number | null;
+  /** Deposit files only. */
+  termMonths?: number | null;
   conditions: string | null;
   sourceUrl: string;
   episodes: QuoteEpisode[];
@@ -209,32 +165,17 @@ export interface QuoteHistory {
   series: Record<string, QuoteSeries>;
 }
 
-/** Loads the committed history; like the board, its absence is not fatal. */
-export async function loadHousingHistory(signal: AbortSignal): Promise<QuoteHistory | undefined> {
-  try {
-    const res = await fetch(`${import.meta.env.BASE_URL}data/housing-history.json`, { signal });
-    if (!res.ok) return undefined;
-    const history = (await res.json()) as QuoteHistory;
-    return history?.series && typeof history.series === 'object' ? history : undefined;
-  } catch (err) {
-    if (signal.aborted) throw err;
-    return undefined;
-  }
-}
-
-export type QuoteBasis = 'effective' | 'nominal';
+export const loadHistory = (file: string, signal: AbortSignal) =>
+  loadJson<QuoteHistory>(file, signal, (h) => !!h?.series && typeof h.series === 'object');
 
 /**
- * Which figure a lender's history is drawn in.
- *
  * Effective wherever the lender publishes one, because only the effective rate
- * includes fees and is defined identically across banks. A lender that never
- * publishes one is drawn in nominal rather than dropped, and labelled so.
- * Switching between the two inside one lender's line would draw its fee load as
- * a repricing.
+ * includes fees and is defined identically across banks.
  */
-export const basisOf = (series: QuoteSeries): QuoteBasis =>
-  series.episodes.some((e) => e.effectiveRate !== null) ? 'effective' : 'nominal';
+export type QuoteBasis = 'effective' | 'nominal';
+
+export const hasBasis = (series: QuoteSeries, basis: QuoteBasis): boolean =>
+  series.episodes.some((e) => quoteOf(e, basis) !== null);
 
 export const quoteOf = (episode: QuoteEpisode, basis: QuoteBasis): number | null =>
   basis === 'effective' ? episode.effectiveRate : episode.rate;
@@ -260,22 +201,16 @@ export function effectiveFrom(episode: QuoteEpisode, previous?: QuoteEpisode): s
 
 /**
  * The day a stamped quote stops counting as a current offer, or `null` for a
- * lender that stamps none.
+ * provider that stamps none.
  *
- * Quotes are held to the board's own staleness rule: once the latest Stand is
- * older than `STALE_AFTER_DAYS.mortgage`, the quote is a disclosure nobody
- * updated, not a price. bank99 left a 0,51 % example online until late 2023,
- * while the lenders beside it quoted over 4 %; drawn at face value, that would
- * be the cheapest mortgage in Austria for two years of the hiking cycle.
+ * bank99 left a 0,51 % example online until late 2023, while the lenders beside
+ * it quoted over 4 %; drawn at face value, that would be the cheapest mortgage
+ * in Austria for two years of the hiking cycle.
  */
-export function lapseOf(episode: QuoteEpisode): string | null {
+export function lapseOf(episode: QuoteEpisode, category: OfferCategory): string | null {
   const stamp = episode.restatedAt ?? episode.statedAt;
-  return stamp === null ? null : addDays(stamp, STALE_AFTER_DAYS.mortgage);
+  return stamp === null ? null : addDays(stamp, STALE_AFTER_DAYS[category]);
 }
-
-export const isQuoteStale = (episode: QuoteEpisode, now = new Date()): boolean =>
-  daysSince(episode.restatedAt ?? episode.statedAt ?? episode.lastSeen, now) >
-  STALE_AFTER_DAYS.mortgage;
 
 export interface Repricing {
   id: string;
@@ -283,31 +218,27 @@ export interface Repricing {
   date: string;
   before: number;
   after: number;
-  basis: QuoteBasis;
   episode: QuoteEpisode;
   /**
    * Set when the evidence brackets the repricing rather than pinning it: the
    * last day the old quote was seen. A Stand pins the date only if it predates
-   * the first sighting — Hypo NOE stamps its example with the day it is
-   * generated, which says when we looked, not when the bank decided.
+   * the first sighting.
    */
   earliest?: string;
 }
 
 /**
- * Every change in a lender's headline quote, newest first.
+ * Every change in a quote on one basis, newest first.
  *
- * Compared on the lender's drawing basis only, and across a missing figure
- * rather than to it: an effective rate the scraper discarded is a gap in the
- * evidence, not a repricing to nothing. Moves under a basis point are left out
- * — effective rates are recomputed from fees and wobble in the fourth decimal
- * without the bank deciding anything.
+ * Compared across a missing figure rather than to it: an effective rate the
+ * scraper discarded is a gap in the evidence, not a repricing to nothing. Moves
+ * under a basis point are left out — effective rates are recomputed from fees
+ * and wobble in the fourth decimal without the bank deciding anything.
  */
-export function repricings(history: QuoteHistory): Repricing[] {
+export function repricings(history: QuoteHistory, basis: QuoteBasis): Repricing[] {
   const log: Repricing[] = [];
 
   for (const [id, series] of Object.entries(history.series)) {
-    const basis = basisOf(series);
     let last: number | undefined;
 
     series.episodes.forEach((episode, i) => {
@@ -326,7 +257,6 @@ export function repricings(history: QuoteHistory): Repricing[] {
           date,
           before: last,
           after: value,
-          basis,
           episode,
           ...(bracketed ? { earliest: previous.lastSeen } : {}),
         });
@@ -336,18 +266,4 @@ export function repricings(history: QuoteHistory): Repricing[] {
   }
 
   return log.sort((a, b) => b.date.localeCompare(a.date));
-}
-
-/** Highest advertised rate within one kind of provider, for the direct/branch gap. */
-export function bestIn(
-  offers: Offer[],
-  network: ProviderNetwork,
-  predicate: (offer: Offer) => boolean,
-): Offer | undefined {
-  return offers
-    .filter((o) => o.network === network && o.rate !== null && predicate(o))
-    .reduce<Offer | undefined>(
-      (best, o) => (best === undefined || (o.rate ?? 0) > (best.rate ?? 0) ? o : best),
-      undefined,
-    );
 }
