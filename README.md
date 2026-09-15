@@ -20,21 +20,31 @@ little. The distance between them is most of the analysis here.
 
 ## What it shows
 
-**Housing loans** — the rate fixation ladder (variable/≤1Y, 1–5Y, 5–10Y, >10Y)
-today and back through the cycle; front book against back book, with how long
-the stock would take to catch up; whether renegotiating beats a new contract;
-monthly lending volumes; and the fee load the APRC adds over the headline rate.
+One page per product, each built the same way: what banks advertise today, how
+those offers moved, and what was actually concluded according to the ECB. One
+row of controls — rate basis, lenders, tax — scopes every chart on the page, and
+every chart's numbers sit behind a collapsed *Show numbers*.
 
-**Savings & deposits** — term deposits by agreed maturity, what instant access
-costs a saver, new business against the outstanding book, and cumulative deposit
-beta by product.
+**Housing loans** — every advertised quote plotted by fixation period against
+the ECB concluded average for its bucket; click a fixation to follow its
+history, with the latest repricings listed underneath. The ECB panel switches
+between the fixation ladder, new against outstanding loans, renegotiations, the
+APRC fee load and lending volume.
 
-**Consumer credit** — fixation bands, overdrafts, and the fee load, which is an
-order of magnitude larger here than on a mortgage.
+**Savings** — advertised rates by term (on a square-root axis, so 1–12 months
+stay readable) against the ECB maturity buckets, optionally after 25% KESt, with
+each term's history. The ECB panel covers products, new against outstanding
+deposits, pass-through of the deposit facility rate, and volume.
 
-**Bank offers** — advertised savings, term deposit and consumer loan rates from
-each provider's own condition page, with the best offer set against the ECB
-average for the same kind of money.
+**Consumer credit** — the published representative examples, and ECB rates by
+fixation, against the APRC and against other household lending.
+
+**Rates & ECB** — policy rates, €STR and Euribor, bank margins over €STR, and
+Austria against the euro area for every series as small-multiple dumbbells.
+
+Offer history lives in `public/data/{housing,deposit,consumer}-history.json`.
+Housing reaches back to 2017 through archive captures; savings and consumer
+credit are recorded daily from 12 September 2026.
 
 ## Data sources
 

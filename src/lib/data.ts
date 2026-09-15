@@ -14,7 +14,7 @@ import {
   type WindowId,
 } from './catalog';
 import { toMonthEnd } from './metrics';
-import { loadHousingHistory, loadOffers, type OfferBoard, type QuoteHistory } from './offers';
+import { loadHistory, loadOffers, type OfferBoard, type QuoteHistory } from './offers';
 
 /**
  * Collapses the catalogue into as few SDMX requests as possible.
@@ -83,27 +83,27 @@ export function planQueries(defs: MirDef[], area: Area): string[] {
   return queries;
 }
 
-export interface DashboardData {
+/* ------------------------------------------------------------------ */
+/* ECB statistics, fetched live                                        */
+/* ------------------------------------------------------------------ */
+
+export interface EcbData {
   /** Austrian MIR series, indexed by the catalogue definition id. */
   at: Map<string, Series>;
-  /** Euro-area equivalents, for the comparison columns. */
+  /** Euro-area equivalents. */
   ea: Map<string, Series>;
-  estr: Series | undefined;
+  estr: Observation | undefined;
   estrMonthly: Observation[];
   dfrMonthly: Observation[];
   policy: { dfr?: number; mro?: number; mlf?: number; asOf?: string };
   euribor3m: Series | undefined;
-  /** What banks currently advertise, from the scheduled scrape. */
-  offers: OfferBoard | undefined;
-  /** What banks advertised for housing loans before today. */
-  housingHistory: QuoteHistory | undefined;
   /** Latest MIR observation period across the Austrian block. */
   asOf: string | undefined;
   window: WindowId;
 }
 
-export interface LoadState {
-  data: DashboardData | undefined;
+export interface LoadState<T> {
+  data: T | undefined;
   loading: boolean;
   error: string | undefined;
 }
@@ -126,21 +126,17 @@ async function loadMir(
   for (const d of defs) {
     const series = byKey.get(seriesKeyFor(d, area));
     // A missing series is normal: not every MIR breakdown exists for every
-    // country. The panel renders a dash rather than failing.
+    // country. The chart simply leaves the line out.
     if (series) byId.set(d.id, series);
   }
   return byId;
 }
 
-export async function loadDashboard(
-  window: WindowId,
-  signal: AbortSignal,
-): Promise<DashboardData> {
+async function loadEcb(window: WindowId, signal: AbortSignal): Promise<EcbData> {
   const startPeriod = windowStart(window);
   const eaDefs = ALL_DEFS.filter((d) => d.ea);
 
-  const [at, ea, estrList, dfrList, mroList, mlfList, euriborList, offers, housingHistory] =
-    await Promise.all([
+  const [at, ea, estrList, dfrList, mroList, mlfList, euriborList] = await Promise.all([
     loadMir('AT', ALL_DEFS, startPeriod, signal),
     loadMir('U2', eaDefs, startPeriod, signal),
     fetchSeries('EST', ESTR_KEY, { startPeriod, signal }),
@@ -148,11 +144,8 @@ export async function loadDashboard(
     fetchSeries('FM', POLICY_RATES.mro.key, { lastNObservations: 1, signal }),
     fetchSeries('FM', POLICY_RATES.mlf.key, { lastNObservations: 1, signal }),
     fetchSeries('FM', EURIBOR_3M_KEY, { startPeriod, signal }),
-    loadOffers(signal),
-    loadHousingHistory(signal),
   ]);
 
-  const estr = estrList[0];
   const dfr = dfrList[0];
 
   let asOf: string | undefined;
@@ -164,8 +157,8 @@ export async function loadDashboard(
   return {
     at,
     ea,
-    estr,
-    estrMonthly: toMonthEnd(estr?.observations ?? []),
+    estr: latest(estrList[0]),
+    estrMonthly: toMonthEnd(estrList[0]?.observations ?? []),
     dfrMonthly: toMonthEnd(dfr?.observations ?? []),
     policy: {
       dfr: latest(dfr)?.value,
@@ -174,15 +167,13 @@ export async function loadDashboard(
       asOf: latest(dfr)?.period,
     },
     euribor3m: euriborList[0],
-    offers,
-    housingHistory,
     asOf,
     window,
   };
 }
 
-export function useDashboard(window: WindowId): LoadState {
-  const [state, setState] = useState<LoadState>({
+export function useEcb(window: WindowId): LoadState<EcbData> {
+  const [state, setState] = useState<LoadState<EcbData>>({
     data: undefined,
     loading: true,
     error: undefined,
@@ -190,23 +181,60 @@ export function useDashboard(window: WindowId): LoadState {
 
   useEffect(() => {
     const controller = new AbortController();
-    // Keep the previous window on screen while the new one loads; a full-page
-    // spinner on every window change makes the toggle feel broken.
+    // Keep the previous window on screen while the new one loads; a blank chart
+    // on every range change makes the toggle feel broken.
     setState((prev) => ({ ...prev, loading: true, error: undefined }));
 
-    loadDashboard(window, controller.signal)
+    loadEcb(window, controller.signal)
       .then((data) => setState({ data, loading: false, error: undefined }))
       .catch((err: unknown) => {
         if (controller.signal.aborted) return;
-        setState({
-          data: undefined,
+        setState((prev) => ({
+          data: prev.data,
           loading: false,
           error: err instanceof Error ? err.message : 'Failed to load ECB data',
-        });
+        }));
       });
 
     return () => controller.abort();
   }, [window]);
 
   return state;
+}
+
+/* ------------------------------------------------------------------ */
+/* Offers, committed by the daily scrape                               */
+/* ------------------------------------------------------------------ */
+
+export interface OfferData {
+  board: OfferBoard | undefined;
+  housing: QuoteHistory | undefined;
+  deposit: QuoteHistory | undefined;
+  consumer: QuoteHistory | undefined;
+}
+
+/**
+ * Loads the offer files on their own, so the offer charts — same-origin and
+ * small — are on screen before the ECB API has answered.
+ */
+export function useOffers(): OfferData | undefined {
+  const [data, setData] = useState<OfferData>();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+    Promise.all([
+      loadOffers(signal),
+      loadHistory('housing-history.json', signal),
+      loadHistory('deposit-history.json', signal),
+      loadHistory('consumer-history.json', signal),
+    ])
+      .then(([board, housing, deposit, consumer]) => setData({ board, housing, deposit, consumer }))
+      .catch(() => {
+        if (!signal.aborted) setData({ board: undefined, housing: undefined, deposit: undefined, consumer: undefined });
+      });
+    return () => controller.abort();
+  }, []);
+
+  return data;
 }

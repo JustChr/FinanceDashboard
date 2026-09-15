@@ -15,6 +15,19 @@ Status as of 2026-09-12. The MVP is live at
       in `public/data/housing-history.json`, backfilled from Internet Archive
       captures (`npm run backfill`), shown on the Housing loans tab against the
       ECB concluded APRC
+- [x] **Redesign by product** — Housing loans, Savings, Consumer credit and
+      Rates & ECB pages; today's offers as fixation/term-vs-rate curves that
+      drive a history chart; ECB panels with a view switch instead of a card per
+      question; tables behind *Show numbers*; light and dark themes
+- [x] Savings and consumer-credit offer history
+      (`public/data/{deposit,consumer}-history.json`), recorded daily from
+      12 Sep 2026
+
+## Open — savings history
+
+- [ ] Backfill savings rates from Internet Archive captures, as housing already
+      is, so the savings history chart shows more than the days since daily
+      reading began
 
 ## Open — housing-loan coverage
 

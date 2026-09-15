@@ -1,223 +1,146 @@
 import { useMemo } from 'preact/hooks';
 
-import type { DashboardData } from '../lib/data';
-import { CONSUMER_RATES } from '../lib/catalog';
 import { latest } from '../lib/sdmx';
-import { changeOver, ladder, spread } from '../lib/metrics';
-import { bps, bpsAbs, formatPeriod, pct } from '../lib/format';
-import { Chart, CHART_COLORS, Legend } from '../components/Chart';
-import { ladderChart, timeChart } from '../components/charts';
-import { Callout, Card, Stat, StatRow, changeTone } from '../components/ui';
+import { repricings } from '../lib/offers';
+import { lenderStyles, quotesFor } from '../lib/quotes';
+import { day, formatPeriod, pct } from '../lib/format';
+import { usePalette } from '../lib/theme';
+import { MarketPanel, obs, type MarketView } from '../components/MarketPanel';
+import { About, Facts, PageHead, Section, SourceList } from '../components/ui';
+import { ChangeList, allLenders, sourcesFor, type PageProps } from '../components/offerParts';
 
-const FIXATION = CONSUMER_RATES.filter((d) => ['cc_var', 'cc_1_5', 'cc_5p'].includes(d.id));
+const VIEWS: MarketView[] = [
+  {
+    id: 'fixation',
+    label: 'By fixation',
+    lines: (e, pal) => [
+      { name: 'Variable / up to 1y', observations: obs(e, 'cc_var'), color: pal.series[0] ?? pal.ink },
+      { name: 'Fixed 1–5y', observations: obs(e, 'cc_1_5'), color: pal.series[1] ?? pal.ink },
+      { name: 'Fixed over 5y', observations: obs(e, 'cc_5p'), color: pal.series[2] ?? pal.ink },
+    ],
+  },
+  {
+    id: 'fees',
+    label: 'Rate vs APRC',
+    lines: (e, pal) => [
+      { name: 'Agreed rate', observations: obs(e, 'cc_total'), color: pal.series[0] ?? pal.ink },
+      { name: 'APRC incl. fees', observations: obs(e, 'cc_aprc'), color: pal.series[1] ?? pal.ink },
+    ],
+  },
+  {
+    id: 'compare',
+    label: 'vs other lending',
+    lines: (e, pal) => [
+      { name: 'Consumer credit', observations: obs(e, 'cc_total'), color: pal.series[0] ?? pal.ink },
+      { name: 'Overdrafts', observations: obs(e, 'od_hh'), color: pal.series[1] ?? pal.ink },
+      { name: 'Housing loans', observations: obs(e, 'hl_total'), color: pal.series[2] ?? pal.ink },
+      { name: 'Consumer credit, euro area', observations: obs(e, 'cc_total', 'ea'), color: pal.market },
+    ],
+  },
+];
 
-const SHORT: Record<string, string> = {
-  cc_var: 'Variable / ≤1Y',
-  cc_1_5: 'Fixed 1–5Y',
-  cc_5p: 'Fixed >5Y',
-};
+const fixationText = (years: number | null) =>
+  years === null ? 'Fixed for the whole term' : years === 0 ? 'Variable rate' : `Fixed for ${years} years`;
 
-export function Consumer({ data }: { data: DashboardData }) {
+export function Consumer({ offers, ecb, ecbWindow, onWindow }: PageProps) {
+  const pal = usePalette();
+  const { board, consumer: history } = offers;
+  const data = ecb.data;
+
+  const quotes = useMemo(() => quotesFor(board?.offers ?? [], 'consumer'), [board]);
+  const styles = useMemo(() => lenderStyles(allLenders(quotes, history), pal), [quotes, history, pal]);
+  const changes = useMemo(() => (history ? repricings(history, 'effective') : []), [history]);
+  const since = Object.values(history?.series ?? {})
+    .map((s) => s.episodes[0]?.firstSeen)
+    .filter((d): d is string => !!d)
+    .sort()[0];
+
+  const at = (id: string) => (data ? latest(data.at.get(id)) : undefined);
+  const total = at('cc_total');
+  const aprc = at('cc_aprc');
+  const overdraft = at('od_hh');
+  const cheapest = quotes
+    .filter((q) => q.effective !== null)
+    .sort((a, b) => (a.effective ?? 0) - (b.effective ?? 0))[0];
+
   return (
-    <div class="grid">
-      <ConsumerLadder data={data} />
-      <ConsumerHistory data={data} />
-      <ConsumerFees data={data} />
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function ConsumerLadder({ data }: { data: DashboardData }) {
-  const rungs = useMemo(() => ladder(FIXATION, data.at, data.ea), [data]);
-  const total = latest(data.at.get('cc_total'));
-  const totalEa = latest(data.ea.get('cc_total'));
-  const overdraft = latest(data.at.get('od_hh'));
-
-  const option = useMemo(
-    () =>
-      ladderChart(
-        rungs.map((r) => SHORT[r.def.id] ?? r.def.label),
-        [{ name: 'Austria', values: rungs.map((r) => r.at ?? null), color: CHART_COLORS.austria }],
-      ),
-    [rungs],
-  );
-
-  return (
-    <Card
-      span={6}
-      title="Consumer credit by fixation"
-      sub={`New consumer loans to Austrian households · ${formatPeriod(data.asOf)}`}
-    >
-      <StatRow>
-        <Stat label="All consumer credit" value={pct(total?.value)} note="Volume-weighted" />
-        <Stat
-          label="Versus euro area"
-          value={bpsAbs(total && totalEa ? total.value - totalEa.value : undefined)}
-          note={total && totalEa && total.value > totalEa.value ? 'Austria dearer' : 'Austria cheaper'}
+    <>
+      <PageHead title="Consumer credit">
+        <p class="lede">
+          What Austrian households concluded{total ? ` in ${formatPeriod(total.period)}` : ''}, and the few
+          consumer-loan examples a bank publishes in readable form.
+        </p>
+        <Facts
+          items={[
+            { label: 'ECB concluded, agreed rate', value: pct(total?.value), detail: 'All new consumer loans' },
+            { label: 'ECB concluded, APRC', value: pct(aprc?.value), detail: 'Including fees' },
+            { label: 'Overdrafts', value: pct(overdraft?.value), detail: 'Revolving credit' },
+            {
+              label: 'Lowest advertised, effective',
+              value: pct(cheapest?.effective),
+              detail: cheapest ? `${cheapest.lender} · ${fixationText(cheapest.offer.fixationYears).toLowerCase()}` : 'None published',
+            },
+          ]}
         />
-        <Stat label="Overdrafts" value={pct(overdraft?.value)} note="Revolving credit" tone="negative" />
-      </StatRow>
-      <Chart
-        option={option}
-        height={195}
-        ariaLabel="Austrian consumer credit rates by initial rate fixation period"
+      </PageHead>
+
+      <Section
+        title="Advertised today"
+        meta="Representative examples under §5 VKrG. Consumer credit is priced per borrower, so almost no bank publishes a figure that can be read."
+      >
+        <ul class="offer-list">
+          {quotes.map((q) => {
+            const style = styles.get(q.lender);
+            return (
+              <li key={q.offer.id}>
+                <span class="who">
+                  <i class="sw" style={`--c:${style?.color ?? 'currentColor'}`} />
+                  {q.lender}
+                </span>
+                <span class="offer-product">
+                  <a href={q.offer.sourceUrl} target="_blank" rel="noreferrer">
+                    {q.offer.product}
+                  </a>
+                  <span class="muted"> · {fixationText(q.offer.fixationYears)}</span>
+                </span>
+                <span class="offer-rate">
+                  <b>{pct(q.effective)}</b> effective
+                  <span class="muted"> · {pct(q.nominal)} nominal</span>
+                </span>
+                <span class="muted">Checked {day(q.offer.observedAt)}</span>
+              </li>
+            );
+          })}
+        </ul>
+        <ChangeList
+          changes={changes.slice(0, 6)}
+          styles={styles}
+          empty={since ? `Recorded daily from ${day(since)}; no change so far.` : 'No history recorded yet.'}
+        />
+      </Section>
+
+      <MarketPanel
+        title="Concluded consumer credit"
+        meta="ECB MFI interest rate statistics for Austrian households: new business, volume-weighted, monthly."
+        views={VIEWS}
+        ecb={ecb}
+        window={ecbWindow}
+        onWindow={onWindow}
       />
-      <div class="table-wrap">
-        <table class="rates compact">
-          <thead>
-            <tr>
-              <th>Fixation</th>
-              <th>Austria</th>
-              <th>12m</th>
-              <th>Euro area</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rungs.map((r) => (
-              <tr key={r.def.id}>
-                <td>{SHORT[r.def.id] ?? r.def.label}</td>
-                <td class="num">{pct(r.at)}</td>
-                <td class={`num delta ${changeTone(r.change12m, 'asset')}`}>{bps(r.change12m)}</td>
-                <td class="num">{pct(r.ea)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      <div class="page-foot">
+        <About>
+          <p>
+            The APRC includes arrangement fees and other charges. On consumer credit it sits far above the agreed
+            rate, because the same fixed costs are spread over a much smaller loan than a mortgage.
+          </p>
+          <p>
+            The ECB splits consumer credit by initial rate fixation: variable or up to one year, over one and up to
+            five years, and over five years.
+          </p>
+        </About>
+        <SourceList sources={sourcesFor(board, 'consumer')} />
       </div>
-      <Callout>
-        Consumer credit is priced on the borrower, not on the funding curve, so the ladder is far
-        flatter than the housing one and sits several points above it. An overdraft at{' '}
-        <strong>{pct(overdraft?.value)}</strong> is the most expensive money a household routinely
-        borrows, and it is the one nobody shops for.
-      </Callout>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function ConsumerHistory({ data }: { data: DashboardData }) {
-  const option = useMemo(
-    () =>
-      timeChart([
-        {
-          name: 'Consumer credit',
-          observations: data.at.get('cc_total')?.observations ?? [],
-          color: CHART_COLORS.austria,
-          width: 2.2,
-        },
-        {
-          name: 'Overdrafts',
-          observations: data.at.get('od_hh')?.observations ?? [],
-          color: CHART_COLORS.negative,
-        },
-        {
-          name: 'Housing loans',
-          observations: data.at.get('hl_total')?.observations ?? [],
-          color: CHART_COLORS.asset,
-        },
-        {
-          name: 'Euro area, consumer',
-          observations: data.ea.get('cc_total')?.observations ?? [],
-          color: CHART_COLORS.euroArea,
-          dashed: true,
-        },
-      ]),
-    [data],
-  );
-
-  return (
-    <Card
-      span={6}
-      title="Unsecured against secured"
-      sub="Consumer credit and overdrafts against the housing loan rate"
-    >
-      <Chart
-        option={option}
-        height={250}
-        ariaLabel="Austrian consumer credit, overdraft and housing loan rates over time"
-      />
-      <Legend
-        items={[
-          { label: 'Consumer credit', color: CHART_COLORS.austria },
-          { label: 'Overdrafts', color: CHART_COLORS.negative },
-          { label: 'Housing loans', color: CHART_COLORS.asset },
-          { label: 'Euro area, consumer', color: CHART_COLORS.euroArea },
-        ]}
-      />
-      <Callout>
-        The spread between the blue and red lines is the value of collateral. It barely moves with
-        the policy rate, because it is a credit-risk premium rather than a funding cost — which is
-        why consumer credit lagged so far behind housing loans on the way up.
-      </Callout>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function ConsumerFees({ data }: { data: DashboardData }) {
-  const rate = data.at.get('cc_total');
-  const aprc = data.at.get('cc_aprc');
-
-  const load = useMemo(
-    () => (rate && aprc ? spread(aprc.observations, rate.observations) : []),
-    [rate, aprc],
-  );
-
-  const option = useMemo(
-    () =>
-      timeChart(
-        [
-          {
-            name: 'Consumer credit APRC',
-            observations: aprc?.observations ?? [],
-            color: CHART_COLORS.liability,
-            width: 2.2,
-          },
-          {
-            name: 'Headline rate',
-            observations: rate?.observations ?? [],
-            color: CHART_COLORS.austria,
-            width: 2,
-          },
-        ],
-      ),
-    [aprc, rate],
-  );
-
-  const now = load.at(-1);
-
-  return (
-    <Card
-      span={12}
-      title="What the fees add"
-      sub="Annual percentage rate of charge against the headline consumer credit rate"
-    >
-      <StatRow>
-        <Stat label="Headline rate" value={pct(latest(rate)?.value)} note="Interest only" />
-        <Stat label="APRC" value={pct(latest(aprc)?.value)} note="Including fees" />
-        <Stat label="Fee load" value={bpsAbs(now?.value)} note={formatPeriod(now?.period)} tone="negative" />
-        <Stat label="APRC, 12m change" value={bps(changeOver(aprc, 12))} note="Percentage points" />
-      </StatRow>
-      <Chart
-        option={option}
-        height={210}
-        ariaLabel="Austrian consumer credit annual percentage rate of charge against the headline rate"
-      />
-      <Legend
-        items={[
-          { label: 'APRC', color: CHART_COLORS.liability },
-          { label: 'Headline rate', color: CHART_COLORS.austria },
-        ]}
-      />
-      <Callout>
-        The fee load on consumer credit is an order of magnitude larger than on housing loans,
-        because the same fixed arrangement costs are spread across a far smaller loan. This is the
-        gap the representative examples on the Bank offers tab make visible per product.
-      </Callout>
-    </Card>
+    </>
   );
 }

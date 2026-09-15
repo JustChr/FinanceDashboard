@@ -38,14 +38,15 @@ jobs:
         # store — the file is — but every run's commit is a free audit trail of
         # when each episode was extended or opened.
         run: |
-          if git diff --quiet -- public/data/offers.json public/data/housing-history.json; then
+          # New history files are untracked on their first run, so check status, not diff.
+          if [ -z "$(git status --porcelain -- public/data)" ]; then
             echo "Nothing to commit; the scrape produced identical files."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/offers.json public/data/housing-history.json
+          git add public/data/offers.json public/data/*-history.json
           git commit -m "Refresh bank offer board"
           # Another push may have landed since checkout; rebase rather than
           # force, so a human commit is never overwritten by the scheduler.

@@ -1,362 +1,334 @@
-import { useMemo } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 
-import type { DashboardData } from '../lib/data';
-import { CYCLE_START, DEPOSIT_MATURITY } from '../lib/catalog';
+import { CYCLE_START } from '../lib/catalog';
 import { latest } from '../lib/sdmx';
+import { betaSeries } from '../lib/metrics';
+import { STALE_AFTER_DAYS, repricings } from '../lib/offers';
+import { dodgeOffsets, lenderStyles, nearest, quotesFor, type Quote } from '../lib/quotes';
+import { day, esc, eur, formatPeriod, formatTerm, pct, termShort } from '../lib/format';
+import { usePalette } from '../lib/theme';
+import { Chart } from '../components/Chart';
+import { CURVE_AXES, curveChart, historyChart, tipRow, type CurveBand, type StepLine } from '../components/charts';
+import { MarketPanel, obs, type MarketView } from '../components/MarketPanel';
 import {
-  betaSeries,
-  cumulativeBeta,
-  ladder,
-  repricingGap,
-  rollingSum,
-  spread,
-} from '../lib/metrics';
-import { bps, bpsAbs, eurMillions, formatPeriod, pct, ratio } from '../lib/format';
-import { Chart, CHART_COLORS, Legend } from '../components/Chart';
-import { ladderChart, timeChart, volumeChart } from '../components/charts';
-import { Callout, Card, Stat, StatRow, changeTone } from '../components/ui';
+  About,
+  Controls,
+  Facts,
+  LenderChips,
+  Numbers,
+  PageHead,
+  Section,
+  Segmented,
+  SourceList,
+  Switch,
+  type FactItem,
+} from '../components/ui';
+import {
+  ChangeList,
+  CurveKey,
+  RANGES,
+  allLenders,
+  buildCurveLines,
+  buildHistoryLines,
+  historyWindow,
+  lenderWeights,
+  sourcesFor,
+  type PageProps,
+  type Range,
+} from '../components/offerParts';
 
-const SHORT: Record<string, string> = {
-  dep_term_le1: 'Up to 1Y',
-  dep_term_1_2: '1–2Y',
-  dep_term_2p: 'Over 2Y',
-};
+/** Austrian capital gains tax on interest. */
+const KEST = 0.25;
 
-export function Savings({ data }: { data: DashboardData }) {
-  return (
-    <div class="grid">
-      <MaturityLadder data={data} />
-      <SavingsHistory data={data} />
-      <DepositFrontBack data={data} />
-      <DepositBeta data={data} />
-      <TermVolume data={data} />
-    </div>
-  );
+/** The ECB's deposit buckets, in months. Overnight sits on the instant-access column. */
+const BANDS = [
+  { id: 'dep_on', label: 'overnight deposits', from: 0, to: 0 },
+  { id: 'dep_term_le1', label: 'term deposits up to 1 year', from: 1, to: 12 },
+  { id: 'dep_term_1_2', label: 'term deposits over 1 and up to 2 years', from: 12, to: 24 },
+  { id: 'dep_term_2p', label: 'term deposits over 2 years', from: 24, to: 90 },
+] as const;
+
+function bandFor(months: number) {
+  if (months === 0) return BANDS[0];
+  if (months <= 12) return BANDS[1];
+  if (months <= 24) return BANDS[2];
+  return BANDS[3];
 }
 
-/* ------------------------------------------------------------------ */
+const toAxis = CURVE_AXES.term.to;
+const bandExtent = (b: (typeof BANDS)[number]) =>
+  b.to === 0 ? { from: -0.4, to: 0.4 } : { from: toAxis(b.from), to: toAxis(b.to) };
 
-function MaturityLadder({ data }: { data: DashboardData }) {
-  const rungs = useMemo(() => ladder(DEPOSIT_MATURITY, data.at, data.ea), [data]);
+const VIEWS: MarketView[] = [
+  {
+    id: 'products',
+    label: 'By product',
+    lines: (e, pal) => [
+      { name: 'Overnight', observations: obs(e, 'dep_on'), color: pal.series[0] ?? pal.ink },
+      { name: 'Term up to 1y', observations: obs(e, 'dep_term_le1'), color: pal.series[1] ?? pal.ink },
+      { name: 'Term 1–2y', observations: obs(e, 'dep_term_1_2'), color: pal.series[2] ?? pal.ink },
+      { name: 'Term over 2y', observations: obs(e, 'dep_term_2p'), color: pal.series[3] ?? pal.ink },
+      { name: 'At notice', observations: obs(e, 'dep_notice'), color: pal.series[4] ?? pal.ink },
+      { name: 'ECB deposit facility', observations: e.dfrMonthly, color: pal.market, step: true, width: 1.5 },
+    ],
+  },
+  {
+    id: 'book',
+    label: 'New vs existing',
+    lines: (e, pal) => [
+      { name: 'New term deposits', observations: obs(e, 'dep_term'), color: pal.series[0] ?? pal.ink },
+      { name: 'All outstanding term deposits', observations: obs(e, 'dep_term_stock'), color: pal.series[1] ?? pal.ink },
+    ],
+  },
+  {
+    id: 'beta',
+    label: 'Pass-through',
+    suffix: '',
+    zeroLine: true,
+    lines: (e, pal) => [
+      { name: 'Overnight, Austria', observations: betaSeries(e.at.get('dep_on'), e.dfrMonthly, CYCLE_START), color: pal.series[0] ?? pal.ink },
+      { name: 'Term, Austria', observations: betaSeries(e.at.get('dep_term'), e.dfrMonthly, CYCLE_START), color: pal.series[1] ?? pal.ink },
+      { name: 'Overnight, euro area', observations: betaSeries(e.ea.get('dep_on'), e.dfrMonthly, CYCLE_START), color: pal.market },
+    ],
+  },
+  { id: 'volume', label: 'Volume', volume: (e) => obs(e, 'dep_term_volume') },
+];
 
-  const overnight = latest(data.at.get('dep_on'));
-  const shortTerm = latest(data.at.get('dep_term_le1'));
-  const liquidityCost =
-    overnight && shortTerm ? shortTerm.value - overnight.value : undefined;
+const truncate = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+const termLong = (months: number) => (months === 0 ? 'instant access' : formatTerm(months));
 
-  const option = useMemo(
+export function Savings({ offers, ecb, ecbWindow, onWindow }: PageProps) {
+  const pal = usePalette();
+  const { board, deposit: history } = offers;
+  const data = ecb.data;
+
+  const [afterTax, setAfterTax] = useState(false);
+  const [hidden, setHidden] = useState<Set<string>>(() => new Set());
+  const [hover, setHover] = useState<string | null>(null);
+  const [term, setTerm] = useState(12);
+  // Daily savings records are young; a year keeps today's offers readable against the ECB line.
+  const [range, setRange] = useState<Range>('1y');
+  const scale = afterTax ? 1 - KEST : 1;
+
+  const all = useMemo(() => quotesFor(board?.offers ?? [], 'deposit'), [board]);
+  const lenders = useMemo(() => allLenders(all, history), [all, history]);
+  const styles = useMemo(() => lenderStyles(lenders, pal, lenderWeights(all, history)), [lenders, all, history, pal]);
+  const dodge = useMemo(() => dodgeOffsets(lenders, 0.06), [lenders]);
+  const terms = useMemo(() => [...new Set(all.map((q) => q.x))].sort((a, b) => a - b), [all]);
+
+  // Terms at least two providers offer, so the history selector stays short.
+  const termOptions = useMemo(() => {
+    const counts = new Map<number, Set<string>>();
+    for (const q of all) counts.set(q.x, (counts.get(q.x) ?? new Set()).add(q.lender));
+    const common = terms.filter((t) => (counts.get(t)?.size ?? 0) >= 2);
+    return (common.includes(term) ? common : [...common, term].sort((a, b) => a - b)).map((t) => ({
+      id: t,
+      label: termShort(t),
+    }));
+  }, [all, terms, term]);
+
+  const quotes = useMemo(() => all.filter((q) => !hidden.has(q.lender)), [all, hidden]);
+  const value = (q: Quote) => (q.nominal === null ? null : q.nominal * scale);
+  const current = quotes.filter((q) => !q.stale && q.nominal !== null);
+  const highest = (holds: (q: Quote) => boolean) =>
+    current
+      .filter(holds)
+      .reduce<Quote | undefined>((best, q) => (best === undefined || (q.nominal ?? 0) > (best.nominal ?? 0) ? q : best), undefined);
+
+  const fact = (label: string, q: Quote | undefined): FactItem => ({
+    label,
+    value: pct(q ? value(q) : undefined),
+    detail: q ? `${q.lender}${q.promotional ? ' · promotional' : ''}` : 'No current offer',
+  });
+  const ecbTerm = data ? latest(data.at.get('dep_term_le1')) : undefined;
+
+  const curve = useMemo(() => {
+    const bucket = (id: string) => (data ? latest(data.at.get(id)) : undefined);
+    const bands: CurveBand[] = BANDS.flatMap((b) => {
+      const o = bucket(b.id);
+      if (!o) return [];
+      return [
+        {
+          ...bandExtent(b),
+          value: o.value * scale,
+          tip: `<div class="tt-head">ECB concluded average</div>${tipRow(pal.market, pct(o.value * scale), `new ${b.label}`)}<div class="tt-dim">${esc(formatPeriod(o.period))} · Austria · households</div>`,
+        },
+      ];
+    });
+
+    const tip = (q: Quote) => {
+      const color = styles.get(q.lender)?.color ?? pal.ink;
+      const b = bandFor(q.x);
+      const o = bucket(b.id);
+      return [
+        `<div class="tt-head">${esc(q.lender)}</div>`,
+        tipRow(color, pct(value(q)), `${afterTax ? 'after 25% tax' : 'before tax'}, ${termLong(q.x)}`),
+        `<div class="tt-line">${esc(q.offer.product)} · ${q.offer.network === 'branch' ? 'branch bank' : 'direct bank'}</div>`,
+        q.offer.conditions ? `<div class="tt-dim">${esc(truncate(q.offer.conditions, 160))}</div>` : '',
+        q.offer.amountMin ? `<div class="tt-dim">Minimum ${esc(eur(q.offer.amountMin))}</div>` : '',
+        `<div class="tt-dim">Checked ${esc(day(q.offer.observedAt))}</div>`,
+        o ? `<div class="tt-line">ECB concluded, ${esc(b.label)}: ${pct(o.value * scale)}</div>` : '',
+        q.stale ? `<div class="tt-warn">Not confirmed for more than ${STALE_AFTER_DAYS.deposit} days</div>` : '',
+      ].join('');
+    };
+
+    const lines = buildCurveLines({ quotes, styles, dodge, toAxis, value, tip });
+    return curveChart(pal, lines, bands, {
+      axis: 'term',
+      selected: { from: toAxis(term) - 0.3, to: toAxis(term) + 0.3 },
+    });
+  }, [quotes, styles, dodge, data, pal, term, scale, afterTax]);
+
+  const today = (board?.generatedAt ?? new Date().toISOString()).slice(0, 10);
+
+  const past = useMemo(() => {
+    const { lines, earliest } = buildHistoryLines({
+      history,
+      include: (s) => (s.termMonths ?? 0) === term && !hidden.has(s.provider),
+      basis: 'nominal',
+      category: 'deposit',
+      styles,
+      label: (s) => `${s.provider} · ${s.product}`,
+      scale,
+    });
+    const band = bandFor(term);
+    const reference: StepLine[] = data
+      ? [
+          {
+            name: 'ECB average',
+            label: `ECB concluded, ${band.label}`,
+            color: pal.market,
+            reference: true,
+            points: obs(data, band.id).map((o): [string, number] => [`${o.period}-15`, o.value * scale]),
+          },
+        ]
+      : [];
+    return { option: historyChart(pal, [...reference, ...lines], historyWindow(range, today, earliest)), earliest };
+  }, [history, term, hidden, styles, data, pal, range, today, scale]);
+
+  const changes = useMemo(
     () =>
-      ladderChart(
-        rungs.map((r) => SHORT[r.def.id] ?? r.def.label),
-        [
-          { name: 'Austria', values: rungs.map((r) => r.at ?? null), color: CHART_COLORS.austria },
-          { name: 'Euro area', values: rungs.map((r) => r.ea ?? null), color: CHART_COLORS.euroArea },
-        ],
-      ),
-    [rungs],
+      history
+        ? repricings(history, 'nominal').filter((r) => (r.series.termMonths ?? 0) === term && !hidden.has(r.series.provider))
+        : [],
+    [history, term, hidden],
   );
 
   return (
-    <Card
-      span={7}
-      title="What locking money up is worth"
-      sub={`New household term deposits by agreed maturity · ${formatPeriod(data.asOf)}`}
-    >
-      <StatRow>
-        <Stat label="Overnight" value={pct(overnight?.value)} note="Instant access" />
-        <Stat label="Term, up to 1Y" value={pct(shortTerm?.value)} note="Agreed maturity" />
-        <Stat
-          label="Cost of instant access"
-          value={bpsAbs(liquidityCost)}
-          note="Given up by not fixing"
-          tone="negative"
+    <>
+      <PageHead title="Savings">
+        <p class="lede">
+          Highest advertised rates {afterTax ? 'after 25% capital gains tax' : 'before tax'} from{' '}
+          {new Set(current.map((q) => q.lender)).size} banks, checked {day(board?.generatedAt)}.
+        </p>
+        <Facts
+          items={[
+            fact('Instant access', highest((q) => q.x === 0)),
+            fact('Fixed 1 year', highest((q) => q.x === 12)),
+            fact('Fixed 2 years or longer', highest((q) => q.x >= 24)),
+            {
+              label: 'ECB concluded, term up to 1 year',
+              value: pct(ecbTerm ? ecbTerm.value * scale : undefined),
+              detail: ecbTerm ? `${formatPeriod(ecbTerm.period)} · all Austrian banks` : 'Loading…',
+            },
+          ]}
         />
-      </StatRow>
-      <Chart
-        option={option}
-        height={200}
-        ariaLabel="Austrian and euro-area household term deposit rates by agreed maturity"
-      />
-      <Legend
-        shape="dot"
-        items={[
-          { label: 'Austria', color: CHART_COLORS.austria },
-          { label: 'Euro area', color: CHART_COLORS.euroArea },
-        ]}
-      />
-      <Callout>
-        Austrian savers give up <strong>{bpsAbs(liquidityCost)}</strong> by leaving money on an
-        instant-access account rather than fixing it for a year. That gap is the single largest
-        source of retail funding margin in the country, and it exists because most balances never
-        move.
-      </Callout>
-    </Card>
-  );
-}
+      </PageHead>
 
-/* ------------------------------------------------------------------ */
+      <Controls>
+        <Switch label="After 25% tax (KESt)" checked={afterTax} onChange={setAfterTax} />
+        <LenderChips lenders={lenders} styles={styles} hidden={hidden} onChange={setHidden} onHover={setHover} />
+      </Controls>
 
-function SavingsHistory({ data }: { data: DashboardData }) {
-  const rungs = useMemo(() => ladder(DEPOSIT_MATURITY, data.at, data.ea), [data]);
+      <Section title="Advertised today, by term" meta="One dot per rate. A bank's term ladder is joined by a line.">
+        <Chart
+          option={curve}
+          height={380}
+          onPick={(v) => {
+            const t = nearest(terms.map(toAxis), v);
+            if (t !== undefined) setTerm(Math.round(CURVE_AXES.term.from(t)));
+          }}
+          highlight={hover}
+          ariaLabel="Advertised Austrian savings rates by term, one marker per bank, against ECB concluded averages"
+        />
+        <CurveKey band="ECB concluded average per maturity bucket" />
+        <Numbers
+          head={['Bank', 'Product', 'Term', 'Rate', 'Minimum', 'Type', 'Checked']}
+          rows={[...quotes]
+            .sort((a, b) => a.x - b.x || (b.nominal ?? 0) - (a.nominal ?? 0))
+            .map((q) => [
+              q.lender,
+              <a href={q.offer.sourceUrl} target="_blank" rel="noreferrer">
+                {q.offer.product}
+              </a>,
+              termLong(q.x),
+              pct(value(q)),
+              q.offer.amountMin === null ? '–' : eur(q.offer.amountMin),
+              q.offer.network === 'branch' ? 'Branch' : 'Direct',
+              day(q.offer.observedAt),
+            ])}
+        />
+      </Section>
 
-  const option = useMemo(
-    () =>
-      timeChart([
-        {
-          name: 'Overnight',
-          observations: data.at.get('dep_on')?.observations ?? [],
-          color: CHART_COLORS.liability,
-          width: 2.2,
-        },
-        {
-          name: 'Term, up to 1Y',
-          observations: data.at.get('dep_term_le1')?.observations ?? [],
-          color: CHART_COLORS.asset,
-        },
-        {
-          name: 'Term, over 2Y',
-          observations: data.at.get('dep_term_2p')?.observations ?? [],
-          color: CHART_COLORS.ladder[4] ?? CHART_COLORS.benchmark,
-        },
-        {
-          name: 'Redeemable at notice',
-          observations: data.at.get('dep_notice')?.observations ?? [],
-          color: CHART_COLORS.positive,
-          dashed: true,
-        },
-        {
-          name: 'Deposit facility',
-          observations: data.dfrMonthly,
-          color: CHART_COLORS.benchmark,
-          dashed: true,
-          width: 1.2,
-        },
-      ]),
-    [data],
-  );
+      <Section
+        title={`How advertised rates moved: ${termLong(term)}`}
+        meta="Each bank's rate held until it changed; grey is the ECB concluded average."
+        controls={
+          <>
+            <Segmented label="Term" options={termOptions} value={term} onChange={setTerm} />
+            <Segmented label="Range" options={RANGES} value={range} onChange={setRange} />
+          </>
+        }
+      >
+        <Chart
+          option={past.option}
+          height={320}
+          highlight={hover}
+          ariaLabel={`Advertised savings rates over time, ${termLong(term)}`}
+        />
+        {past.earliest ? (
+          <p class="hint">
+            Savings offers are recorded daily from {day(past.earliest)}; earlier movement shows only in the ECB
+            average.
+          </p>
+        ) : null}
+        <ChangeList
+          changes={changes.slice(0, 6)}
+          styles={styles}
+          scale={scale}
+          empty="No rate change recorded for this term since daily reading began."
+        />
+      </Section>
 
-  return (
-    <Card
-      span={5}
-      title="Savings rates through the cycle"
-      sub="Every household deposit product against the ECB deposit facility"
-    >
-      <Chart
-        option={option}
-        height={200}
-        ariaLabel="Austrian household deposit rates by product over time"
+      <MarketPanel
+        title="Concluded deposits"
+        meta="ECB MFI interest rate statistics for Austrian households: new business, volume-weighted, monthly. Pass-through is the share of the ECB's move since mid-2022 that reached savers."
+        views={VIEWS}
+        ecb={ecb}
+        window={ecbWindow}
+        onWindow={onWindow}
       />
-      <Legend
-        items={[
-          { label: 'Overnight', color: CHART_COLORS.liability },
-          { label: 'Term ≤1Y', color: CHART_COLORS.asset },
-          { label: 'Term >2Y', color: CHART_COLORS.ladder[4] ?? CHART_COLORS.benchmark },
-          { label: 'At notice', color: CHART_COLORS.positive },
-          { label: 'Deposit facility', color: CHART_COLORS.benchmark },
-        ]}
-      />
-      <div class="table-wrap">
-        <table class="rates compact">
-          <thead>
-            <tr>
-              <th>Maturity</th>
-              <th>Austria</th>
-              <th>12m</th>
-              <th>Euro area</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rungs.map((r) => (
-              <tr key={r.def.id}>
-                <td>{SHORT[r.def.id] ?? r.def.label}</td>
-                <td class="num">{pct(r.at)}</td>
-                <td class={`num delta ${changeTone(r.change12m, 'liability')}`}>
-                  {bps(r.change12m)}
-                </td>
-                <td class="num">{pct(r.ea)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      <div class="page-foot">
+        <About>
+          <p>
+            <strong>Direct banks</strong> (Addiko, Anadi, bank99, easybank, Kommunalkredit Invest) publish one
+            national rate in HTML. <strong>Branch networks</strong> (BAWAG P.S.K., Raiffeisen) publish only the
+            rate sheet they must display; Raiffeisen is some three hundred independent banks, so two are shown
+            under their own names.
+          </p>
+          <p>
+            Rates are before 25% capital gains tax unless the tax switch is on. Promotional rates that revert
+            are listed next to the rate they revert to.
+          </p>
+          <p>
+            <strong>ECB averages</strong> are every euro placed with Austrian banks that month, volume-weighted,
+            so they sit close to the branch networks where most money is. Erste Bank, Bank Austria and Volksbank
+            publish no readable savings rates and are missing.
+          </p>
+        </About>
+        <SourceList sources={sourcesFor(board, 'deposit')} />
       </div>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function DepositFrontBack({ data }: { data: DashboardData }) {
-  const front = data.at.get('dep_term');
-  const back = data.at.get('dep_term_stock');
-
-  const gap = useMemo(() => repricingGap(front, back), [front, back]);
-  const frontNow = latest(front);
-  const backNow = latest(back);
-  const gapNow = gap.at(-1);
-
-  const option = useMemo(
-    () =>
-      timeChart([
-        {
-          name: 'New term deposits',
-          observations: front?.observations ?? [],
-          color: CHART_COLORS.asset,
-          width: 2.2,
-        },
-        {
-          name: 'Outstanding stock',
-          observations: back?.observations ?? [],
-          color: CHART_COLORS.liability,
-          width: 2.2,
-        },
-      ]),
-    [front, back],
-  );
-
-  return (
-    <Card
-      span={6}
-      title="What savers earn versus what they are offered"
-      sub="New term deposits against the rate on the whole outstanding book"
-    >
-      <StatRow>
-        <Stat label="New business" value={pct(frontNow?.value)} note={formatPeriod(frontNow?.period)} />
-        <Stat label="Outstanding stock" value={pct(backNow?.value)} note="Average across the book" />
-        <Stat
-          label="Gap"
-          value={bpsAbs(gapNow?.value)}
-          note={gapNow && gapNow.value > 0 ? 'New money paid more' : 'Old money paid more'}
-        />
-      </StatRow>
-      <Chart
-        option={option}
-        height={210}
-        ariaLabel="Austrian household term deposit rates on new business versus outstanding amounts"
-      />
-      <Legend
-        items={[
-          { label: 'New business', color: CHART_COLORS.asset },
-          { label: 'Outstanding stock', color: CHART_COLORS.liability },
-        ]}
-      />
-      <Callout>
-        The mirror image of the lending panel. Savers who fixed at the top of the cycle are still
-        being paid it; savers rolling over now are repricing downward. For the bank this gap is
-        funding cost still to be paid, and it closes as old deposits mature.
-      </Callout>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function DepositBeta({ data }: { data: DashboardData }) {
-  const betaOn = cumulativeBeta(data.at.get('dep_on'), data.dfrMonthly, CYCLE_START);
-  const betaTerm = cumulativeBeta(data.at.get('dep_term'), data.dfrMonthly, CYCLE_START);
-  const betaNotice = cumulativeBeta(data.at.get('dep_notice'), data.dfrMonthly, CYCLE_START);
-
-  const option = useMemo(
-    () =>
-      timeChart(
-        [
-          {
-            name: 'Overnight',
-            observations: betaSeries(data.at.get('dep_on'), data.dfrMonthly, CYCLE_START),
-            color: CHART_COLORS.liability,
-            width: 2.2,
-          },
-          {
-            name: 'Term deposits',
-            observations: betaSeries(data.at.get('dep_term'), data.dfrMonthly, CYCLE_START),
-            color: CHART_COLORS.asset,
-          },
-          {
-            name: 'Overnight, euro area',
-            observations: betaSeries(data.ea.get('dep_on'), data.dfrMonthly, CYCLE_START),
-            color: CHART_COLORS.euroArea,
-            dashed: true,
-          },
-        ],
-        { suffix: '', decimals: 2, scale: true },
-      ),
-    [data],
-  );
-
-  return (
-    <Card
-      span={6}
-      title="How much of the ECB's move reached savers"
-      sub={`Cumulative pass-through of the deposit facility rate since ${formatPeriod(CYCLE_START)}`}
-    >
-      <StatRow>
-        <Stat label="Overnight" value={ratio(betaOn)} note="Share passed through" />
-        <Stat label="Term deposits" value={ratio(betaTerm)} note="Share passed through" />
-        <Stat label="At notice" value={ratio(betaNotice)} note="Share passed through" />
-      </StatRow>
-      <Chart
-        option={option}
-        height={210}
-        ariaLabel="Cumulative deposit beta for Austrian household products versus the euro area"
-      />
-      <Legend
-        items={[
-          { label: 'Overnight, AT', color: CHART_COLORS.liability },
-          { label: 'Term, AT', color: CHART_COLORS.asset },
-          { label: 'Overnight, euro area', color: CHART_COLORS.euroArea },
-        ]}
-      />
-      <Callout>
-        A beta of {betaOn === undefined ? '–' : ratio(betaOn)} on overnight money means only{' '}
-        {betaOn === undefined ? '–' : Math.round(betaOn * 100)} cents of every euro of policy
-        movement reached the instant-access saver. Watch it <em>rise</em> after the policy peak:
-        that is the ratchet, where deposits keep repricing up while the policy rate falls.
-      </Callout>
-    </Card>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function TermVolume({ data }: { data: DashboardData }) {
-  const volume = data.at.get('dep_term_volume');
-  const annual = useMemo(() => rollingSum(volume?.observations ?? [], 12), [volume]);
-
-  const option = useMemo(
-    () => volumeChart(volume?.observations ?? [], CHART_COLORS.liability),
-    [volume],
-  );
-
-  const spreadToOvernight = useMemo(() => {
-    const term = data.at.get('dep_term_le1');
-    const on = data.at.get('dep_on');
-    return term && on ? spread(term.observations, on.observations) : [];
-  }, [data]);
-
-  return (
-    <Card
-      span={12}
-      title="Savers vote with their money"
-      sub="New term deposit volume each month, against what fixing was worth at the time"
-    >
-      <StatRow>
-        <Stat label="Latest month" value={eurMillions(latest(volume)?.value)} note={formatPeriod(latest(volume)?.period)} />
-        <Stat label="Trailing 12 months" value={eurMillions(annual.at(-1)?.value)} note="Rolling total" />
-        <Stat
-          label="Term premium now"
-          value={bpsAbs(spreadToOvernight.at(-1)?.value)}
-          note="One-year term over overnight"
-        />
-      </StatRow>
-      <Chart
-        option={option}
-        height={190}
-        ariaLabel="Monthly new term deposit volumes for Austrian households"
-      />
-      <Callout>
-        Term deposit flows track the premium over instant access with a lag. When the gap widens,
-        money migrates out of overnight accounts and the bank's funding cost rises even with no
-        headline rate change — repricing by mix rather than by price.
-      </Callout>
-    </Card>
+    </>
   );
 }

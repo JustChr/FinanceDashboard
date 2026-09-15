@@ -1,0 +1,885 @@
+{
+  "generatedAt": "2026-09-14T18:21:14.515Z",
+  "series": {
+    "addiko-festgeld-12m": {
+      "provider": "Addiko Bank",
+      "product": "Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 12,
+      "conditions": "Guaranteed rate, before 25% KESt",
+      "sourceUrl": "https://www.addiko.at/festgeld/",
+      "episodes": [
+        {
+          "rate": 2.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.addiko.at/festgeld/"
+        }
+      ]
+    },
+    "addiko-festgeld-18m": {
+      "provider": "Addiko Bank",
+      "product": "Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 18,
+      "conditions": "Guaranteed rate, before 25% KESt",
+      "sourceUrl": "https://www.addiko.at/festgeld/",
+      "episodes": [
+        {
+          "rate": 2.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.addiko.at/festgeld/"
+        }
+      ]
+    },
+    "addiko-festgeld-24m": {
+      "provider": "Addiko Bank",
+      "product": "Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 24,
+      "conditions": "Guaranteed rate, before 25% KESt",
+      "sourceUrl": "https://www.addiko.at/festgeld/",
+      "episodes": [
+        {
+          "rate": 2.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.addiko.at/festgeld/"
+        }
+      ]
+    },
+    "addiko-festgeld-36m": {
+      "provider": "Addiko Bank",
+      "product": "Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 36,
+      "conditions": "Guaranteed rate, before 25% KESt",
+      "sourceUrl": "https://www.addiko.at/festgeld/",
+      "episodes": [
+        {
+          "rate": 2.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.addiko.at/festgeld/"
+        }
+      ]
+    },
+    "addiko-festgeld-3m": {
+      "provider": "Addiko Bank",
+      "product": "Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 3,
+      "conditions": "Guaranteed rate, before 25% KESt",
+      "sourceUrl": "https://www.addiko.at/festgeld/",
+      "episodes": [
+        {
+          "rate": 2.15,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.addiko.at/festgeld/"
+        }
+      ]
+    },
+    "addiko-festgeld-6m": {
+      "provider": "Addiko Bank",
+      "product": "Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 6,
+      "conditions": "Guaranteed rate, before 25% KESt",
+      "sourceUrl": "https://www.addiko.at/festgeld/",
+      "episodes": [
+        {
+          "rate": 2.3,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.addiko.at/festgeld/"
+        }
+      ]
+    },
+    "addiko-tagesgeld-basis": {
+      "provider": "Addiko Bank",
+      "product": "Tagesgeld, standard",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "Rate once the promotion expires",
+      "sourceUrl": "https://www.addiko.at/tagesgeld/",
+      "episodes": [
+        {
+          "rate": 0.55,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.addiko.at/tagesgeld/"
+        }
+      ]
+    },
+    "addiko-tagesgeld-neu": {
+      "provider": "Addiko Bank",
+      "product": "Tagesgeld, promotional",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "New customers, first 4 months",
+      "sourceUrl": "https://www.addiko.at/tagesgeld/",
+      "episodes": [
+        {
+          "rate": 2.7,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.addiko.at/tagesgeld/"
+        }
+      ]
+    },
+    "anadi-festgeld-12m": {
+      "provider": "Anadi Bank",
+      "product": "Online-Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 12,
+      "conditions": "Before 25% KESt",
+      "sourceUrl": "https://anadibank.com/sparen",
+      "episodes": [
+        {
+          "rate": 2.75,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://anadibank.com/sparen"
+        }
+      ]
+    },
+    "anadi-festgeld-24m": {
+      "provider": "Anadi Bank",
+      "product": "Online-Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 24,
+      "conditions": "Before 25% KESt",
+      "sourceUrl": "https://anadibank.com/sparen",
+      "episodes": [
+        {
+          "rate": 2.8,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://anadibank.com/sparen"
+        }
+      ]
+    },
+    "anadi-festgeld-3m": {
+      "provider": "Anadi Bank",
+      "product": "Online-Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 3,
+      "conditions": "Before 25% KESt",
+      "sourceUrl": "https://anadibank.com/sparen",
+      "episodes": [
+        {
+          "rate": 2.35,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://anadibank.com/sparen"
+        }
+      ]
+    },
+    "anadi-festgeld-6m": {
+      "provider": "Anadi Bank",
+      "product": "Online-Festgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 6,
+      "conditions": "Before 25% KESt",
+      "sourceUrl": "https://anadibank.com/sparen",
+      "episodes": [
+        {
+          "rate": 2.45,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://anadibank.com/sparen"
+        }
+      ]
+    },
+    "anadi-tagesgeld-basis": {
+      "provider": "Anadi Bank",
+      "product": "Online-Sparen, standard",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "Rate once the promotion expires",
+      "sourceUrl": "https://anadibank.com/sparen",
+      "episodes": [
+        {
+          "rate": 1.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://anadibank.com/sparen"
+        }
+      ]
+    },
+    "anadi-tagesgeld-neu": {
+      "provider": "Anadi Bank",
+      "product": "Online-Sparen, promotional",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "New customers, first three months",
+      "sourceUrl": "https://anadibank.com/sparen",
+      "episodes": [
+        {
+          "rate": 2.4,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://anadibank.com/sparen"
+        }
+      ]
+    },
+    "bank99-fixsparen-12m": {
+      "provider": "bank99",
+      "product": "fixsparen99",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 12,
+      "conditions": "Single deposit, paid out at maturity",
+      "sourceUrl": "https://bank99.at/sparen",
+      "episodes": [
+        {
+          "rate": 2.3,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://bank99.at/sparen"
+        }
+      ]
+    },
+    "bank99-fixsparen-24m": {
+      "provider": "bank99",
+      "product": "fixsparen99",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 24,
+      "conditions": "Single deposit, paid out at maturity",
+      "sourceUrl": "https://bank99.at/sparen",
+      "episodes": [
+        {
+          "rate": 2.35,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://bank99.at/sparen"
+        }
+      ]
+    },
+    "bank99-fixsparen-36m": {
+      "provider": "bank99",
+      "product": "fixsparen99",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 36,
+      "conditions": "Single deposit, paid out at maturity",
+      "sourceUrl": "https://bank99.at/sparen",
+      "episodes": [
+        {
+          "rate": 2.45,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://bank99.at/sparen"
+        }
+      ]
+    },
+    "bank99-fixsparen-6m": {
+      "provider": "bank99",
+      "product": "fixsparen99",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 6,
+      "conditions": "Single deposit, paid out at maturity",
+      "sourceUrl": "https://bank99.at/sparen",
+      "episodes": [
+        {
+          "rate": 2.05,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://bank99.at/sparen"
+        }
+      ]
+    },
+    "bank99-fixsparen-9m": {
+      "provider": "bank99",
+      "product": "fixsparen99",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 9,
+      "conditions": "Single deposit, paid out at maturity",
+      "sourceUrl": "https://bank99.at/sparen",
+      "episodes": [
+        {
+          "rate": 2.15,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://bank99.at/sparen"
+        }
+      ]
+    },
+    "bank99-flexsparen-basis": {
+      "provider": "bank99",
+      "product": "flexsparen99, base rate",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "Base rate after the promotion; bonus is discretionary",
+      "sourceUrl": "https://bank99.at/sparen",
+      "episodes": [
+        {
+          "rate": 0.01,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://bank99.at/sparen"
+        }
+      ]
+    },
+    "bank99-flexsparen-neu": {
+      "provider": "bank99",
+      "product": "flexsparen99, promotional",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "New customers, first 3 months",
+      "sourceUrl": "https://bank99.at/sparen",
+      "episodes": [
+        {
+          "rate": 2.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://bank99.at/sparen"
+        }
+      ]
+    },
+    "bawag-sparbox-fix-12m": {
+      "provider": "BAWAG P.S.K.",
+      "product": "SparBox Fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 12,
+      "conditions": "Branch rate sheet; no early withdrawal",
+      "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
+      "episodes": [
+        {
+          "rate": 1.8,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
+        }
+      ]
+    },
+    "bawag-sparbox-fix-24m": {
+      "provider": "BAWAG P.S.K.",
+      "product": "SparBox Fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 24,
+      "conditions": "Branch rate sheet; no early withdrawal",
+      "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
+      "episodes": [
+        {
+          "rate": 1.9,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
+        }
+      ]
+    },
+    "bawag-sparbox-fix-36m": {
+      "provider": "BAWAG P.S.K.",
+      "product": "SparBox Fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 36,
+      "conditions": "Branch rate sheet; no early withdrawal",
+      "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
+      "episodes": [
+        {
+          "rate": 2.05,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
+        }
+      ]
+    },
+    "bawag-sparbox-fix-60m": {
+      "provider": "BAWAG P.S.K.",
+      "product": "SparBox Fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 60,
+      "conditions": "Branch rate sheet; no early withdrawal",
+      "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
+      "episodes": [
+        {
+          "rate": 2.1,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
+        }
+      ]
+    },
+    "bawag-sparbox-fix-6m": {
+      "provider": "BAWAG P.S.K.",
+      "product": "SparBox Fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 6,
+      "conditions": "Branch rate sheet; no early withdrawal",
+      "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
+      "episodes": [
+        {
+          "rate": 1.6,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
+        }
+      ]
+    },
+    "bawag-sparbox-fix-84m": {
+      "provider": "BAWAG P.S.K.",
+      "product": "SparBox Fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 84,
+      "conditions": "Branch rate sheet; no early withdrawal",
+      "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
+      "episodes": [
+        {
+          "rate": 2.15,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
+        }
+      ]
+    },
+    "bawag-sparbox-flex": {
+      "provider": "BAWAG P.S.K.",
+      "product": "SparBox Flex",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "Base rate, eBanking required",
+      "sourceUrl": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf",
+      "episodes": [
+        {
+          "rate": 0.01,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.bawag.at/resource/blob/19432/0638361522857c99fb5fab37c5424620/angebote-in-ihrer-bawag-psk-filiale-zinsaushang-konditionen-sparen-pdf-data.pdf"
+        }
+      ]
+    },
+    "easybank-geldmarkt-12m": {
+      "provider": "easybank",
+      "product": "easy geldmarkt",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 12,
+      "conditions": "Fixed rate; balance earns 0.01% after maturity",
+      "sourceUrl": "https://www.easybank.at/easybank/sparen/easy-geldmarkt",
+      "episodes": [
+        {
+          "rate": 2,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.easybank.at/easybank/sparen/easy-geldmarkt"
+        }
+      ]
+    },
+    "easybank-geldmarkt-24m": {
+      "provider": "easybank",
+      "product": "easy geldmarkt",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 24,
+      "conditions": "Fixed rate; balance earns 0.01% after maturity",
+      "sourceUrl": "https://www.easybank.at/easybank/sparen/easy-geldmarkt",
+      "episodes": [
+        {
+          "rate": 2.2,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.easybank.at/easybank/sparen/easy-geldmarkt"
+        }
+      ]
+    },
+    "easybank-geldmarkt-60m": {
+      "provider": "easybank",
+      "product": "easy geldmarkt",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 60,
+      "conditions": "Fixed rate; balance earns 0.01% after maturity",
+      "sourceUrl": "https://www.easybank.at/easybank/sparen/easy-geldmarkt",
+      "episodes": [
+        {
+          "rate": 2.25,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.easybank.at/easybank/sparen/easy-geldmarkt"
+        }
+      ]
+    },
+    "easybank-geldmarkt-6m": {
+      "provider": "easybank",
+      "product": "easy geldmarkt",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 6,
+      "conditions": "Fixed rate; balance earns 0.01% after maturity",
+      "sourceUrl": "https://www.easybank.at/easybank/sparen/easy-geldmarkt",
+      "episodes": [
+        {
+          "rate": 1.8,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.easybank.at/easybank/sparen/easy-geldmarkt"
+        }
+      ]
+    },
+    "kommunalkredit-festgeld-24m": {
+      "provider": "Kommunalkredit Invest",
+      "product": "Festgeld, headline offer",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": 24,
+      "conditions": "Headline tier; other terms priced from the Konditionenblatt",
+      "sourceUrl": "https://www.kommunalkreditinvest.at/",
+      "episodes": [
+        {
+          "rate": 3,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.kommunalkreditinvest.at/"
+        }
+      ]
+    },
+    "kommunalkredit-tagesgeld": {
+      "provider": "Kommunalkredit Invest",
+      "product": "Tagesgeld",
+      "network": "direct",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "Base rate, no lock-up",
+      "sourceUrl": "https://www.kommunalkreditinvest.at/",
+      "episodes": [
+        {
+          "rate": 0.01,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.kommunalkreditinvest.at/"
+        }
+      ]
+    },
+    "raiba-montfort-online-fix-12m": {
+      "provider": "Raiffeisenbank Montfort",
+      "product": "Raiffeisen Online Sparen fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 12,
+      "conditions": "Reverts to the base rate at maturity",
+      "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
+      "episodes": [
+        {
+          "rate": 1.75,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
+        }
+      ]
+    },
+    "raiba-montfort-online-fix-24m": {
+      "provider": "Raiffeisenbank Montfort",
+      "product": "Raiffeisen Online Sparen fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 24,
+      "conditions": "Reverts to the base rate at maturity",
+      "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
+      "episodes": [
+        {
+          "rate": 1.875,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
+        }
+      ]
+    },
+    "raiba-montfort-online-fix-36m": {
+      "provider": "Raiffeisenbank Montfort",
+      "product": "Raiffeisen Online Sparen fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 36,
+      "conditions": "Reverts to the base rate at maturity",
+      "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
+      "episodes": [
+        {
+          "rate": 2,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
+        }
+      ]
+    },
+    "raiba-montfort-online-sparen": {
+      "provider": "Raiffeisenbank Montfort",
+      "product": "Raiffeisen Online Sparen",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "Base plus premium rate, via Mein ELBA",
+      "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
+      "episodes": [
+        {
+          "rate": 0.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
+        }
+      ]
+    },
+    "raiba-montfort-vermoegen-12m": {
+      "provider": "Raiffeisenbank Montfort",
+      "product": "Vermögenssparbuch",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 12,
+      "conditions": "Passbook with a fixed term",
+      "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
+      "episodes": [
+        {
+          "rate": 1.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
+        }
+      ]
+    },
+    "raiba-montfort-vermoegen-24m": {
+      "provider": "Raiffeisenbank Montfort",
+      "product": "Vermögenssparbuch",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 24,
+      "conditions": "Passbook with a fixed term",
+      "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
+      "episodes": [
+        {
+          "rate": 1.625,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
+        }
+      ]
+    },
+    "raiba-montfort-vermoegen-36m": {
+      "provider": "Raiffeisenbank Montfort",
+      "product": "Vermögenssparbuch",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 36,
+      "conditions": "Passbook with a fixed term",
+      "sourceUrl": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf",
+      "episodes": [
+        {
+          "rate": 1.75,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiba.at/others/Schalteraushang/37422/barrierefrei/Einlagenzinsen.pdf"
+        }
+      ]
+    },
+    "raiba-stp-online-fix-6m": {
+      "provider": "Raiffeisenbank Region St. Pölten",
+      "product": "Raiffeisen Online Sparen fix",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 6,
+      "conditions": "Branch rate sheet",
+      "sourceUrl": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf",
+      "episodes": [
+        {
+          "rate": 1.625,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf"
+        }
+      ]
+    },
+    "raiba-stp-online-sparen": {
+      "provider": "Raiffeisenbank Region St. Pölten",
+      "product": "Raiffeisen Online Sparen",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": null,
+      "conditions": "Same product name as at other Raiffeisen banks, different rate",
+      "sourceUrl": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf",
+      "episodes": [
+        {
+          "rate": 0.025,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf"
+        }
+      ]
+    },
+    "raiba-stp-sparbuch": {
+      "provider": "Raiffeisenbank Region St. Pölten",
+      "product": "Sparbuch",
+      "network": "branch",
+      "fixationYears": null,
+      "termMonths": 1,
+      "conditions": "Classic passbook, one-month notice",
+      "sourceUrl": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf",
+      "episodes": [
+        {
+          "rate": 0.01,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-09-12",
+          "lastSeen": "2026-09-14",
+          "via": "scrape",
+          "evidence": "https://www.raiffeisen.at/noew/region-st-poelten/de/meine-bank/raiffeisen-bankengruppe/rechtliches/digitaler-schalteraushang/_jcr_content/root/responsivegrid/tabaccordioncontaine/tabAccordionElements/tabaccordionelement_965095676/items/downloadlist_copy.download.html/1/Konditionen%20Sparen.pdf"
+        }
+      ]
+    }
+  }
+}

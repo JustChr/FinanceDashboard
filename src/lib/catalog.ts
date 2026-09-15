@@ -418,7 +418,8 @@ export const CYCLE_START = '2022-06';
 /**
  * MIR reaches back to January 2003. Loading all of it for every series is about
  * half a megabyte of CSV — the ECB API serves no content encoding — so the
- * default window is ten years and the full run is opt-in.
+ * default window is five years, which still covers the whole 2022 cycle, and
+ * longer runs are opt-in.
  */
 export const HISTORY_WINDOWS = [
   { id: '5y', label: '5Y', start: '2020-01' },
@@ -427,7 +428,7 @@ export const HISTORY_WINDOWS = [
 ] as const;
 
 export type WindowId = (typeof HISTORY_WINDOWS)[number]['id'];
-export const DEFAULT_WINDOW: WindowId = '10y';
+export const DEFAULT_WINDOW: WindowId = '5y';
 
 export function windowStart(id: WindowId): string {
   return HISTORY_WINDOWS.find((w) => w.id === id)?.start ?? '2015-01';

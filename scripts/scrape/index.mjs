@@ -1,6 +1,7 @@
 /**
  * Builds `public/data/offers.json` — the advertised half of the dashboard — and
- * extends `public/data/housing-history.json` with today's housing-loan quotes.
+ * extends the per-product history files (`housing-history.json`,
+ * `deposit-history.json`, `consumer-history.json`) with today's quotes.
  *
  * Run by `.github/workflows/offers.yml` once a day. The output is committed to
  * the repository so the static site can load it same-origin; bank sites send no
@@ -30,7 +31,12 @@ import { SOURCES, UNAVAILABLE } from './sources.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '../..');
 const OUTPUT = resolve(ROOT, 'public/data/offers.json');
-const HISTORY = resolve(ROOT, 'public/data/housing-history.json');
+/** One history file per product, each in the episode shape of `history.mjs`. */
+const HISTORIES = [
+  { category: 'mortgage', path: resolve(ROOT, 'public/data/housing-history.json') },
+  { category: 'deposit', path: resolve(ROOT, 'public/data/deposit-history.json') },
+  { category: 'consumer', path: resolve(ROOT, 'public/data/consumer-history.json') },
+];
 const CURATED = resolve(HERE, 'curated.json');
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -187,17 +193,17 @@ async function loadCurated() {
 }
 
 /**
- * Appends today's housing-loan quotes to the history.
+ * Appends today's quotes for one product to its history file.
  *
- * Only housing loans are historised. Their quotes change a few times a year, so
- * the history is small and every episode in it is a pricing decision; deposit
- * rates would need a different shape to stay readable.
+ * Every product keeps the same episode shape. Savings rates move more often
+ * than a housing-loan example, but still on decisions rather than daily noise,
+ * so one episode per distinct rate stays small and readable.
  */
-async function extendHistory(offers) {
-  const history = await loadHistory(HISTORY);
-  const mortgages = offers.filter((o) => o.category === 'mortgage');
+async function extendHistory(offers, { category, path }) {
+  const history = await loadHistory(path);
+  const matching = offers.filter((o) => o.category === category);
 
-  for (const offer of mortgages) {
+  for (const offer of matching) {
     record(history, offer, [
       {
         seenAt: offer.observedAt,
@@ -210,8 +216,8 @@ async function extendHistory(offers) {
     ]);
   }
 
-  await saveHistory(HISTORY, history);
-  return mortgages.length;
+  await saveHistory(path, history);
+  return matching.length;
 }
 
 async function main() {
@@ -273,8 +279,10 @@ async function main() {
     `\nWrote ${board.offers.length} offers (${scraped.length} scraped, ${curated.length} curated) to public/data/offers.json`,
   );
 
-  const recorded = await extendHistory(board.offers);
-  console.log(`Recorded ${recorded} housing-loan quotes in public/data/housing-history.json`);
+  for (const target of HISTORIES) {
+    const recorded = await extendHistory(board.offers, target);
+    console.log(`Recorded ${recorded} ${target.category} quotes in ${target.path}`);
+  }
 
   // A run where nothing at all was reachable is a real failure worth a red
   // build; a run that lost one bank is not.
