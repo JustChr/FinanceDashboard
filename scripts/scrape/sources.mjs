@@ -27,33 +27,46 @@ import { bankAustriaQuotes, oberbankQuote } from './calculators.mjs';
 export const UNAVAILABLE = [
   {
     provider: 'Erste Bank / Sparkasse — savings',
+    providerDe: 'Erste Bank / Sparkasse — Sparen',
     url: 'https://www.sparkasse.at/sgruppe/privatkunden/sparen-anlegen',
     reason:
       'Savings rates appear only after JavaScript runs, and the published Konditionenaushang covers fees rather than interest. No static document states a deposit rate. Its housing-loan example is published and is on the board.',
+    reasonDe:
+      'Sparzinsen erscheinen erst, nachdem JavaScript läuft, und der veröffentlichte Konditionenaushang betrifft Entgelte, nicht Zinsen. Kein statisches Dokument nennt einen Einlagenzinssatz. Das Wohnkredit-Beispiel ist veröffentlicht und hier erfasst.',
   },
   {
     provider: 'UniCredit Bank Austria — savings',
+    providerDe: 'UniCredit Bank Austria — Sparen',
     url: 'https://www.bankaustria.at/privatkunden-sparen-und-anlegen.jsp',
     reason:
       'The site returns HTTP 403 to identified clients. Its housing calculator is read under a named browser-user-agent exception and is on the board; savings are outside that exception.',
+    reasonDe:
+      'Die Website antwortet identifizierten Clients mit HTTP 403. Der Wohnkreditrechner wird über eine ausdrückliche Ausnahme mit Browser-User-Agent gelesen und ist hier erfasst; Sparprodukte fallen nicht unter diese Ausnahme.',
   },
   {
     provider: 'Volksbank',
     url: 'https://www.volksbank.at/zib/private/sparen/sparprodukte.page',
     reason:
       'Eight independent regional Volksbanks, each setting its own rates; the group site carries product descriptions but no figures, on savings or on housing loans.',
+    reasonDe:
+      'Acht eigenständige regionale Volksbanken mit jeweils eigenen Konditionen; die Website der Gruppe beschreibt Produkte, nennt aber keine Zahlen – weder beim Sparen noch bei Wohnkrediten.',
   },
   {
     provider: 'Raiffeisen — housing loans',
+    providerDe: 'Raiffeisen — Wohnkredite',
     url: 'https://www.raiffeisen.at/de/privatkunden/kredit-leasing/wohnfinanzierung.html',
     reason:
       'The housing pages render their calculator client-side and state no example. The one Raiffeisen document that does — the generic HIKrG information sheet — is boilerplate quoting 1,75%, a rate from the negative-rate era, so it is not a current offer. Savings are covered separately from the branch rate sheets.',
+    reasonDe:
+      'Die Wohnfinanzierungsseiten erzeugen ihren Rechner im Browser und nennen kein Beispiel. Das einzige Raiffeisen-Dokument mit einem Beispiel – das allgemeine HIKrG-Informationsblatt – ist ein Mustertext mit 1,75 %, einem Zinssatz aus der Negativzinsphase, und damit kein aktuelles Angebot. Sparprodukte sind separat über die Zinsaushänge der Filialen erfasst.',
   },
   {
     provider: 'Bausparkassen (s Bausparkasse, start:bausparkasse)',
     url: 'https://www.sbausparkasse.at/de/finanzieren/darlehen-infos/produktseite-finanzieren-ueberblick',
     reason:
       'Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs. Raiffeisen Bausparkasse is on the board from its WohnTraumRechner catalogue; Wüstenrot states only a cap/floor band.',
+    reasonDe:
+      'Zinsen für Bauspardarlehen sind gesetzlich gedeckelt und tatsächlich veröffentlicht, aber erst sichtbar, nachdem JavaScript läuft. Raiffeisen Bausparkasse ist über den Katalog des WohnTraumRechners erfasst; Wüstenrot nennt nur eine Bandbreite aus Ober- und Untergrenze.',
   },
 ];
 
@@ -105,6 +118,10 @@ const months = (n) => `\\b${n}\\s*Monate`;
  */
 const STAND = /(?:Stand|STAND|Gültig ab)[:,]?\s*([\d\s]{1,4}\.[\d\s]{1,4}\.\s?\d{4})/;
 
+/**
+ * `conditions` is the English text and `conditionsDe` the German; the page
+ * shows the one matching its language and falls back to English.
+ */
 export const SOURCES = [
   {
     provider: 'Addiko Bank',
@@ -118,6 +135,7 @@ export const SOURCES = [
       amountMin: 5000,
       amountMax: 150000,
       conditions: 'Guaranteed rate, before 25% KESt',
+      conditionsDe: 'Garantierter Zinssatz, vor 25 % KESt',
       rate: beforeTerm(months),
     })),
   },
@@ -132,6 +150,7 @@ export const SOURCES = [
         product: 'Tagesgeld, promotional',
         termMonths: null,
         conditions: 'New customers, first 4 months',
+        conditionsDe: 'Neukunden, erste 4 Monate',
         rate: after('ersten\\s*\\d+\\s*Monate\\)?:?'),
       },
       {
@@ -139,6 +158,7 @@ export const SOURCES = [
         product: 'Tagesgeld, standard',
         termMonths: null,
         conditions: 'Rate once the promotion expires',
+        conditionsDe: 'Zinssatz nach Ende der Aktion',
         rate: after('Bestandskunden:?'),
       },
     ],
@@ -154,6 +174,7 @@ export const SOURCES = [
         product: 'Online-Festgeld',
         termMonths: months,
         conditions: 'Before 25% KESt',
+        conditionsDe: 'Vor 25 % KESt',
         rate: beforeTerm(months),
       })),
       {
@@ -161,6 +182,7 @@ export const SOURCES = [
         product: 'Online-Sparen, promotional',
         termMonths: null,
         conditions: 'New customers, first three months',
+        conditionsDe: 'Neukunden, erste drei Monate',
         rate: after('NEUKUNDENAKTION:?'),
       },
       {
@@ -168,6 +190,7 @@ export const SOURCES = [
         product: 'Online-Sparen, standard',
         termMonths: null,
         conditions: 'Rate once the promotion expires',
+        conditionsDe: 'Zinssatz nach Ende der Aktion',
         rate: after('danach aktuell'),
       },
     ],
@@ -183,6 +206,7 @@ export const SOURCES = [
         product: 'fixsparen99',
         termMonths: months,
         conditions: 'Single deposit, paid out at maturity',
+        conditionsDe: 'Einmalerlag, Auszahlung bei Laufzeitende',
         rate: after(`Fixzins\\s*${months}\\s*Monate:?`),
       })),
       {
@@ -190,6 +214,7 @@ export const SOURCES = [
         product: 'flexsparen99, promotional',
         termMonths: null,
         conditions: 'New customers, first 3 months',
+        conditionsDe: 'Neukunden, erste 3 Monate',
         rate: after('Neukund\\*?innen:?'),
       },
       {
@@ -197,6 +222,7 @@ export const SOURCES = [
         product: 'flexsparen99, base rate',
         termMonths: null,
         conditions: 'Base rate after the promotion; bonus is discretionary',
+        conditionsDe: 'Basiszins nach der Aktion; Bonus freiwillig',
         rate: after('Danach Basiszins:?'),
       },
     ],
@@ -212,6 +238,7 @@ export const SOURCES = [
       termMonths: months,
       amountMin: 100,
       conditions: 'Fixed rate; balance earns 0.01% after maturity',
+      conditionsDe: 'Fixzinssatz; nach Laufzeitende 0,01 % auf das Guthaben',
       rate: beforeTerm(months),
     })),
   },
@@ -227,6 +254,7 @@ export const SOURCES = [
         termMonths: 24,
         amountMin: 10000,
         conditions: 'Headline tier; other terms priced from the Konditionenblatt',
+        conditionsDe: 'Beworbene Stufe; andere Laufzeiten laut Konditionenblatt',
         rate: after('2\\s*Jahre\\s*Laufzeit\\s*mit'),
       },
       {
@@ -234,6 +262,7 @@ export const SOURCES = [
         product: 'Tagesgeld',
         termMonths: null,
         conditions: 'Base rate, no lock-up',
+        conditionsDe: 'Basiszins, ohne Bindung',
         rate: after('Tagesgeld'),
       },
     ],
@@ -250,6 +279,7 @@ export const SOURCES = [
         termMonths: term,
         amountMin: 100,
         conditions: 'Branch rate sheet; no early withdrawal',
+        conditionsDe: 'Zinsaushang der Filiale; keine vorzeitige Behebung',
         rate: after(months(term)),
       })),
       {
@@ -257,6 +287,7 @@ export const SOURCES = [
         product: 'SparBox Flex',
         termMonths: null,
         conditions: 'Base rate, eBanking required',
+        conditionsDe: 'Grundzinssatz, eBanking erforderlich',
         rate: after('SparBox Flexfixer Grundzinssatz'),
       },
     ],
@@ -281,6 +312,7 @@ export const SOURCES = [
         product: 'Raiffeisen Online Sparen',
         termMonths: null,
         conditions: 'Base plus premium rate, via Mein ELBA',
+        conditionsDe: 'Basis- plus Premiumzinssatz, über Mein ELBA',
         rate: afterNth('Raiffeisen Online Sparen täglich fällig', 3),
       },
       ...[12, 24, 36].map((term) => ({
@@ -289,6 +321,7 @@ export const SOURCES = [
         termMonths: term,
         amountMin: 1000,
         conditions: 'Reverts to the base rate at maturity',
+        conditionsDe: 'Nach Laufzeitende wieder zum Basiszins',
         rate: after(`\\b${term}\\s*Monate\\s*Laufzeit`),
       })),
       ...[12, 24, 36].map((term) => ({
@@ -296,6 +329,7 @@ export const SOURCES = [
         product: 'Vermögenssparbuch',
         termMonths: term,
         conditions: 'Passbook with a fixed term',
+        conditionsDe: 'Sparbuch mit fixer Bindung',
         rate: after(`Vermögenssparbuch mit ${term}monatiger`),
       })),
     ],
@@ -311,6 +345,7 @@ export const SOURCES = [
         product: 'Raiffeisen Online Sparen',
         termMonths: null,
         conditions: 'Same product name as at other Raiffeisen banks, different rate',
+        conditionsDe: 'Gleicher Produktname wie bei anderen Raiffeisenbanken, anderer Zinssatz',
         // The FIX and JUGENDCLUB variants follow the same heading, so both are
         // excluded explicitly rather than by relying on which appears first.
         rate: after('ONLINE SPAREN(?!\\s*(?:FIX|JUGEND))'),
@@ -320,6 +355,7 @@ export const SOURCES = [
         product: 'Sparbuch',
         termMonths: 1,
         conditions: 'Classic passbook, one-month notice',
+        conditionsDe: 'Klassisches Sparbuch, einmonatige Bindung',
         rate: after('SPARBUCH\\s*mit\\s*1monatiger\\s*Bindung'),
       },
       {
@@ -327,6 +363,7 @@ export const SOURCES = [
         product: 'Raiffeisen Online Sparen fix',
         termMonths: 6,
         conditions: 'Branch rate sheet',
+        conditionsDe: 'Zinsaushang der Filiale',
         rate: after('ONLINE SPAREN FIX\\s*Bindung\\s*6\\s*Monate'),
       },
     ],
@@ -342,6 +379,7 @@ export const SOURCES = [
         product: 'rundumkredit99, fixed',
         fixationYears: null,
         conditions: 'Representative example under §5 VKrG; rate is not credit-scored',
+        conditionsDe: 'Repräsentatives Beispiel gemäß § 5 VKrG; Zinssatz unabhängig von der Bonität',
         rate: after('fix\\s*\\(Sollzins p\\.a\\.\\)'),
         effectiveRate: after('fix\\s*\\(Effektivzins p\\.a\\.\\)\\s*(?:z\\.B\\.)?'),
       },
@@ -350,6 +388,7 @@ export const SOURCES = [
         product: 'rundumkredit99, variable',
         fixationYears: 0,
         conditions: 'Representative example under §5 VKrG; rate is not credit-scored',
+        conditionsDe: 'Repräsentatives Beispiel gemäß § 5 VKrG; Zinssatz unabhängig von der Bonität',
         rate: after('variabel\\s*\\(Sollzins p\\.a\\.\\)'),
         effectiveRate: after('variabel\\s*\\(Effektivzins p\\.a\\.\\)\\s*(?:z\\.B\\.)?'),
       },
@@ -404,6 +443,7 @@ export const SOURCES = [
       product,
       fixationYears,
       conditions: '§6 HIKrG example, €100,000 over 25 years; variable tracks 3M-Euribor +1.00%',
+      conditionsDe: 'Beispiel gemäß § 6 HIKrG, 100.000 € über 25 Jahre; variabel mit 3M-Euribor + 1,00 %',
       effectiveRate: afterNth('Effektivzinssatz', nth),
     })),
   },
@@ -422,6 +462,7 @@ export const SOURCES = [
         product: 'Wohnbaufinanzierung',
         fixationYears: 0,
         conditions: '§6 HIKrG example, €300,000 incl. fees over 25 years; pegged to 3M-Euribor',
+        conditionsDe: 'Beispiel gemäß § 6 HIKrG, 300.000 € inkl. Spesen über 25 Jahre; an den 3M-Euribor gebunden',
         rate: after('Wohnbaufinanzierung\\s*mit'),
         effectiveRate: after('Effektiver\\s*Jahreszins:?'),
       },
@@ -445,6 +486,7 @@ export const SOURCES = [
         // fees, which cannot both be true; publishing it would put a figure on
         // the board that its own source contradicts.
         conditions: '§6 HIKrG example, €200,000 over 25 years; 3M-Euribor +1.125%',
+        conditionsDe: 'Beispiel gemäß § 6 HIKrG, 200.000 € über 25 Jahre; 3M-Euribor + 1,125 %',
         rate: after('Sollzinssatz\\s*variabel'),
       },
     ],
@@ -465,6 +507,7 @@ export const SOURCES = [
         // is in line with its peers. No Stand is published, so this one falls
         // back to the scrape date and will age out faster than it should.
         conditions: 'Musterrechnung, variable; loan size not stated on the page',
+        conditionsDe: 'Musterrechnung, variabel; Kreditbetrag auf der Seite nicht angegeben',
         rate: after('Jährlicher\\s*Zinssatz'),
         effectiveRate: after('Effektiver\\s*Jahreszins'),
       },
@@ -491,6 +534,7 @@ export const SOURCES = [
         // intended failure, far better than publishing the 8,65% consumer rate
         // as a housing rate.
         conditions: '§6 HIKrG example, €260,000 over 30 years',
+        conditionsDe: 'Beispiel gemäß § 6 HIKrG, 260.000 € über 30 Jahre',
         rate: new RegExp(`Laufzeit\\s*360\\s*Monate;?\\s*Nominalzinssatz[^%]{0,20}?${RATE}\\s*%`, 'i'),
         effectiveRate: new RegExp(
           `Laufzeit\\s*360\\s*Monate[\\s\\S]{0,220}?Effektiver\\s*Jahreszinssatz[^%]{0,20}?${RATE}\\s*%`,
@@ -516,6 +560,7 @@ export const SOURCES = [
         fixationYears: 0,
         // The only 6M-Euribor peg on the board; everything else tracks 3M.
         conditions: 'Representative example, €400,000 over 35 years; 6M-Euribor +1.50%, rounded to ⅛',
+        conditionsDe: 'Repräsentatives Beispiel, 400.000 € über 35 Jahre; 6M-Euribor + 1,50 %, auf ⅛ gerundet',
         rate: after('Sollzinssatz\\s*von'),
         effectiveRate: after('Effektiver\\s*Jahreszinssatz'),
       },
@@ -539,6 +584,7 @@ export const SOURCES = [
         // regenerated rather than restated — but it publishes no Stand, and
         // the age falls back to the scrape date. Verified 2026-09-13.
         conditions: 'Representative example, €225,000 over 10 years; subject to credit check',
+        conditionsDe: 'Repräsentatives Beispiel, 225.000 € über 10 Jahre; vorbehaltlich Bonitätsprüfung',
         rate: after('Sollzinssatz:\\s*Variabel'),
         effectiveRate: after('Effektivzinssatz\\s*für\\s*die\\s*Gesamtlaufzeit:'),
       },
@@ -563,6 +609,7 @@ export const SOURCES = [
         product: 'Wohnbaukredit',
         fixationYears: years,
         conditions: `Calculator rate grid, fixed ${years} years; equity under 30% of project cost, any loan size; €950 fee`,
+        conditionsDe: `Zinstabelle des Rechners, ${years} Jahre fix; Eigenmittel unter 30 % der Projektkosten, jede Kredithöhe; 950 € Gebühr`,
         // The `":` right after `Years` keeps this off the `…Years30Equity` column.
         rate: new RegExp(`"fixedRate${years}Years":(\\d{3,5})[,}]`),
         scale: 1000,
@@ -586,6 +633,7 @@ export const SOURCES = [
         // variabel:` and the longer `Jahreszinssatz` — so neither can drift
         // onto it.
         conditions: '§6 HIKrG example, €200,000 over 20 years; tracks the 3M-Euribor average',
+        conditionsDe: 'Beispiel gemäß § 6 HIKrG, 200.000 € über 20 Jahre; folgt dem 3M-Euribor-Durchschnitt',
         rate: after('Sollzinssatz\\s*variabel:'),
         effectiveRate: after('Effektiver\\s*Jahreszinssatz:'),
       },
@@ -633,6 +681,9 @@ export const SOURCES = [
       conditions: `Calculator quote, €300,000 financed over 25 years on a €350,000 purchase; ${
         years === 0 ? 'variable, 3M-Euribor' : `fixed ${years} years`
       }`,
+      conditionsDe: `Rechnerangebot, 300.000 € Finanzierung über 25 Jahre bei 350.000 € Kaufpreis; ${
+        years === 0 ? 'variabel, 3M-Euribor' : `${years} Jahre fix`
+      }`,
       rate: /<anfangsSollZinssatz>(\d+(?:\.\d+)?)<\/anfangsSollZinssatz>/,
       effectiveRate: /<effektivZinssatz>(\d+(?:\.\d+)?)<\/effektivZinssatz>/,
     })),
@@ -662,6 +713,13 @@ export const SOURCES = [
           : years === 25
             ? 'fixed for the whole term'
             : `fixed ${years} years, effective rate assumes today's variable rate after`
+      }`,
+      conditionsDe: `Rechnerangebot, 300.000 € über 25 Jahre; ${
+        years === 0
+          ? 'variabel'
+          : years === 25
+            ? 'fix über die gesamte Laufzeit'
+            : `${years} Jahre fix, Effektivzins unterstellt danach den heutigen variablen Zinssatz`
       }`,
       rate: /"Sollzinssatz":\s*(\d+(?:\.\d+)?)/,
       effectiveRate: /"Effektivzinssatz":\s*(\d+(?:\.\d+)?)/,
@@ -707,6 +765,10 @@ export const SOURCES = [
         years === 1.5
           ? 'Catalogue rate, fixed until allotment (~1.5 years) then variable under a rate cap; nominal only; fee up to 3%'
           : `Catalogue rate, fixed ${years} years plus the rest of that year; nominal only; fee up to 3%`,
+      conditionsDe:
+        years === 1.5
+          ? 'Katalogzinssatz, fix bis zur Zuteilung (ca. 1,5 Jahre), danach variabel mit Zinsobergrenze; nur Nominalzins; Gebühr bis 3 %'
+          : `Katalogzinssatz, ${years} Jahre fix plus Rumpfjahr; nur Nominalzins; Gebühr bis 3 %`,
       // Anchored on the product id, so each name is read for its own product;
       // `[^}]` keeps the match inside that product's JSON object.
       rate: new RegExp(`"ProduktId":"${productId}"[^}]{0,160}?"BezeichnungLang":"[^"]*?mit\\s*${RATE}\\s*%`),
@@ -739,6 +801,7 @@ export const SOURCES = [
         product: 'Wohnbaufinanzierung, calculator quote',
         fixationYears: 0,
         conditions: 'Calculator quote, €300,000 incl. fees over 25 years; 3M-Euribor',
+        conditionsDe: 'Rechnerangebot, 300.000 € inkl. Spesen über 25 Jahre; 3M-Euribor',
         rate: after('Zinssatz\\s*\\(Bindung[^)]{0,20}\\):'),
         effectiveRate: after('Effektiver\\s*Jahreszins:'),
       },

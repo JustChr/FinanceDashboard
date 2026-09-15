@@ -18,6 +18,7 @@ import {
 } from '../lib/offers';
 import { byName, groupBy, stepPoints, type LenderStyle, type Quote } from '../lib/quotes';
 import { bps, formatPeriod, pct } from '../lib/format';
+import { t } from '../i18n';
 import type { CurveLine, StepLine } from './charts';
 
 export interface PageProps {
@@ -30,9 +31,9 @@ export interface PageProps {
 export type Range = '1y' | '3y' | 'all';
 
 export const RANGES: { id: Range; label: string }[] = [
-  { id: '1y', label: '1Y' },
-  { id: '3y', label: '3Y' },
-  { id: 'all', label: 'All' },
+  { id: '1y', label: t.common.ranges['1y'] },
+  { id: '3y', label: t.common.ranges['3y'] },
+  { id: 'all', label: t.common.ranges.all },
 ];
 
 const shiftDays = (iso: string, days: number) =>
@@ -173,7 +174,7 @@ export function ChangeList({
   if (changes.length === 0) return <p class="hint">{empty}</p>;
   return (
     <>
-      <h3 class="subhead">Latest changes</h3>
+      <h3 class="subhead">{t.common.latestChanges}</h3>
       <ol class="changes">
         {changes.map((r) => {
           const style = styles.get(r.series.provider);
@@ -189,7 +190,7 @@ export function ChangeList({
               <span class="when">
                 <time>{repricedWhen(r)}</time> ·{' '}
                 <a href={r.episode.evidence} target="_blank" rel="noreferrer">
-                  {r.episode.via === 'archive' ? 'archived page' : 'source'}
+                  {r.episode.via === 'archive' ? t.common.archivedPage : t.common.source}
                 </a>
               </span>
               <span class="delta">{bps((r.after - r.before) * scale)}</span>
@@ -207,7 +208,7 @@ export function CurveKey({ band, hollow }: { band: string; hollow?: string }) {
     <p class="key">
       <span>
         <i class="k-dot" />
-        Current offer
+        {t.common.currentOffer}
       </span>
       {hollow ? (
         <span>
@@ -219,7 +220,7 @@ export function CurveKey({ band, hollow }: { band: string; hollow?: string }) {
         <i class="k-band" />
         {band}
       </span>
-      <span class="k-hint">Click a column to follow it over time</span>
+      <span class="k-hint">{t.common.pickHint}</span>
     </p>
   );
 }

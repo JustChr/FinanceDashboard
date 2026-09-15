@@ -4,8 +4,20 @@ import { HOUSING_FIXATION } from '../lib/catalog';
 import { latest } from '../lib/sdmx';
 import { STALE_AFTER_DAYS, daysSince, repricings, type QuoteBasis } from '../lib/offers';
 import { dodgeOffsets, lenderStyles, nearest, quotesFor, quoteValue, type Quote } from '../lib/quotes';
-import { bps, day, esc, fixationLong, formatPeriod, pct } from '../lib/format';
+import {
+  bps,
+  day,
+  decimal,
+  esc,
+  fixationLong,
+  fixationShort,
+  formatPeriod,
+  lowerFirst,
+  pct,
+  productName,
+} from '../lib/format';
 import { usePalette } from '../lib/theme';
+import { localized, t } from '../i18n';
 import { Chart } from '../components/Chart';
 import { CURVE_AXES, curveChart, historyChart, tipRow, type CurveBand, type StepLine } from '../components/charts';
 import { MarketPanel, obs, type MarketView } from '../components/MarketPanel';
@@ -42,10 +54,10 @@ import {
  * belongs to "over 1 and up to 5", a 10-year fix to "over 5 and up to 10".
  */
 const BANDS = [
-  { id: 'hl_var', label: 'variable or fixed up to 1 year', from: -1.9, to: 1 },
-  { id: 'hl_1_5', label: 'fixed over 1 and up to 5 years', from: 1, to: 5 },
-  { id: 'hl_5_10', label: 'fixed over 5 and up to 10 years', from: 5, to: 10 },
-  { id: 'hl_10p', label: 'fixed over 10 years', from: 10, to: 26.9 },
+  { id: 'hl_var', label: t.housing.bands.hl_var, from: -1.9, to: 1 },
+  { id: 'hl_1_5', label: t.housing.bands.hl_1_5, from: 1, to: 5 },
+  { id: 'hl_5_10', label: t.housing.bands.hl_5_10, from: 5, to: 10 },
+  { id: 'hl_10p', label: t.housing.bands.hl_10p, from: 10, to: 26.9 },
 ] as const;
 
 function bandFor(years: number) {
@@ -56,21 +68,21 @@ function bandFor(years: number) {
 }
 
 const BASES: { id: QuoteBasis; label: string }[] = [
-  { id: 'effective', label: 'Effective rate' },
-  { id: 'nominal', label: 'Nominal rate' },
+  { id: 'effective', label: t.common.basisRate.effective },
+  { id: 'nominal', label: t.common.basisRate.nominal },
 ];
 
 const SHORT: Record<string, string> = {
-  hl_var: 'Variable / up to 1y',
-  hl_1_5: 'Fixed 1–5y',
-  hl_5_10: 'Fixed 5–10y',
-  hl_10p: 'Fixed over 10y',
+  hl_var: t.common.buckets.variable,
+  hl_1_5: t.common.buckets.fixed1to5,
+  hl_5_10: t.common.buckets.fixed5to10,
+  hl_10p: t.common.buckets.fixedOver10,
 };
 
 const VIEWS: MarketView[] = [
   {
     id: 'fixation',
-    label: 'By fixation',
+    label: t.common.byFixation,
     lines: (e, pal) =>
       HOUSING_FIXATION.map((d, i) => ({
         name: SHORT[d.id] ?? d.label,
@@ -80,29 +92,29 @@ const VIEWS: MarketView[] = [
   },
   {
     id: 'book',
-    label: 'New vs existing',
+    label: t.common.newVsExisting,
     lines: (e, pal) => [
-      { name: 'New loans', observations: obs(e, 'hl_total'), color: pal.series[0] ?? pal.ink },
-      { name: 'All outstanding loans', observations: obs(e, 'hl_stock'), color: pal.series[1] ?? pal.ink },
+      { name: t.housing.newLoans, observations: obs(e, 'hl_total'), color: pal.series[0] ?? pal.ink },
+      { name: t.housing.outstanding, observations: obs(e, 'hl_stock'), color: pal.series[1] ?? pal.ink },
     ],
   },
   {
     id: 'reneg',
-    label: 'Renegotiated',
+    label: t.housing.renegotiated,
     lines: (e, pal) => [
-      { name: 'Genuinely new contracts', observations: obs(e, 'hl_pure'), color: pal.series[0] ?? pal.ink },
-      { name: 'Renegotiated loans', observations: obs(e, 'hl_reneg'), color: pal.series[1] ?? pal.ink },
+      { name: t.housing.genuinelyNew, observations: obs(e, 'hl_pure'), color: pal.series[0] ?? pal.ink },
+      { name: t.housing.renegotiatedLoans, observations: obs(e, 'hl_reneg'), color: pal.series[1] ?? pal.ink },
     ],
   },
   {
     id: 'fees',
-    label: 'Rate vs APRC',
+    label: t.common.rateVsAprc,
     lines: (e, pal) => [
-      { name: 'Agreed rate', observations: obs(e, 'hl_total'), color: pal.series[0] ?? pal.ink },
-      { name: 'APRC incl. fees', observations: obs(e, 'hl_aprc'), color: pal.series[1] ?? pal.ink },
+      { name: t.common.agreedRate, observations: obs(e, 'hl_total'), color: pal.series[0] ?? pal.ink },
+      { name: t.common.aprcFees, observations: obs(e, 'hl_aprc'), color: pal.series[1] ?? pal.ink },
     ],
   },
-  { id: 'volume', label: 'Volume', volume: (e) => obs(e, 'hl_volume') },
+  { id: 'volume', label: t.common.volume, volume: (e) => obs(e, 'hl_volume') },
 ];
 
 const truncate = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
@@ -110,22 +122,21 @@ const truncate = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}
 function quoteTip(q: Quote, basis: QuoteBasis, ecbLine: string, color: string): string {
   const other: QuoteBasis = basis === 'effective' ? 'nominal' : 'effective';
   const otherValue = quoteValue(q, other);
-  const source = q.kind === 'calculator' ? 'Calculator quote' : 'Representative example';
-  const dated = q.offer.statedAt ? `Bank's date ${day(q.offer.statedAt)}` : 'No date stated by the bank';
+  const source = q.kind === 'calculator' ? t.housing.calculatorQuote : t.housing.example;
+  const conditions = localized(q.offer.conditions, q.offer.conditionsDe);
+  const dated = q.offer.statedAt ? t.housing.bankDate(day(q.offer.statedAt)) : t.housing.noBankDate;
   return [
     `<div class="tt-head">${esc(q.lender)}</div>`,
-    tipRow(color, pct(quoteValue(q, basis)), `${basis}, ${fixationLong(q.x).toLowerCase()}`),
-    otherValue !== null ? `<div class="tt-dim">${pct(otherValue)} ${other}</div>` : '',
+    tipRow(color, pct(quoteValue(q, basis)), `${t.common.basis[basis]}, ${lowerFirst(fixationLong(q.x))}`),
+    otherValue !== null ? `<div class="tt-dim">${pct(otherValue)} ${esc(t.common.basis[other])}</div>` : '',
     // Conditions often open with the source kind already; say it once.
     `<div class="tt-line">${
-      q.offer.conditions?.startsWith(source) ? '' : `${esc(source)} · `
-    }${esc(q.offer.product)}</div>`,
-    q.offer.conditions ? `<div class="tt-dim">${esc(truncate(q.offer.conditions, 160))}</div>` : '',
-    `<div class="tt-dim">${esc(dated)} · checked ${esc(day(q.offer.observedAt))}</div>`,
+      conditions?.startsWith(source) ? '' : `${esc(source)} · `
+    }${esc(productName(q.offer.product))}</div>`,
+    conditions ? `<div class="tt-dim">${esc(truncate(conditions, 160))}</div>` : '',
+    `<div class="tt-dim">${esc(dated)} · ${esc(t.housing.checked(day(q.offer.observedAt)))}</div>`,
     ecbLine ? `<div class="tt-line">${esc(ecbLine)}</div>` : '',
-    q.stale
-      ? `<div class="tt-warn">Outdated: the bank's own date is more than ${STALE_AFTER_DAYS.mortgage} days old</div>`
-      : '',
+    q.stale ? `<div class="tt-warn">${esc(t.housing.outdated(STALE_AFTER_DAYS.mortgage))}</div>` : '',
   ].join('');
 }
 
@@ -133,7 +144,7 @@ function quoteFact(label: string, q: Quote | undefined, basis: QuoteBasis): Fact
   return {
     label,
     value: pct(q ? quoteValue(q, basis) : undefined),
-    detail: q ? `${q.lender}${q.kind === 'calculator' ? ' · calculator' : ''}` : 'No current quote',
+    detail: q ? `${q.lender}${q.kind === 'calculator' ? ` · ${t.housing.calculator}` : ''}` : t.housing.noQuote,
   };
 }
 
@@ -180,23 +191,39 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
     const aprc = data ? latest(data.at.get('hl_aprc')) : undefined;
     const bucket = (id: string) => (data ? latest(data.at.get(id)) : undefined);
     const ecbTip = (value: number, what: string, period: string, note: string) =>
-      `<div class="tt-head">ECB concluded average</div>${tipRow(pal.market, pct(value), what)}<div class="tt-dim">${esc(formatPeriod(period))} · Austria · ${note}</div>`;
+      `<div class="tt-head">${esc(t.common.ecbConcludedAverage)}</div>${tipRow(pal.market, pct(value), what)}<div class="tt-dim">${esc(formatPeriod(period))} · ${esc(t.common.austria)} · ${esc(note)}</div>`;
 
     const bands: CurveBand[] =
       basis === 'effective'
         ? aprc
-          ? [{ from: -1.9, to: 26.9, value: aprc.value, tip: ecbTip(aprc.value, 'APRC, new housing loans', aprc.period, 'all fixation periods') }]
+          ? [
+              {
+                from: -1.9,
+                to: 26.9,
+                value: aprc.value,
+                tip: ecbTip(aprc.value, t.housing.aprcNewLoans, aprc.period, t.housing.allFixations),
+              },
+            ]
           : []
         : BANDS.flatMap((b) => {
             const o = bucket(b.id);
-            return o ? [{ from: b.from, to: b.to, value: o.value, tip: ecbTip(o.value, `new loans ${b.label}`, o.period, 'agreed rate') }] : [];
+            return o
+              ? [
+                  {
+                    from: b.from,
+                    to: b.to,
+                    value: o.value,
+                    tip: ecbTip(o.value, t.housing.newLoansIn(b.label), o.period, t.housing.agreedRate),
+                  },
+                ]
+              : [];
           });
 
     const ecbLine = (q: Quote) => {
-      if (basis === 'effective') return aprc ? `ECB concluded APRC, all fixations: ${pct(aprc.value)}` : '';
+      if (basis === 'effective') return aprc ? `${t.housing.ecbAprcAll}: ${pct(aprc.value)}` : '';
       const b = bandFor(q.x);
       const o = bucket(b.id);
-      return o ? `ECB concluded, ${b.label}: ${pct(o.value)}` : '';
+      return o ? `${t.common.ecbConcluded(b.label)}: ${pct(o.value)}` : '';
     };
 
     const lines = buildCurveLines({
@@ -223,14 +250,14 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
       basis,
       category: 'mortgage',
       styles,
-      label: (s) => (/calculator/i.test(s.product) ? `${s.provider} · calculator` : s.provider),
+      label: (s) => (/calculator/i.test(s.product) ? `${s.provider} · ${t.housing.calculator}` : s.provider),
     });
     const band = bandFor(fixation);
     const reference: StepLine[] = data
       ? [
           {
-            name: 'ECB average',
-            label: basis === 'effective' ? 'ECB concluded APRC, all fixations' : `ECB concluded, ${band.label}`,
+            name: t.common.ecbAverage,
+            label: basis === 'effective' ? t.housing.ecbAprcAll : t.common.ecbConcluded(band.label),
             color: pal.market,
             reference: true,
             points: obs(data, basis === 'effective' ? 'hl_aprc' : band.id).map(
@@ -256,7 +283,6 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
     [history, basis, fixation, hidden],
   );
 
-  const other: QuoteBasis = basis === 'effective' ? 'nominal' : 'effective';
   // Lenders with quotes today but none on this basis would vanish from the curve without a word.
   const unpublished = lenders.filter(
     (l) =>
@@ -264,40 +290,37 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
       quotes.some((q) => q.lender === l) &&
       !quotes.some((q) => q.lender === l && quoteValue(q, basis) !== null),
   );
+  const fixationPhrase = lowerFirst(fixationLong(fixation));
 
   return (
     <>
-      <PageHead title="Housing loans">
+      <PageHead title={t.app.pages.housing}>
         <p class="lede">
-          Lowest advertised {basis} rates across {current.length} current quotes from{' '}
-          {new Set(current.map((q) => q.lender)).size} lenders, checked {day(board?.generatedAt)}.
+          {t.housing.lede(basis, current.length, new Set(current.map((q) => q.lender)).size, day(board?.generatedAt))}
         </p>
         <Facts
           items={[
-            quoteFact('Variable', lowest((q) => q.x === 0), basis),
-            quoteFact('Fixed 10 years', lowest((q) => q.x === 10), basis),
-            quoteFact('Fixed 20 years or longer', lowest((q) => q.x >= 20), basis),
+            quoteFact(t.format.variable, lowest((q) => q.x === 0), basis),
+            quoteFact(t.housing.fixed10, lowest((q) => q.x === 10), basis),
+            quoteFact(t.housing.fixed20, lowest((q) => q.x >= 20), basis),
             {
-              label: 'ECB concluded average',
+              label: t.common.ecbConcludedAverage,
               value: pct(ecbTotal?.value),
               detail: ecbTotal
-                ? `${formatPeriod(ecbTotal.period)} · all new loans${basis === 'effective' ? ', APRC' : ''}`
-                : 'Loading…',
+                ? t.housing.ecbDetail(formatPeriod(ecbTotal.period), basis === 'effective')
+                : t.common.loading,
             },
           ]}
         />
       </PageHead>
 
       <Controls>
-        <Segmented label="Rate" options={BASES} value={basis} onChange={setBasis} />
-        <Switch label="Outdated examples" checked={showOutdated} onChange={setShowOutdated} />
+        <Segmented label={t.housing.rate} options={BASES} value={basis} onChange={setBasis} />
+        <Switch label={t.housing.outdatedExamples} checked={showOutdated} onChange={setShowOutdated} />
         <LenderChips lenders={lenders} styles={styles} hidden={hidden} onChange={setHidden} onHover={setHover} />
       </Controls>
 
-      <Section
-        title="Advertised today, by fixation period"
-        meta="One dot per quote. A lender's calculator ladder is joined by a line."
-      >
+      <Section title={t.housing.curveTitle} meta={t.housing.curveMeta}>
         <Chart
           option={curve}
           height={380}
@@ -306,75 +329,54 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
             if (f !== undefined) setFixation(f);
           }}
           highlight={hover}
-          ariaLabel="Advertised Austrian housing loan rates by initial fixation period, one marker per lender, against ECB concluded averages"
+          ariaLabel={t.housing.curveAria}
         />
         <CurveKey
-          band={basis === 'effective' ? 'ECB concluded APRC, all fixations' : 'ECB concluded average per fixation bucket'}
-          hollow={`Example older than ${STALE_AFTER_DAYS.mortgage} days by the bank's own date`}
+          band={basis === 'effective' ? t.housing.ecbAprcAll : t.housing.bandPerBucket}
+          hollow={t.housing.hollow(STALE_AFTER_DAYS.mortgage)}
         />
-        {unpublished.length > 0 ? (
-          <p class="hint">
-            Not shown: {unpublished.join(', ')} publish{unpublished.length === 1 ? 'es' : ''} no {basis} rate —
-            switch to {other} to include {unpublished.length === 1 ? 'it' : 'them'}.
-          </p>
-        ) : null}
+        {unpublished.length > 0 ? <p class="hint">{t.housing.unpublished(unpublished, basis)}</p> : null}
         <Numbers
-          head={['Lender', 'Product', 'Fixation', 'Nominal', 'Effective', "Bank's date", 'Checked']}
+          head={t.housing.offersHead}
           rows={[...quotes]
             .sort((a, b) => a.x - b.x || (quoteValue(a, basis) ?? 99) - (quoteValue(b, basis) ?? 99))
             .map((q) => [
               q.lender,
               <a href={q.offer.sourceUrl} target="_blank" rel="noreferrer">
-                {q.offer.product}
+                {productName(q.offer.product)}
               </a>,
-              q.x === 0 ? 'Variable' : `${q.x} years`,
+              q.x === 0 ? t.format.variable : t.housing.years(decimal(q.x)),
               pct(q.nominal),
               pct(q.effective),
-              q.offer.statedAt ? `${day(q.offer.statedAt)}${q.stale ? ' (outdated)' : ''}` : '–',
+              q.offer.statedAt ? `${day(q.offer.statedAt)}${q.stale ? t.housing.outdatedMark : ''}` : '–',
               day(q.offer.observedAt),
             ])}
         />
       </Section>
 
       <Section
-        title={`How advertised rates moved: ${fixationLong(fixation).toLowerCase()}`}
-        meta="Each lender's quote held until it was replaced; grey is the ECB concluded average."
+        title={t.housing.historyTitle(fixationPhrase)}
+        meta={t.housing.historyMeta}
         controls={
           <>
             <Segmented
-              label="Fixation"
-              options={fixations.map((f) => ({ id: f, label: f === 0 ? 'Variable' : `${f}y` }))}
+              label={t.housing.fixation}
+              options={fixations.map((f) => ({ id: f, label: fixationShort(f) }))}
               value={fixation}
               onChange={setFixation}
             />
-            <Segmented label="Range" options={RANGES} value={range} onChange={setRange} />
+            <Segmented label={t.common.range} options={RANGES} value={range} onChange={setRange} />
           </>
         }
       >
-        <Chart
-          option={past.option}
-          height={320}
-          highlight={hover}
-          ariaLabel={`Advertised housing loan rates over time, ${fixationLong(fixation).toLowerCase()}`}
-        />
+        <Chart option={past.option} height={320} highlight={hover} ariaLabel={t.housing.historyAria(fixationPhrase)} />
         {past.earliest && daysSince(past.earliest) < 120 ? (
-          <p class="hint">
-            Recorded from {day(past.earliest)}. No usable archive captures exist for these quotes before that.
-          </p>
+          <p class="hint">{t.housing.recordedFrom(day(past.earliest))}</p>
         ) : null}
-        {past.missing.length > 0 ? (
-          <p class="hint">
-            No {basis} rate published by {past.missing.join(', ')} — switch to {other} to include{' '}
-            {past.missing.length === 1 ? 'it' : 'them'}.
-          </p>
-        ) : null}
-        <ChangeList
-          changes={changes.slice(0, 6)}
-          styles={styles}
-          empty="No repricing on record for this fixation yet."
-        />
+        {past.missing.length > 0 ? <p class="hint">{t.housing.missing(past.missing, basis)}</p> : null}
+        <ChangeList changes={changes.slice(0, 6)} styles={styles} empty={t.housing.noRepricing} />
         <Numbers
-          head={['Repriced', 'Lender', 'Before', 'After', 'Change']}
+          head={t.housing.changesHead}
           rows={changes.map((r) => [
             repricedWhen(r),
             r.series.provider,
@@ -386,8 +388,8 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
       </Section>
 
       <MarketPanel
-        title="Concluded new lending"
-        meta="ECB MFI interest rate statistics for Austria: all new housing loans, volume-weighted, monthly, published about five weeks later."
+        title={t.housing.panelTitle}
+        meta={t.housing.panelMeta}
         views={VIEWS}
         ecb={ecb}
         window={ecbWindow}
@@ -395,30 +397,7 @@ export function Housing({ offers, ecb, ecbWindow, onWindow }: PageProps) {
       />
 
       <div class="page-foot">
-        <About>
-          <p>
-            <strong>Calculator quotes</strong> are read from the banks&rsquo; own calculators. bank99, Bank
-            Austria and Oberbank are asked for one profile, €300,000 over 25 years; Bank Burgenland and
-            Raiffeisen Bausparkasse publish rate tables that ignore loan size. They are current on the day
-            they were read.
-          </p>
-          <p>
-            <strong>Representative examples</strong> are the worked examples lenders must publish under §6
-            HIKrG, each at a loan size and term the bank picks, so they compare only loosely. What dates
-            them is the bank&rsquo;s own <em>Stand</em>. An example older than {STALE_AFTER_DAYS.mortgage}{' '}
-            days by that date is drawn hollow, and its history line stops there.
-          </p>
-          <p>
-            <strong>History</strong> before daily reading began is rebuilt from Internet Archive captures of
-            the same pages. Captures are roughly monthly, so where a bank states no date, a repricing is
-            dated to the first capture that shows it.
-          </p>
-          <p>
-            <strong>ECB averages</strong> cover every new housing loan in Austria that month, volume-weighted.
-            The agreed rate is split by fixation bucket; the APRC, which includes fees, exists only across all
-            fixations. Effective rates are the ones to compare between banks.
-          </p>
-        </About>
+        <About>{t.housing.about(STALE_AFTER_DAYS.mortgage)}</About>
         <SourceList sources={sourcesFor(board, 'mortgage')} />
       </div>
     </>

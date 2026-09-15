@@ -13,6 +13,8 @@ import {
 import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption } from 'echarts';
 
+import { locale, t } from '../i18n';
+
 echarts.use([
   LineChart,
   BarChart,
@@ -24,6 +26,18 @@ echarts.use([
   MarkAreaComponent,
   CanvasRenderer,
 ]);
+
+type ChartLocale = NonNullable<NonNullable<Parameters<typeof echarts.init>[2]>['locale']>;
+
+/**
+ * Month names on the calendar axes. ECharts merges a locale object over its
+ * English default, so the names are all it needs; everything else it would
+ * translate is hidden or formatted by the chart builders.
+ */
+const CHART_LOCALE: ChartLocale =
+  locale === 'de'
+    ? ({ time: { month: t.format.monthsLong, monthAbbr: t.format.months } } as unknown as ChartLocale)
+    : 'EN';
 
 interface ChartProps {
   option: EChartsOption;
@@ -48,7 +62,7 @@ export function Chart({ option, height = 300, ariaLabel, onPick, highlight }: Ch
   useEffect(() => {
     const el = container.current;
     if (!el) return;
-    const chart = echarts.init(el, undefined, { renderer: 'canvas' });
+    const chart = echarts.init(el, undefined, { renderer: 'canvas', locale: CHART_LOCALE });
     instance.current = chart;
 
     chart.getZr().on('click', (event) => {

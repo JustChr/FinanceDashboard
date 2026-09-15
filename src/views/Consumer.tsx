@@ -3,44 +3,44 @@ import { useMemo } from 'preact/hooks';
 import { latest } from '../lib/sdmx';
 import { repricings } from '../lib/offers';
 import { lenderStyles, quotesFor } from '../lib/quotes';
-import { day, formatPeriod, pct } from '../lib/format';
+import { day, fixationLong, formatPeriod, lowerFirst, pct, productName } from '../lib/format';
 import { usePalette } from '../lib/theme';
+import { t } from '../i18n';
 import { MarketPanel, obs, type MarketView } from '../components/MarketPanel';
 import { About, Facts, PageHead, Section, SourceList } from '../components/ui';
 import { ChangeList, allLenders, sourcesFor, type PageProps } from '../components/offerParts';
 
+const { buckets } = t.common;
+
 const VIEWS: MarketView[] = [
   {
     id: 'fixation',
-    label: 'By fixation',
+    label: t.common.byFixation,
     lines: (e, pal) => [
-      { name: 'Variable / up to 1y', observations: obs(e, 'cc_var'), color: pal.series[0] ?? pal.ink },
-      { name: 'Fixed 1–5y', observations: obs(e, 'cc_1_5'), color: pal.series[1] ?? pal.ink },
-      { name: 'Fixed over 5y', observations: obs(e, 'cc_5p'), color: pal.series[2] ?? pal.ink },
+      { name: buckets.variable, observations: obs(e, 'cc_var'), color: pal.series[0] ?? pal.ink },
+      { name: buckets.fixed1to5, observations: obs(e, 'cc_1_5'), color: pal.series[1] ?? pal.ink },
+      { name: buckets.fixedOver5, observations: obs(e, 'cc_5p'), color: pal.series[2] ?? pal.ink },
     ],
   },
   {
     id: 'fees',
-    label: 'Rate vs APRC',
+    label: t.common.rateVsAprc,
     lines: (e, pal) => [
-      { name: 'Agreed rate', observations: obs(e, 'cc_total'), color: pal.series[0] ?? pal.ink },
-      { name: 'APRC incl. fees', observations: obs(e, 'cc_aprc'), color: pal.series[1] ?? pal.ink },
+      { name: t.common.agreedRate, observations: obs(e, 'cc_total'), color: pal.series[0] ?? pal.ink },
+      { name: t.common.aprcFees, observations: obs(e, 'cc_aprc'), color: pal.series[1] ?? pal.ink },
     ],
   },
   {
     id: 'compare',
-    label: 'vs other lending',
+    label: t.consumer.vsOther,
     lines: (e, pal) => [
-      { name: 'Consumer credit', observations: obs(e, 'cc_total'), color: pal.series[0] ?? pal.ink },
-      { name: 'Overdrafts', observations: obs(e, 'od_hh'), color: pal.series[1] ?? pal.ink },
-      { name: 'Housing loans', observations: obs(e, 'hl_total'), color: pal.series[2] ?? pal.ink },
-      { name: 'Consumer credit, euro area', observations: obs(e, 'cc_total', 'ea'), color: pal.market },
+      { name: t.app.pages.consumer, observations: obs(e, 'cc_total'), color: pal.series[0] ?? pal.ink },
+      { name: t.common.overdrafts, observations: obs(e, 'od_hh'), color: pal.series[1] ?? pal.ink },
+      { name: t.app.pages.housing, observations: obs(e, 'hl_total'), color: pal.series[2] ?? pal.ink },
+      { name: t.consumer.consumerEuroArea, observations: obs(e, 'cc_total', 'ea'), color: pal.market },
     ],
   },
 ];
-
-const fixationText = (years: number | null) =>
-  years === null ? 'Fixed for the whole term' : years === 0 ? 'Variable rate' : `Fixed for ${years} years`;
 
 export function Consumer({ offers, ecb, ecbWindow, onWindow }: PageProps) {
   const pal = usePalette();
@@ -65,29 +65,25 @@ export function Consumer({ offers, ecb, ecbWindow, onWindow }: PageProps) {
 
   return (
     <>
-      <PageHead title="Consumer credit">
-        <p class="lede">
-          What Austrian households concluded{total ? ` in ${formatPeriod(total.period)}` : ''}, and the few
-          consumer-loan examples a bank publishes in readable form.
-        </p>
+      <PageHead title={t.app.pages.consumer}>
+        <p class="lede">{t.consumer.lede(total ? formatPeriod(total.period) : undefined)}</p>
         <Facts
           items={[
-            { label: 'ECB concluded, agreed rate', value: pct(total?.value), detail: 'All new consumer loans' },
-            { label: 'ECB concluded, APRC', value: pct(aprc?.value), detail: 'Including fees' },
-            { label: 'Overdrafts', value: pct(overdraft?.value), detail: 'Revolving credit' },
+            { label: t.consumer.ecbAgreed, value: pct(total?.value), detail: t.consumer.allNew },
+            { label: t.consumer.ecbAprc, value: pct(aprc?.value), detail: t.consumer.includingFees },
+            { label: t.common.overdrafts, value: pct(overdraft?.value), detail: t.consumer.revolving },
             {
-              label: 'Lowest advertised, effective',
+              label: t.consumer.lowest,
               value: pct(cheapest?.effective),
-              detail: cheapest ? `${cheapest.lender} · ${fixationText(cheapest.offer.fixationYears).toLowerCase()}` : 'None published',
+              detail: cheapest
+                ? `${cheapest.lender} · ${lowerFirst(fixationLong(cheapest.offer.fixationYears))}`
+                : t.consumer.nonePublished,
             },
           ]}
         />
       </PageHead>
 
-      <Section
-        title="Advertised today"
-        meta="Representative examples under §5 VKrG. Consumer credit is priced per borrower, so almost no bank publishes a figure that can be read."
-      >
+      <Section title={t.consumer.title} meta={t.consumer.meta}>
         <ul class="offer-list">
           {quotes.map((q) => {
             const style = styles.get(q.lender);
@@ -99,15 +95,18 @@ export function Consumer({ offers, ecb, ecbWindow, onWindow }: PageProps) {
                 </span>
                 <span class="offer-product">
                   <a href={q.offer.sourceUrl} target="_blank" rel="noreferrer">
-                    {q.offer.product}
+                    {productName(q.offer.product)}
                   </a>
-                  <span class="muted"> · {fixationText(q.offer.fixationYears)}</span>
+                  <span class="muted"> · {fixationLong(q.offer.fixationYears)}</span>
                 </span>
                 <span class="offer-rate">
-                  <b>{pct(q.effective)}</b> effective
-                  <span class="muted"> · {pct(q.nominal)} nominal</span>
+                  <b>{pct(q.effective)}</b> {t.common.basis.effective}
+                  <span class="muted">
+                    {' '}
+                    · {pct(q.nominal)} {t.common.basis.nominal}
+                  </span>
                 </span>
-                <span class="muted">Checked {day(q.offer.observedAt)}</span>
+                <span class="muted">{t.common.checked(day(q.offer.observedAt))}</span>
               </li>
             );
           })}
@@ -115,13 +114,13 @@ export function Consumer({ offers, ecb, ecbWindow, onWindow }: PageProps) {
         <ChangeList
           changes={changes.slice(0, 6)}
           styles={styles}
-          empty={since ? `Recorded daily from ${day(since)}; no change so far.` : 'No history recorded yet.'}
+          empty={since ? t.consumer.since(day(since)) : t.consumer.noHistory}
         />
       </Section>
 
       <MarketPanel
-        title="Concluded consumer credit"
-        meta="ECB MFI interest rate statistics for Austrian households: new business, volume-weighted, monthly."
+        title={t.consumer.panelTitle}
+        meta={t.consumer.panelMeta}
         views={VIEWS}
         ecb={ecb}
         window={ecbWindow}
@@ -129,16 +128,7 @@ export function Consumer({ offers, ecb, ecbWindow, onWindow }: PageProps) {
       />
 
       <div class="page-foot">
-        <About>
-          <p>
-            The APRC includes arrangement fees and other charges. On consumer credit it sits far above the agreed
-            rate, because the same fixed costs are spread over a much smaller loan than a mortgage.
-          </p>
-          <p>
-            The ECB splits consumer credit by initial rate fixation: variable or up to one year, over one and up to
-            five years, and over five years.
-          </p>
-        </About>
+        <About>{t.consumer.about()}</About>
         <SourceList sources={sourcesFor(board, 'consumer')} />
       </div>
     </>

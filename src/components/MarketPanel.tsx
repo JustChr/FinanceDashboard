@@ -5,7 +5,8 @@ import type { EcbData, LoadState } from '../lib/data';
 import type { WindowId } from '../lib/catalog';
 import type { Observation } from '../lib/sdmx';
 import { observationAt, shiftMonths } from '../lib/sdmx';
-import { bps, eurMillions, formatPeriod, pct } from '../lib/format';
+import { bps, eurMillions, formatPeriod, num, pct } from '../lib/format';
+import { t } from '../i18n';
 import { rollingSum } from '../lib/metrics';
 import { usePalette, type Palette } from '../lib/theme';
 import { Chart } from './Chart';
@@ -61,20 +62,20 @@ export function MarketPanel({
       return {
         option: volumeChart(pal, series, pal.series[0] ?? pal.ink) as EChartsOption,
         summary: last
-          ? `${formatPeriod(last.period)}: ${eurMillions(last.value)} · last 12 months ${eurMillions(annual?.value)}`
+          ? `${formatPeriod(last.period)}: ${eurMillions(last.value)} · ${t.panel.lastYear(eurMillions(annual?.value))}`
           : '',
         rows: series
           .slice(-13)
           .reverse()
           .map((o) => [formatPeriod(o.period), eurMillions(o.value)]),
-        head: ['Month', 'Volume'],
+        head: t.panel.volumeHead,
       };
     }
     const specs = view.lines?.(data, pal) ?? [];
     const suffix = view.suffix ?? '%';
     const decimals = view.decimals ?? 2;
     const fmt = (v: number | undefined) =>
-      v === undefined ? '–' : suffix === '%' ? pct(v, decimals) : v.toFixed(decimals);
+      v === undefined ? '–' : suffix === '%' ? pct(v, decimals) : num(v, decimals);
     // Head the summary with the month most series share; a series that is ahead
     // or behind (a daily policy rate, a late MIR breakdown) names its own month.
     const periods = specs.map((s) => s.observations.at(-1)?.period).filter((p): p is string => !!p);
@@ -92,7 +93,7 @@ export function MarketPanel({
             })
             .join(' · ')}`
         : '',
-      head: ['Series', 'Latest', 'Month', '12 months earlier', 'Change'],
+      head: t.panel.linesHead,
       rows: specs.map((s) => {
         const now = s.observations.at(-1);
         const then = now
@@ -116,7 +117,7 @@ export function MarketPanel({
       controls={
         <>
           <Segmented
-            label="View"
+            label={t.common.view}
             options={views.map((v) => ({ id: v.id, label: v.label }))}
             value={view?.id ?? ''}
             onChange={setViewId}

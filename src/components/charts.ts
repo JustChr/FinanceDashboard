@@ -12,8 +12,22 @@ import type { EChartsOption } from 'echarts';
 
 import type { Observation } from '../lib/sdmx';
 import type { Palette } from '../lib/theme';
-import { esc, formatPeriod, termShort } from '../lib/format';
+import {
+  PERCENT,
+  bps,
+  day,
+  decimal,
+  esc,
+  eurBillions,
+  eurMillionsFull,
+  fixationShort,
+  formatPeriod,
+  num,
+  pct,
+  termShort,
+} from '../lib/format';
 import { valueAt } from '../lib/quotes';
+import { t } from '../i18n';
 
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
@@ -38,13 +52,16 @@ function base(pal: Palette): EChartsOption {
 
 const axisLabel = (pal: Palette) => ({ color: pal.muted, fontSize: 11, fontFamily: FONT });
 
+/** The per-cent sign as the page's language sets it; any other suffix passes through. */
+const unit = (suffix: string) => (suffix === '%' ? PERCENT : suffix);
+
 function rateAxis(pal: Palette, suffix = '%') {
   return {
     type: 'value' as const,
     scale: true,
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { ...axisLabel(pal), formatter: `{value}${suffix}` },
+    axisLabel: { ...axisLabel(pal), formatter: (v: number) => `${decimal(v)}${unit(suffix)}` },
     splitLine: { lineStyle: { color: pal.grid } },
   };
 }
@@ -141,15 +158,15 @@ export function curveChart(
           min: -2.4,
           max: 27,
           customValues: [0, 5, 10, 15, 20, 25],
-          formatter: (v: number) => (v === 0 ? 'Variable' : `${v}y`),
-          name: 'Initial rate fixation',
+          formatter: (v: number) => fixationShort(v),
+          name: t.charts.fixationAxis,
         }
       : {
           min: -0.55,
           max: Math.sqrt(92),
           customValues: [0, 3, 6, 12, 24, 36, 60, 84].map(Math.sqrt),
           formatter: (v: number) => termShort(Math.round(v * v)),
-          name: 'Term',
+          name: t.charts.termAxis,
         };
 
   return {
@@ -187,7 +204,7 @@ export function curveChart(
           : {}),
       },
       {
-        name: 'ECB average',
+        name: t.common.ecbAverage,
         type: 'line',
         data: bands.flatMap((band) => [
           [band.from, band.value],
@@ -299,14 +316,15 @@ export function historyChart(
       formatter: (params: unknown) => {
         const first = (params as { axisValue: number }[])[0];
         if (!first) return '';
-        const t = first.axisValue;
+        const time = first.axisValue;
         const rows = lines
-          .map((l) => ({ l, v: valueAt(l.points, t, l.reference ? 45 : 1) }))
+          .map((l) => ({ l, v: valueAt(l.points, time, l.reference ? 45 : 1) }))
           .filter((r): r is { l: StepLine; v: number } => r.v !== null)
           .sort((a, c) => c.v - a.v);
-        const date = new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-        return `<div class="tt-head">${date}</div>${
-          rows.length ? rows.map((r) => tipRow(r.l.color, `${r.v.toFixed(2)}%`, r.l.label)).join('') : '<div class="tt-dim">No quote on record</div>'
+        return `<div class="tt-head">${day(new Date(time).toISOString())}</div>${
+          rows.length
+            ? rows.map((r) => tipRow(r.l.color, pct(r.v), r.l.label)).join('')
+            : `<div class="tt-dim">${esc(t.charts.noQuote)}</div>`
         }`;
       },
     },
@@ -397,7 +415,7 @@ export function timeChart(
       ...b.tooltip,
       trigger: 'axis',
       axisPointer: { type: 'line', lineStyle: { color: pal.axis } },
-      valueFormatter: (value) => (typeof value === 'number' ? `${value.toFixed(decimals)}${suffix}` : '–'),
+      valueFormatter: (value) => (typeof value === 'number' ? `${num(value, decimals)}${unit(suffix)}` : '–'),
     },
     xAxis: {
       type: 'category',
@@ -444,8 +462,7 @@ export function volumeChart(pal: Palette, observations: Observation[], color: st
       ...b.tooltip,
       trigger: 'axis',
       axisPointer: { type: 'shadow', shadowStyle: { color: pal.select } },
-      valueFormatter: (value) =>
-        typeof value === 'number' ? `€${Math.round(value).toLocaleString('en-GB')}m` : '–',
+      valueFormatter: (value) => (typeof value === 'number' ? eurMillionsFull(value) : '–'),
     },
     xAxis: {
       type: 'category',
@@ -457,11 +474,11 @@ export function volumeChart(pal: Palette, observations: Observation[], color: st
     yAxis: {
       ...rateAxis(pal),
       scale: false,
-      axisLabel: { ...axisLabel(pal), formatter: (v: number) => `€${(v / 1000).toFixed(1)}bn` },
+      axisLabel: { ...axisLabel(pal), formatter: (v: number) => eurBillions(v) },
     },
     series: [
       {
-        name: 'New lending',
+        name: t.charts.newLending,
         type: 'bar',
         data: observations.map((o) => Number(o.value.toFixed(1))),
         itemStyle: { color, borderRadius: [2, 2, 0, 0] },
@@ -503,11 +520,12 @@ export function dumbbellChart(pal: Palette, rows: DumbbellRow[]): EChartsOption 
         const index = (params as { dataIndex: number }[])[0]?.dataIndex ?? -1;
         const row = rows[index];
         if (!row) return '';
-        const gap = row.at !== null && row.ea !== null ? Math.round((row.at - row.ea) * 100) : null;
         return `<div class="tt-head">${esc(row.label)}</div>${
-          row.at !== null ? tipRow(austria, `${row.at.toFixed(2)}%`, 'Austria') : ''
-        }${row.ea !== null ? tipRow(pal.market, `${row.ea.toFixed(2)}%`, 'Euro area') : ''}${
-          gap !== null ? `<div class="tt-dim">Austria ${gap > 0 ? '+' : ''}${gap} bp</div>` : ''
+          row.at !== null ? tipRow(austria, pct(row.at), t.common.austria) : ''
+        }${row.ea !== null ? tipRow(pal.market, pct(row.ea), t.common.euroArea) : ''}${
+          row.at !== null && row.ea !== null
+            ? `<div class="tt-dim">${esc(t.charts.austriaGap(bps(row.at - row.ea)))}</div>`
+            : ''
         }`;
       },
     },
@@ -522,7 +540,7 @@ export function dumbbellChart(pal: Palette, rows: DumbbellRow[]): EChartsOption 
     },
     series: [
       {
-        name: 'Euro area',
+        name: t.common.euroArea,
         type: 'scatter',
         symbolSize: 10,
         data: rows.map((r, i) => [r.ea, i]),
@@ -538,7 +556,7 @@ export function dumbbellChart(pal: Palette, rows: DumbbellRow[]): EChartsOption 
         },
       },
       {
-        name: 'Austria',
+        name: t.common.austria,
         type: 'scatter',
         symbolSize: 11,
         z: 3,
