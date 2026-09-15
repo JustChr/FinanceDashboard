@@ -234,7 +234,9 @@ async function main() {
   // Sequential rather than parallel: a handful of requests once a day should
   // look like a visitor, not like a burst against six banks at once.
   const results = [];
-  for (const source of SOURCES) {
+  // `archiveOnly` sources exist for `backfill.mjs`: pages that once published a
+  // rate and are now refused or no longer carry it.
+  for (const source of SOURCES.filter((s) => !s.archiveOnly)) {
     const result = await scrapeSource(source);
     results.push(result);
     const found = result.offers.length;

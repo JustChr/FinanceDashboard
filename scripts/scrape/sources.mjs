@@ -64,9 +64,9 @@ export const UNAVAILABLE = [
     provider: 'Bausparkassen (s Bausparkasse, start:bausparkasse)',
     url: 'https://www.sbausparkasse.at/de/finanzieren/darlehen-infos/produktseite-finanzieren-ueberblick',
     reason:
-      'Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs. Raiffeisen Bausparkasse is on the board from its WohnTraumRechner catalogue; Wüstenrot states only a cap/floor band.',
+      'Bauspardarlehen rates are legally capped and genuinely published, but only after JavaScript runs. Raiffeisen Bausparkasse is on the board from its representative examples; Wüstenrot states only a cap/floor band.',
     reasonDe:
-      'Zinsen für Bauspardarlehen sind gesetzlich gedeckelt und tatsächlich veröffentlicht, aber erst sichtbar, nachdem JavaScript läuft. Raiffeisen Bausparkasse ist über den Katalog des WohnTraumRechners erfasst; Wüstenrot nennt nur eine Bandbreite aus Ober- und Untergrenze.',
+      'Zinsen für Bauspardarlehen sind gesetzlich gedeckelt und tatsächlich veröffentlicht, aber erst sichtbar, nachdem JavaScript läuft. Raiffeisen Bausparkasse ist über ihre repräsentativen Beispiele erfasst; Wüstenrot nennt nur eine Bandbreite aus Ober- und Untergrenze.',
   },
 ];
 
@@ -117,6 +117,33 @@ const months = (n) => `\\b${n}\\s*Monate`;
  * strips those spaces again.
  */
 const STAND = /(?:Stand|STAND|Gültig ab)[:,]?\s*([\d\s]{1,4}\.[\d\s]{1,4}\.\s?\d{4})/;
+
+/**
+ * Raiffeisen Bausparkasse's fixation ladder. Its live examples and its archived
+ * calculator catalogue both build on it, so they write to the same series.
+ * `thousands` and `term` are the profile of each example page.
+ */
+const RBSK_PRODUCTS = [
+  { slug: '1-5jahre-fix', catalogue: 'FiT_1_5JFix', years: 1.5, product: 'Bausparfinanzierung', thousands: 100, term: 25 },
+  { slug: 'wbsk-6jahre-fix', catalogue: 'WBSK_6JFix', years: 6, product: 'Wohnbau Sofortkredit', thousands: 100, term: 25 },
+  { slug: '10jahre-fix', catalogue: 'FiT_10JFix', years: 10, product: 'Bausparfinanzierung', thousands: 100, term: 25 },
+  { slug: 'wbsk-15jahre-fix', catalogue: 'WBSK_15JFix', years: 15, product: 'Wohnbau Sofortkredit', thousands: 100, term: 25 },
+  { slug: '20jahre-fix', catalogue: 'FiT_20JFix', years: 20, product: 'Bausparfinanzierung', thousands: 200, term: 35 },
+];
+
+const rbskOffer = ({ slug, years, product, thousands, term }) => ({
+  id: `rbsk-${slug}`,
+  product,
+  fixationYears: years,
+  conditions: `§6 HIKrG example, €${thousands},000 over ${term} years; ${
+    years === 1.5
+      ? 'fixed until allotment, then variable under a rate cap'
+      : `fixed ${years} years plus the rest of that year`
+  }; 3% brokerage fee`,
+  conditionsDe: `Beispiel gemäß § 6 HIKrG, ${thousands}.000 € über ${term} Jahre; ${
+    years === 1.5 ? 'fix bis zur Zuteilung, danach variabel mit Zinsobergrenze' : `${years} Jahre fix plus Rumpfjahr`
+  }; 3 % Vermittlungsentgelt`,
+});
 
 /**
  * `conditions` is the English text and `conditionsDe` the German; the page
@@ -727,51 +754,89 @@ export const SOURCES = [
   },
 
   /*
-   * Raiffeisen Bausparkasse's WohnTraumRechner.
+   * Raiffeisen Bausparkasse, from its §6 HIKrG examples, one page per product.
    *
-   * The calculator page embeds the product catalogue as JSON props, and each
-   * product's name carries its rate: "Bausparfinanzierung mit 3,65 % fix für
-   * 10 Jahre und Rumpfjahr". Those names are the rates, verified against the
-   * default product's rendered text on 2026-09-14. The per-loan recalculation
-   * (which would give effective rates) is a POST the site's bot management
-   * challenges after a few requests, so only the catalogue is read: nominal
-   * rates, one GET a day, with the browser user agent this source is a named
-   * exception for. A challenged day reports `failed`.
+   * These replaced a read of the WohnTraumRechner catalogue on 2026-09-15. That
+   * calculator lives on `wohntraumrechner.bausparen.at`, whose Cloudflare bot
+   * management refused even the browser user agent; the example pages on
+   * `www.bausparen.at` answer the identified bot, and carry what the catalogue
+   * did not — an effective rate and a Stand — on the same nominal ladder
+   * (2,9 / 3,1 / 3,65 / 3,8 / 3,8 %). The host still challenges the odd
+   * request, so a single page missing shows as `partial`.
    *
-   * "und Rumpfjahr": each fixation runs to the end of the calendar year after
-   * the stated span. The 1.5-year Bausparfinanzierung is fixed until the
-   * Bauspar loan is allotted, then variable under a free 20-year rate cap.
-   * All carry a brokerage fee of up to 3%, which is why the effective rate
-   * would matter here and is not shown.
+   * The profiles are not uniform: €100,000 over 25 years except the 20-year
+   * example, €200,000 over 35. After each fixation the rate follows 12M-Euribor
+   * +1.25 pp, the Bausparfinanzierung inside a 2.25–6% band for 20 years from
+   * allotment, the Wohnbau Sofortkredit uncapped; the effective rates assume
+   * today's follow-on rate. "Rumpfjahr": each fixation runs to the 31 December
+   * after the stated span. Every example charges a 3% brokerage fee, which is
+   * most of the gap between nominal and effective.
+   *
+   * Each offer carries its own `url`, which keeps these out of the archive
+   * backfill (the example pages were captured once, in 2021). Their history
+   * comes from the archived catalogue below instead.
+   */
+  {
+    provider: 'Raiffeisen Bausparkasse',
+    network: 'branch',
+    category: 'mortgage',
+    url: 'https://www.bausparen.at/de/finanzieren/10jahre-fix-gb-berechnung.html',
+    stand: STAND,
+    offers: RBSK_PRODUCTS.map((p) => ({
+      ...rbskOffer(p),
+      url: `https://www.bausparen.at/de/finanzieren/${p.slug}-gb-berechnung.html`,
+      // The colon keeps off "Zinssatz ab dem … 1. Jänner:", the follow-on rate;
+      // the word boundary off "Effektiver Jahreszinssatz:". Until 2021 the
+      // label read "Sollzinssatz für 1,5 Jahre:".
+      rate: after('(?:\\bZinssatz\\s*:|Sollzinssatz\\s*für\\s*[\\d,]+\\s*Jahre\\s*:)'),
+      effectiveRate: after('Effektiver\\s*Jahreszinssatz'),
+    })),
+  },
+
+  /*
+   * Raiffeisen Bausparkasse's calculator catalogue, as the archive kept it —
+   * for `backfill.mjs` only. The live calculator refuses us, so the daily scrape
+   * skips this (`archiveOnly`).
+   *
+   * The WohnTraumRechner embeds its products as JSON, and in some years each
+   * name carried its nominal rate: "Bausparfinanzierung mit 1,15 % fix für 10
+   * Jahre". Captures show the whole ladder from 2020-10 to 2022-01 and again
+   * from 2026-02. From 2022-05 to 2024-11 the names read "mit Fixzinssatz" and
+   * the rate came only from the recalculation, which the archive never holds;
+   * in 2025 only the two Wohnbau Sofortkredit names carry one. Those captures
+   * miss and leave a gap — nothing archived fills it, the overview and product
+   * pages of those years state no rate either.
+   *
+   * The ids are the live examples' ids, so each series runs from its archived
+   * past into the daily read. Archive points are nominal only; the board
+   * compares across a missing effective rate rather than to it.
    */
   {
     provider: 'Raiffeisen Bausparkasse',
     network: 'branch',
     category: 'mortgage',
     url: 'https://wohntraumrechner.bausparen.at/finanzierungsrechner',
-    browser: true,
+    // utm-tagged links to the calculator were captured far more often than the
+    // bare URL; a prefix lookup takes them all.
+    archive: { url: 'https://wohntraumrechner.bausparen.at/finanzierungsrechner', match: 'prefix' },
+    archiveOnly: true,
     includeScripts: true,
     offers: [
-      ['FiT_1_5JFix', 1.5, 'Bausparfinanzierung'],
-      ['WBSK_6JFix', 6, 'Wohnbau Sofortkredit'],
-      ['FiT_10JFix', 10, 'Bausparfinanzierung'],
-      ['WBSK_15JFix', 15, 'Wohnbau Sofortkredit'],
-      ['FiT_20JFix', 20, 'Bausparfinanzierung'],
-    ].map(([productId, years, product]) => ({
-      id: `rbsk-${productId.toLowerCase().replace(/_/g, '-')}`,
-      product,
-      fixationYears: years,
-      conditions:
-        years === 1.5
-          ? 'Catalogue rate, fixed until allotment (~1.5 years) then variable under a rate cap; nominal only; fee up to 3%'
-          : `Catalogue rate, fixed ${years} years plus the rest of that year; nominal only; fee up to 3%`,
-      conditionsDe:
-        years === 1.5
-          ? 'Katalogzinssatz, fix bis zur Zuteilung (ca. 1,5 Jahre), danach variabel mit Zinsobergrenze; nur Nominalzins; Gebühr bis 3 %'
-          : `Katalogzinssatz, ${years} Jahre fix plus Rumpfjahr; nur Nominalzins; Gebühr bis 3 %`,
+      ...RBSK_PRODUCTS.map((p) => ({ ...rbskOffer(p), catalogue: p.catalogue })),
+      // Offered until 2023, then replaced by the 6-year term.
+      {
+        id: 'rbsk-wbsk-5jahre-fix',
+        product: 'Wohnbau Sofortkredit',
+        fixationYears: 5,
+        catalogue: 'WBSK_5JFix',
+        conditions: 'Calculator catalogue rate, fixed 5 years; nominal only; no longer offered',
+        conditionsDe: 'Katalogzinssatz des Rechners, 5 Jahre fix; nur Nominalzins; nicht mehr angeboten',
+      },
+    ].map(({ catalogue, ...offer }) => ({
+      ...offer,
       // Anchored on the product id, so each name is read for its own product;
       // `[^}]` keeps the match inside that product's JSON object.
-      rate: new RegExp(`"ProduktId":"${productId}"[^}]{0,160}?"BezeichnungLang":"[^"]*?mit\\s*${RATE}\\s*%`),
+      rate: new RegExp(`"ProduktId":"${catalogue}"[^}]{0,200}?"BezeichnungLang":"[^"]*?mit\\s*${RATE}\\s*%`),
     })),
   },
 

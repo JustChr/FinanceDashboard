@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15T10:27:20.055Z",
+  "generatedAt": "2026-09-15T17:17:24.308Z",
   "series": {
     "bank99-rechner-fix-10j": {
       "provider": "bank99",
@@ -728,6 +728,219 @@
           "lastSeen": "2026-09-15",
           "via": "archive",
           "evidence": "https://web.archive.org/web/20250806061421/https://www.oberbank.at/wohnbaufinanzierung"
+        }
+      ]
+    },
+    "rbsk-1-5jahre-fix": {
+      "provider": "Raiffeisen Bausparkasse",
+      "product": "Bausparfinanzierung",
+      "network": "branch",
+      "fixationYears": 1.5,
+      "conditions": "§6 HIKrG example, €100,000 over 25 years; fixed until allotment, then variable under a rate cap; 3% brokerage fee",
+      "sourceUrl": "https://wohntraumrechner.bausparen.at/finanzierungsrechner",
+      "episodes": [
+        {
+          "rate": 0.75,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2020-10-26",
+          "lastSeen": "2022-01-23",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20201026071447/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=wp-renav&utm_medium=rectangle&utm_campaign=wp-2020-wtr&utm_content=image"
+        },
+        {
+          "rate": 2.9,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-02-10",
+          "lastSeen": "2026-04-02",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20260210144318/https://wohntraumrechner.bausparen.at/finanzierungsrechner"
+        }
+      ]
+    },
+    "rbsk-10jahre-fix": {
+      "provider": "Raiffeisen Bausparkasse",
+      "product": "Bausparfinanzierung",
+      "network": "branch",
+      "fixationYears": 10,
+      "conditions": "§6 HIKrG example, €100,000 over 25 years; fixed 10 years plus the rest of that year; 3% brokerage fee",
+      "sourceUrl": "https://wohntraumrechner.bausparen.at/finanzierungsrechner",
+      "episodes": [
+        {
+          "rate": 1.15,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2020-10-26",
+          "lastSeen": "2022-01-23",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20201026071447/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=wp-renav&utm_medium=rectangle&utm_campaign=wp-2020-wtr&utm_content=image"
+        },
+        {
+          "rate": 3.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-02-10",
+          "lastSeen": "2026-04-02",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20260210144318/https://wohntraumrechner.bausparen.at/finanzierungsrechner"
+        }
+      ]
+    },
+    "rbsk-20jahre-fix": {
+      "provider": "Raiffeisen Bausparkasse",
+      "product": "Bausparfinanzierung",
+      "network": "branch",
+      "fixationYears": 20,
+      "conditions": "§6 HIKrG example, €200,000 over 35 years; fixed 20 years plus the rest of that year; 3% brokerage fee",
+      "sourceUrl": "https://wohntraumrechner.bausparen.at/finanzierungsrechner",
+      "episodes": [
+        {
+          "rate": 1.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2020-10-26",
+          "lastSeen": "2020-11-30",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20201026071447/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=wp-renav&utm_medium=rectangle&utm_campaign=wp-2020-wtr&utm_content=image"
+        },
+        {
+          "rate": 1.35,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2021-02-25",
+          "lastSeen": "2021-02-25",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20210225012659/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=wp-201203&utm_medium=rectangle&utm_campaign=wp-2020-wtr&utm_content=image"
+        },
+        {
+          "rate": 1.5,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2021-04-18",
+          "lastSeen": "2022-01-23",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20210418003020/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=ipa&utm_medium=ipa-x-prom&utm_campaign=wtr&utm_content=cta"
+        },
+        {
+          "rate": 3.75,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-02-10",
+          "lastSeen": "2026-04-02",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20260210144318/https://wohntraumrechner.bausparen.at/finanzierungsrechner"
+        }
+      ]
+    },
+    "rbsk-wbsk-15jahre-fix": {
+      "provider": "Raiffeisen Bausparkasse",
+      "product": "Wohnbau Sofortkredit",
+      "network": "branch",
+      "fixationYears": 15,
+      "conditions": "§6 HIKrG example, €100,000 over 25 years; fixed 15 years plus the rest of that year; 3% brokerage fee",
+      "sourceUrl": "https://wohntraumrechner.bausparen.at/finanzierungsrechner",
+      "episodes": [
+        {
+          "rate": 1.25,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2020-10-26",
+          "lastSeen": "2022-01-23",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20201026071447/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=wp-renav&utm_medium=rectangle&utm_campaign=wp-2020-wtr&utm_content=image"
+        },
+        {
+          "rate": 3.2,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2025-01-15",
+          "lastSeen": "2025-01-15",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20250115101516/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=ipa&utm_medium=ipa-x-prom&utm_campaign=wtr&utm_content=cta"
+        },
+        {
+          "rate": 3.4,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2025-02-19",
+          "lastSeen": "2025-02-19",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20250219192721/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=ipa&utm_medium=ipa-x-prom&utm_campaign=wtr&utm_content=cta"
+        },
+        {
+          "rate": 3.6,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2025-07-21",
+          "lastSeen": "2025-07-21",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20250721163111/https://wohntraumrechner.bausparen.at/finanzierungsrechner"
+        },
+        {
+          "rate": 3.65,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2026-02-10",
+          "lastSeen": "2026-04-02",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20260210144318/https://wohntraumrechner.bausparen.at/finanzierungsrechner"
+        }
+      ]
+    },
+    "rbsk-wbsk-5jahre-fix": {
+      "provider": "Raiffeisen Bausparkasse",
+      "product": "Wohnbau Sofortkredit",
+      "network": "branch",
+      "fixationYears": 5,
+      "conditions": "Calculator catalogue rate, fixed 5 years; nominal only; no longer offered",
+      "sourceUrl": "https://wohntraumrechner.bausparen.at/finanzierungsrechner",
+      "episodes": [
+        {
+          "rate": 0.9,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2020-10-26",
+          "lastSeen": "2022-01-23",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20201026071447/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=wp-renav&utm_medium=rectangle&utm_campaign=wp-2020-wtr&utm_content=image"
+        }
+      ]
+    },
+    "rbsk-wbsk-6jahre-fix": {
+      "provider": "Raiffeisen Bausparkasse",
+      "product": "Wohnbau Sofortkredit",
+      "network": "branch",
+      "fixationYears": 6,
+      "conditions": "§6 HIKrG example, €100,000 over 25 years; fixed 6 years plus the rest of that year; 3% brokerage fee",
+      "sourceUrl": "https://wohntraumrechner.bausparen.at/finanzierungsrechner",
+      "episodes": [
+        {
+          "rate": 2.95,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2025-01-15",
+          "lastSeen": "2025-01-15",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20250115101516/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=ipa&utm_medium=ipa-x-prom&utm_campaign=wtr&utm_content=cta"
+        },
+        {
+          "rate": 3.15,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2025-02-19",
+          "lastSeen": "2025-02-19",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20250219192721/https://wohntraumrechner.bausparen.at/finanzierungsrechner?utm_source=ipa&utm_medium=ipa-x-prom&utm_campaign=wtr&utm_content=cta"
+        },
+        {
+          "rate": 2.99,
+          "effectiveRate": null,
+          "statedAt": null,
+          "firstSeen": "2025-07-21",
+          "lastSeen": "2026-04-02",
+          "via": "archive",
+          "evidence": "https://web.archive.org/web/20250721163111/https://wohntraumrechner.bausparen.at/finanzierungsrechner"
         }
       ]
     }
