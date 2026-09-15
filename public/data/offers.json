@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15T05:40:28.522Z",
+  "generatedAt": "2026-09-15T10:27:20.034Z",
   "offers": [
     {
       "id": "bank99-rundumkredit-fix",
@@ -1111,8 +1111,8 @@
       "network": "branch",
       "termMonths": null,
       "fixationYears": 0,
-      "rate": 3.75,
-      "effectiveRate": 4.163,
+      "rate": 3.875,
+      "effectiveRate": 4.29,
       "amountMin": null,
       "amountMax": null,
       "conditions": "Musterrechnung, variable; loan size not stated on the page",

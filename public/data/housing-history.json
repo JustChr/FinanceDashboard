@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15T05:40:28.543Z",
+  "generatedAt": "2026-09-15T10:27:20.055Z",
   "series": {
     "bank99-rechner-fix-10j": {
       "provider": "bank99",
@@ -473,6 +473,15 @@
           "effectiveRate": 4.163,
           "statedAt": null,
           "firstSeen": "2026-09-13",
+          "lastSeen": "2026-09-15",
+          "via": "scrape",
+          "evidence": "https://www.bks.at/wohnkredit"
+        },
+        {
+          "rate": 3.875,
+          "effectiveRate": 4.29,
+          "statedAt": null,
+          "firstSeen": "2026-09-15",
           "lastSeen": "2026-09-15",
           "via": "scrape",
           "evidence": "https://www.bks.at/wohnkredit"
