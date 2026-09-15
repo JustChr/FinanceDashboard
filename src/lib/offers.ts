@@ -46,6 +46,8 @@ export interface Offer {
   amountMax: number | null;
   /** Strings attached: new money only, salary account required, and so on. */
   conditions: string | null;
+  /** The same in German. Boards written before German was added carry English only. */
+  conditionsDe?: string | null;
   sourceUrl: string;
   method: OfferMethod;
   /** ISO date on which this figure was last confirmed against the source. */
@@ -63,6 +65,8 @@ export interface Offer {
 
 export interface OfferSource {
   provider: string;
+  /** German label, for the unavailable entries whose name carries words of ours ("— savings"). */
+  providerDe?: string;
   url: string;
   /**
    * `partial` means the page loaded but not every expected rate was found;
@@ -72,6 +76,7 @@ export interface OfferSource {
   status: 'ok' | 'partial' | 'failed' | 'unavailable';
   checkedAt: string;
   note?: string;
+  noteDe?: string;
 }
 
 export interface OfferBoard {

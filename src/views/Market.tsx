@@ -4,35 +4,38 @@ import { latest } from '../lib/sdmx';
 import { spread } from '../lib/metrics';
 import { bps, day, formatPeriod, pct } from '../lib/format';
 import { usePalette } from '../lib/theme';
+import { t } from '../i18n';
 import { Chart } from '../components/Chart';
 import { dumbbellChart, type DumbbellRow } from '../components/charts';
 import { MarketPanel, obs, type MarketView } from '../components/MarketPanel';
 import { About, Facts, Numbers, PageHead, Pending, Section } from '../components/ui';
 import type { PageProps } from '../components/offerParts';
 
+const { buckets, deposits } = t.common;
+
 const VIEWS: MarketView[] = [
   {
     id: 'rates',
-    label: 'Policy & money market',
+    label: t.market.policyMoney,
     lines: (e, pal) => [
-      { name: 'ECB deposit facility', observations: e.dfrMonthly, color: pal.series[0] ?? pal.ink, step: true },
+      { name: t.common.depositFacility, observations: e.dfrMonthly, color: pal.series[0] ?? pal.ink, step: true },
       { name: '€STR', observations: e.estrMonthly, color: pal.series[1] ?? pal.ink },
       { name: 'Euribor 3M', observations: e.euribor3m?.observations ?? [], color: pal.series[2] ?? pal.ink },
     ],
   },
   {
     id: 'margin',
-    label: 'Bank margins',
+    label: t.market.margins,
     zeroLine: true,
     lines: (e, pal) => [
       {
-        name: 'Housing loans over €STR',
+        name: t.market.housingOverEstr,
         observations: spread(obs(e, 'hl_total'), e.estrMonthly),
         color: pal.series[0] ?? pal.ink,
         area: true,
       },
       {
-        name: '€STR over overnight deposits',
+        name: t.market.estrOverOvernight,
         observations: spread(e.estrMonthly, obs(e, 'dep_on')),
         color: pal.series[1] ?? pal.ink,
         area: true,
@@ -43,44 +46,44 @@ const VIEWS: MarketView[] = [
 
 const GROUPS: { title: string; rows: { id: string; label: string }[] }[] = [
   {
-    title: 'Housing loans',
+    title: t.app.pages.housing,
     rows: [
-      { id: 'hl_total', label: 'All new loans' },
-      { id: 'hl_var', label: 'Variable / up to 1y' },
-      { id: 'hl_1_5', label: 'Fixed 1–5y' },
-      { id: 'hl_5_10', label: 'Fixed 5–10y' },
-      { id: 'hl_10p', label: 'Fixed over 10y' },
-      { id: 'hl_stock', label: 'Outstanding' },
+      { id: 'hl_total', label: t.market.allNewLoans },
+      { id: 'hl_var', label: buckets.variable },
+      { id: 'hl_1_5', label: buckets.fixed1to5 },
+      { id: 'hl_5_10', label: buckets.fixed5to10 },
+      { id: 'hl_10p', label: buckets.fixedOver10 },
+      { id: 'hl_stock', label: t.market.outstanding },
     ],
   },
   {
-    title: 'Savings',
+    title: t.app.pages.savings,
     rows: [
-      { id: 'dep_on', label: 'Overnight' },
-      { id: 'dep_notice', label: 'At notice' },
-      { id: 'dep_term_le1', label: 'Term up to 1y' },
-      { id: 'dep_term_1_2', label: 'Term 1–2y' },
-      { id: 'dep_term_2p', label: 'Term over 2y' },
-      { id: 'dep_term_stock', label: 'Outstanding term' },
+      { id: 'dep_on', label: deposits.overnight },
+      { id: 'dep_notice', label: deposits.notice },
+      { id: 'dep_term_le1', label: deposits.termTo1 },
+      { id: 'dep_term_1_2', label: deposits.term1to2 },
+      { id: 'dep_term_2p', label: deposits.termOver2 },
+      { id: 'dep_term_stock', label: t.market.outstandingTerm },
     ],
   },
   {
-    title: 'Consumer credit',
+    title: t.app.pages.consumer,
     rows: [
-      { id: 'cc_total', label: 'All new loans' },
-      { id: 'cc_var', label: 'Variable / up to 1y' },
-      { id: 'cc_1_5', label: 'Fixed 1–5y' },
-      { id: 'cc_5p', label: 'Fixed over 5y' },
-      { id: 'od_hh', label: 'Overdrafts' },
-      { id: 'cc_stock', label: 'Outstanding' },
+      { id: 'cc_total', label: t.market.allNewLoans },
+      { id: 'cc_var', label: buckets.variable },
+      { id: 'cc_1_5', label: buckets.fixed1to5 },
+      { id: 'cc_5p', label: buckets.fixedOver5 },
+      { id: 'od_hh', label: t.common.overdrafts },
+      { id: 'cc_stock', label: t.market.outstanding },
     ],
   },
   {
-    title: 'Corporates',
+    title: t.market.corporates,
     rows: [
-      { id: 'nfc_cob', label: 'Cost of borrowing' },
-      { id: 'nfc_on', label: 'Overnight deposits' },
-      { id: 'nfc_term', label: 'Term deposits' },
+      { id: 'nfc_cob', label: t.market.costOfBorrowing },
+      { id: 'nfc_on', label: t.market.overnightDeposits },
+      { id: 'nfc_term', label: t.market.termDeposits },
     ],
   },
 ];
@@ -108,21 +111,29 @@ export function Market({ ecb, ecbWindow, onWindow }: PageProps) {
 
   return (
     <>
-      <PageHead title="Rates & ECB">
-        <p class="lede">The benchmarks Austrian bank pricing moves against, and how Austria compares with the euro area.</p>
+      <PageHead title={t.app.pages.market}>
+        <p class="lede">{t.market.lede}</p>
         <Facts
           items={[
-            { label: 'ECB deposit facility', value: pct(data?.policy.dfr), detail: data ? `As of ${day(data.policy.asOf)}` : 'Loading…' },
-            { label: 'Main refinancing rate', value: pct(data?.policy.mro), detail: 'ECB' },
-            { label: '€STR', value: pct(data?.estr?.value, 3), detail: data ? day(data.estr?.period) : 'Loading…' },
-            { label: 'Euribor 3M', value: pct(euribor?.value), detail: euribor ? `${formatPeriod(euribor.period)} · monthly average` : 'Loading…' },
+            {
+              label: t.common.depositFacility,
+              value: pct(data?.policy.dfr),
+              detail: data ? t.market.asOf(day(data.policy.asOf)) : t.common.loading,
+            },
+            { label: t.market.mro, value: pct(data?.policy.mro), detail: t.market.ecb },
+            { label: '€STR', value: pct(data?.estr?.value, 3), detail: data ? day(data.estr?.period) : t.common.loading },
+            {
+              label: 'Euribor 3M',
+              value: pct(euribor?.value),
+              detail: euribor ? t.market.monthlyAverage(formatPeriod(euribor.period)) : t.common.loading,
+            },
           ]}
         />
       </PageHead>
 
       <MarketPanel
-        title="Benchmarks and margins"
-        meta="Monthly. Margins use €STR as a stand-in for the banks' own funding cost."
+        title={t.market.panelTitle}
+        meta={t.market.panelMeta}
         views={VIEWS}
         ecb={ecb}
         window={ecbWindow}
@@ -130,8 +141,8 @@ export function Market({ ecb, ecbWindow, onWindow }: PageProps) {
       />
 
       <Section
-        title="Austria against the euro area"
-        meta={data ? `Latest month of each ECB series, up to ${formatPeriod(data.asOf)}. Hover a row for the gap.` : undefined}
+        title={t.market.compareTitle}
+        meta={data ? t.market.compareMeta(formatPeriod(data.asOf)) : undefined}
       >
         {data ? (
           <>
@@ -142,13 +153,13 @@ export function Market({ ecb, ecbWindow, onWindow }: PageProps) {
                   <Chart
                     option={g.option}
                     height={g.rows.length * 34 + 56}
-                    ariaLabel={`${g.title}: Austrian rates against the euro area`}
+                    ariaLabel={t.market.compareAria(g.title)}
                   />
                 </div>
               ))}
             </div>
             <Numbers
-              head={['Product', 'Series', 'Austria', 'Euro area', 'Gap']}
+              head={t.market.compareHead}
               rows={groups.flatMap((g) =>
                 g.rows.map((r) => [
                   g.title,
@@ -166,17 +177,7 @@ export function Market({ ecb, ecbWindow, onWindow }: PageProps) {
       </Section>
 
       <div class="page-foot">
-        <About>
-          <p>
-            Policy rates, €STR and Euribor come from the ECB Data Portal. Euribor is shown as the ECB&rsquo;s
-            monthly average: daily Euribor is licensed by EMMI and is not redistributed here, so €STR is the daily
-            benchmark.
-          </p>
-          <p>
-            Lending and deposit rates are MFI interest rate statistics, published about five weeks after the
-            month they describe.
-          </p>
-        </About>
+        <About>{t.market.about()}</About>
       </div>
     </>
   );

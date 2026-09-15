@@ -145,6 +145,7 @@ async function scrapeSource(source) {
         amountMin: spec.amountMin ?? null,
         amountMax: spec.amountMax ?? null,
         conditions: spec.conditions ?? null,
+        conditionsDe: spec.conditionsDe ?? null,
         // The URL the figure was actually read from — for a calculator, the
         // exact question asked, so the quote can be re-asked and checked.
         sourceUrl: url,
@@ -166,6 +167,15 @@ async function scrapeSource(source) {
       : null,
     lostDate ? 'No Stand date found; age falls back to the scrape date' : null,
   ].filter(Boolean);
+  // The same notes for the German page, in the same order.
+  const notesDe = [
+    unreadable.size > 0 ? `Seite konnte nicht gelesen werden: ${[...unreadable].join(', ')}` : null,
+    missed.length > 0 ? `Kein Zinssatz gefunden für: ${missed.join(', ')}` : null,
+    contradicted.length > 0
+      ? `Effektivzins unter Nominalzins, nicht veröffentlicht: ${contradicted.join(', ')}`
+      : null,
+    lostDate ? 'Kein Stand-Datum gefunden; das Alter richtet sich nach dem Abrufdatum' : null,
+  ].filter(Boolean);
 
   return {
     offers,
@@ -175,7 +185,7 @@ async function scrapeSource(source) {
       status:
         missed.length + failed.length === 0 ? 'ok' : offers.length === 0 ? 'failed' : 'partial',
       checkedAt,
-      ...(notes.length > 0 ? { note: notes.join('. ') } : {}),
+      ...(notes.length > 0 ? { note: notes.join('. '), noteDe: notesDe.join('. ') } : {}),
     },
   };
 }
@@ -238,12 +248,16 @@ async function main() {
   // once, and the source that lost its row says why.
   const { offers: scraped, duplicates } = dedupeQuotes(results.flatMap((r) => r.offers));
   for (const result of results) {
-    const same = result.offers
-      .filter((o) => duplicates.has(o.id))
-      .map((o) => `${o.id} (same as ${duplicates.get(o.id)})`);
+    const same = result.offers.filter((o) => duplicates.has(o.id));
     if (same.length === 0) continue;
-    const note = `Same quote as another listing today, shown once: ${same.join(', ')}`;
+    const note = `Same quote as another listing today, shown once: ${same
+      .map((o) => `${o.id} (same as ${duplicates.get(o.id)})`)
+      .join(', ')}`;
+    const noteDe = `Heute gleiches Angebot wie ein anderer Eintrag, nur einmal angezeigt: ${same
+      .map((o) => `${o.id} (gleich wie ${duplicates.get(o.id)})`)
+      .join(', ')}`;
     result.source.note = result.source.note ? `${result.source.note}. ${note}` : note;
+    result.source.noteDe = result.source.noteDe ? `${result.source.noteDe}. ${noteDe}` : noteDe;
     console.log(`        ${note}`);
   }
   const scrapedIds = new Set(results.flatMap((r) => r.offers).map((o) => o.id));
@@ -255,10 +269,12 @@ async function main() {
   // omission: the page has to be able to say why a bank this size is missing.
   const unavailable = UNAVAILABLE.map((entry) => ({
     provider: entry.provider,
+    ...(entry.providerDe ? { providerDe: entry.providerDe } : {}),
     url: entry.url,
     status: 'unavailable',
     checkedAt: today(),
     note: entry.reason,
+    noteDe: entry.reasonDe,
   }));
 
   const board = {

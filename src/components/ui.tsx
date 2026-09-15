@@ -3,6 +3,7 @@ import type { ComponentChildren } from 'preact';
 import { HISTORY_WINDOWS, type WindowId } from '../lib/catalog';
 import type { OfferSource } from '../lib/offers';
 import type { LenderStyle } from '../lib/quotes';
+import { localized, t } from '../i18n';
 
 export function PageHead({ title, children }: { title: string; children?: ComponentChildren }) {
   return (
@@ -137,7 +138,7 @@ export function LenderChips({
   };
 
   return (
-    <div class="chips" role="group" aria-label="Lenders">
+    <div class="chips" role="group" aria-label={t.common.lenders}>
       {lenders.map((name) => {
         const style = styles.get(name);
         const off = hidden.has(name);
@@ -160,7 +161,7 @@ export function LenderChips({
       })}
       {hidden.size > 0 ? (
         <button type="button" class="chip chip-reset" onClick={() => onChange(new Set())}>
-          Show all
+          {t.common.showAll}
         </button>
       ) : null}
     </div>
@@ -179,8 +180,8 @@ export function WindowPicker({
 }) {
   return (
     <Segmented
-      label="ECB history"
-      options={HISTORY_WINDOWS.map((w) => ({ id: w.id, label: w.label }))}
+      label={t.common.ecbHistory}
+      options={HISTORY_WINDOWS.map((w) => ({ id: w.id, label: t.common.ecbWindows[w.id] }))}
       value={active}
       onChange={onSelect}
       disabled={loading}
@@ -193,7 +194,7 @@ export function Numbers({ head, rows }: { head: string[]; rows: ComponentChildre
   if (rows.length === 0) return null;
   return (
     <details class="numbers">
-      <summary>Show numbers</summary>
+      <summary>{t.common.showNumbers}</summary>
       <div class="table-wrap">
         <table>
           <thead>
@@ -222,7 +223,7 @@ export function Numbers({ head, rows }: { head: string[]; rows: ComponentChildre
 export function About({ children }: { children: ComponentChildren }) {
   return (
     <details class="about">
-      <summary>About this data</summary>
+      <summary>{t.common.about}</summary>
       <div class="about-body">{children}</div>
     </details>
   );
@@ -233,17 +234,15 @@ export function SourceList({ sources }: { sources: OfferSource[] }) {
   const ok = sources.filter((s) => s.status === 'ok').length;
   return (
     <details class="about">
-      <summary>
-        Sources · {ok} of {sources.length} read on the last run
-      </summary>
+      <summary>{t.common.sources(ok, sources.length)}</summary>
       <ul class="sources">
         {sources.map((s) => (
           <li key={s.url}>
-            <span class={`status status-${s.status}`}>{s.status === 'ok' ? 'read' : s.status}</span>
+            <span class={`status status-${s.status}`}>{t.common.status[s.status]}</span>
             <a href={s.url} target="_blank" rel="noreferrer">
-              {s.provider}
+              {localized(s.provider, s.providerDe)}
             </a>
-            {s.note ? <span class="source-note">{s.note}</span> : null}
+            {s.note ? <span class="source-note">{localized(s.note, s.noteDe)}</span> : null}
           </li>
         ))}
       </ul>
@@ -255,7 +254,7 @@ export function SourceList({ sources }: { sources: OfferSource[] }) {
 export function Pending({ error, height = 300 }: { error?: string; height?: number }) {
   return (
     <div class={`pending${error ? ' failed' : ''}`} style={{ height: `${height}px` }}>
-      {error ? `Could not reach the ECB Data Portal. ${error}` : 'Loading ECB statistics…'}
+      {error ? t.common.ecbFailed(error) : t.common.ecbLoading}
     </div>
   );
 }

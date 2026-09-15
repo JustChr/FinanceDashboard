@@ -204,6 +204,17 @@ npm run build      # typecheck + production bundle
 npm run preview    # serve the built bundle
 ```
 
+The site is English at `/` and German at `/de/`: two HTML entries sharing one
+bundle, so each has its own `lang`, title and description. The English page
+sends browsers that prefer German to `/de/`, unless the visitor picked English
+in the header, which is remembered. Every word on the
+page lives in [`src/i18n/en.tsx`](src/i18n/en.tsx), and
+[`src/i18n/de.tsx`](src/i18n/de.tsx) is typed against it, so a string added in
+one language and forgotten in the other fails the typecheck. Numbers and dates
+go through `src/lib/format.ts` (`3,45 %`, `300.000 €`, `Jän 2026`). Text the
+scraper writes — offer conditions, source notes — carries a German twin
+(`conditionsDe`, `noteDe`) next to the English.
+
 Deployment is automatic: pushing to `main` triggers
 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which builds and
 publishes to Pages. Enable it once under **Settings → Pages → Source → GitHub

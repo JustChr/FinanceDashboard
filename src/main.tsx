@@ -1,8 +1,14 @@
 import { render } from 'preact';
 import { App } from './app';
+import { preferredLocaleRedirect } from './i18n/locale';
 import './styles.css';
 
-const root = document.getElementById('app');
-if (!root) throw new Error('Missing #app mount point');
+const redirect = preferredLocaleRedirect();
 
-render(<App />, root);
+if (redirect) {
+  location.replace(redirect);
+} else {
+  const root = document.getElementById('app');
+  if (!root) throw new Error('Missing #app mount point');
+  render(<App />, root);
+}
