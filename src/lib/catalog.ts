@@ -119,6 +119,19 @@ export const HOUSING_FIXATION: MirDef[] = [
   }),
 ];
 
+/**
+ * The same ladder for loans secured by collateral or guarantees, from June 2010.
+ * A bank's representative example describes a mortgage-secured loan, so this is
+ * the like-for-like line to hold offers against. The gap to the all-loans ladder
+ * is small; the comparison is still the honest one.
+ */
+export const HOUSING_SECURED: MirDef[] = [
+  def({ id: 'hl_sec_var', label: 'Secured, variable or fixed up to 1Y', side: 'asset', item: 'A2CC', maturity: 'F' }),
+  def({ id: 'hl_sec_1_5', label: 'Secured, fixed 1–5 years', side: 'asset', item: 'A2CC', maturity: 'I' }),
+  def({ id: 'hl_sec_5_10', label: 'Secured, fixed 5–10 years', side: 'asset', item: 'A2CC', maturity: 'O' }),
+  def({ id: 'hl_sec_10p', label: 'Secured, fixed over 10 years', side: 'asset', item: 'A2CC', maturity: 'P' }),
+];
+
 export const HOUSING_CORE: MirDef[] = [
   def({
     id: 'hl_total',
@@ -155,6 +168,38 @@ export const HOUSING_CORE: MirDef[] = [
     item: 'A2C',
     maturity: 'A',
     dataType: 'B',
+    ea: true,
+  }),
+  def({
+    id: 'hl_volume_var',
+    label: 'New housing lending, variable or fixed up to 1Y',
+    // Austria publishes volume at the total only; its split comes from the OeNB.
+    note: 'Euro area only',
+    side: 'asset',
+    item: 'A2C',
+    maturity: 'F',
+    dataType: 'B',
+    ea: true,
+  }),
+  def({
+    id: 'hl_volume_pure',
+    label: 'New housing lending excluding renegotiations',
+    note: 'From August 2017',
+    side: 'asset',
+    item: 'A2C',
+    maturity: 'A',
+    dataType: 'B',
+    busCov: 'P',
+  }),
+  def({
+    id: 'hl_volume_reneg',
+    label: 'Renegotiated housing lending',
+    note: 'From December 2014',
+    side: 'asset',
+    item: 'A2C',
+    maturity: 'A',
+    dataType: 'B',
+    busCov: 'R',
   }),
   def({
     id: 'hl_pure',
@@ -278,6 +323,8 @@ export const DEPOSIT_CORE: MirDef[] = [
     maturity: 'A',
     ea: true,
   }),
+  def({ id: 'dep_notice_le3', label: 'Notice up to 3 months', side: 'liability', item: 'L23', maturity: 'D' }),
+  def({ id: 'dep_notice_3p', label: 'Notice over 3 months', side: 'liability', item: 'L23', maturity: 'E' }),
   def({
     id: 'dep_term_volume',
     label: 'New term deposits',
@@ -344,6 +391,53 @@ export const CONSUMER_RATES: MirDef[] = [
     dataType: 'C',
   }),
   def({
+    id: 'cc_sec',
+    label: 'Consumer credit with collateral or guarantee',
+    note: 'From June 2010',
+    side: 'asset',
+    item: 'A2BC',
+    maturity: 'A',
+    ea: true,
+  }),
+  def({
+    id: 'cc_volume',
+    label: 'New consumer lending',
+    note: 'New business volume, euro million per month',
+    side: 'asset',
+    item: 'A2B',
+    maturity: 'A',
+    dataType: 'B',
+    ea: true,
+  }),
+  def({
+    id: 'cc_volume_var',
+    label: 'New consumer lending, variable or fixed up to 1Y',
+    note: 'Euro area only',
+    side: 'asset',
+    item: 'A2B',
+    maturity: 'F',
+    dataType: 'B',
+    ea: true,
+  }),
+  def({
+    id: 'cc_volume_pure',
+    label: 'New consumer lending excluding renegotiations',
+    side: 'asset',
+    item: 'A2B',
+    maturity: 'A',
+    dataType: 'B',
+    busCov: 'P',
+  }),
+  def({
+    id: 'cc_volume_reneg',
+    label: 'Renegotiated consumer lending',
+    side: 'asset',
+    item: 'A2B',
+    maturity: 'A',
+    dataType: 'B',
+    busCov: 'R',
+  }),
+  def({
     id: 'cc_stock',
     label: 'Outstanding consumer and other lending',
     side: 'asset',
@@ -398,6 +492,7 @@ export const CORPORATE_RATES: MirDef[] = [
 export const ALL_DEFS: MirDef[] = [
   ...HOUSING_CORE,
   ...HOUSING_FIXATION,
+  ...HOUSING_SECURED,
   ...HOUSING_STOCK,
   ...DEPOSIT_CORE,
   ...DEPOSIT_MATURITY,

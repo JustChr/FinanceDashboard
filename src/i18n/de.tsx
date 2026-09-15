@@ -21,10 +21,11 @@ export const de: Messages = {
     pages: { housing: 'Wohnkredite', savings: 'Sparen', consumer: 'Konsumkredite', market: 'Zinsen & EZB' },
     offersChecked: (date: string) => `Angebote geprüft am ${date}`,
     ecbTo: (period: string) => `EZB-Statistik bis ${period}`,
-    footer: (ecb: ComponentChildren, github: ComponentChildren) => (
+    footer: (ecb: ComponentChildren, oenb: ComponentChildren, github: ComponentChildren) => (
       <>
-        Zinsstatistiken aus dem {ecb}, live abgerufen. Angebote werden einmal täglich von den Websites und Rechnern der
-        Banken gelesen; sie sind unverbindlich und kein Angebot. Quellcode auf {github}.
+        Zinsstatistiken aus dem {ecb}, live abgerufen, und von der {oenb}, täglich gelesen. Angebote werden einmal
+        täglich von den Websites und Rechnern der Banken gelesen; sie sind unverbindlich und kein Angebot. Quellcode auf{' '}
+        {github}.
       </>
     ),
   },
@@ -37,6 +38,7 @@ export const de: Messages = {
     ],
     day: (day: number, month: string, year: string) => `${day}. ${month} ${year}`,
     bp: 'BP',
+    pp: 'PP',
     euro: (amount: string) => `${amount} €`,
     millions: (amount: string) => `${amount} Mio. €`,
     billions: (amount: string) => `${amount} Mrd. €`,
@@ -98,6 +100,10 @@ export const de: Messages = {
     byFixation: 'Nach Zinsbindung',
     newVsExisting: 'Neu vs. Bestand',
     volume: 'Volumen',
+    fixationMix: 'Zinsbindungsmix',
+    genuinelyNew: 'Echte Neuverträge',
+    renegotiated: 'Neuverhandelt',
+    notSplit: 'Nicht aufgeteilt',
     buckets: {
       variable: 'Variabel / bis 1 J',
       fixed1to5: 'Fix 1–5 J',
@@ -127,6 +133,7 @@ export const de: Messages = {
   panel: {
     lastYear: (amount: string) => `letzte 12 Monate ${amount}`,
     volumeHead: ['Monat', 'Volumen'],
+    total: 'Gesamt',
     linesHead: ['Reihe', 'Aktuell', 'Monat', '12 Monate davor', 'Veränderung'],
   },
 
@@ -151,7 +158,8 @@ export const de: Messages = {
     outdated: (days: number) => `Veraltet: Der Stand der Bank ist älter als ${days} Tage`,
     noQuote: 'Kein aktuelles Angebot',
     aprcNewLoans: 'Effektivzins, neue Wohnkredite',
-    newLoansIn: (band: string) => `Neukredite ${band}`,
+    newLoansIn: (band: string) => `neue besicherte Kredite ${band}`,
+    ecbSecured: (band: string) => `EZB-Abschlüsse, besicherte Kredite ${band}`,
     allFixations: 'alle Zinsbindungen',
     agreedRate: 'vereinbarter Zinssatz',
     ecbAprcAll: 'EZB-Abschlüsse Effektivzins, alle Zinsbindungen',
@@ -166,7 +174,7 @@ export const de: Messages = {
     curveMeta: 'Ein Punkt pro Angebot. Die Rechner-Staffel eines Anbieters ist mit einer Linie verbunden.',
     curveAria:
       'Beworbene Wohnkreditzinsen in Österreich nach anfänglicher Zinsbindung, ein Symbol pro Anbieter, verglichen mit den EZB-Durchschnitten der Abschlüsse',
-    bandPerBucket: 'EZB-Durchschnitt der Abschlüsse je Zinsbindungsklasse',
+    bandPerBucket: 'EZB-Durchschnitt der Abschlüsse je Zinsbindungsklasse, besicherte Kredite',
     hollow: (days: number) => `Beispiel laut Stand der Bank älter als ${days} Tage`,
     unpublished: (lenders: string[], basis: Basis) =>
       `Nicht angezeigt: ${lenders.join(', ')}, ohne veröffentlichten ${RATE[basis]}. Mit „${RATE[other(basis)]}“ sichtbar.`,
@@ -185,7 +193,7 @@ export const de: Messages = {
     changesHead: ['Geändert', 'Anbieter', 'Vorher', 'Nachher', 'Änderung'],
     panelTitle: 'Abgeschlossenes Neugeschäft',
     panelMeta:
-      'EZB-Zinssatzstatistik der MFIs für Österreich: alle neuen Wohnkredite, volumengewichtet, monatlich, rund fünf Wochen später veröffentlicht.',
+      'EZB- und OeNB-Zinssatzstatistik für Österreich: neue Wohnkredite, volumengewichtet, monatlich, rund fünf Wochen später veröffentlicht. Die Zinsbindungsstaffel zeigt Kredite mit Sicherheiten oder Garantien.',
     about: (staleDays: number) => (
       <>
         <p>
@@ -207,9 +215,15 @@ export const de: Messages = {
         </p>
         <p>
           <strong>EZB-Durchschnitte</strong> umfassen jeden neuen Wohnkredit in Österreich im jeweiligen Monat,
-          volumengewichtet. Der vereinbarte Zinssatz ist nach Zinsbindungsklassen aufgeteilt; den Effektivzins, der die
-          Spesen enthält, gibt es nur über alle Zinsbindungen. Für den Vergleich zwischen Banken ist der Effektivzins
-          maßgeblich.
+          volumengewichtet. Hinter jeder Zinsbindung liegen Kredite mit Sicherheiten oder Garantien – jene Art, die ein
+          repräsentatives Beispiel beschreibt. Den Effektivzins, der die Spesen enthält, gibt es nur über alle Kredite
+          und Zinsbindungen. Für den Vergleich zwischen Banken ist der Effektivzins maßgeblich.
+        </p>
+        <p>
+          <strong>Der Zinsbindungsmix</strong> ist der Anteil jeder Zinsbindungsklasse am Neugeschäftsvolumen: für
+          Österreich von der OeNB, die Volumina für die zwei kürzesten Klassen veröffentlicht, für den Euroraum von der
+          EZB. Keine der beiden unterteilt Zinsbindungen über zehn Jahre, daher liegen Angebote mit 15, 20 und 25 Jahren
+          in einer Klasse.
         </p>
       </>
     ),
@@ -223,6 +237,14 @@ export const de: Messages = {
       dep_term_2p: 'Termineinlagen über 2 Jahre',
     },
     byProduct: 'Nach Produkt',
+    notice: 'Kündigungsfristen',
+    noticeTo3m: 'Kündigungsfrist bis 3 Monate',
+    noticeOver3m: 'Kündigungsfrist über 3 Monate',
+    savingsDeposits: 'Spareinlagen',
+    savingsTo1: 'Spareinlagen bis 1 J',
+    savings1to2: 'Spareinlagen 1–2 J',
+    savingsOver2: 'Spareinlagen über 2 J',
+    allTermTo1: 'Alle Termineinlagen bis 1 J',
     passThrough: 'Weitergabe',
     newTerm: 'Neue Termineinlagen',
     outstandingTerm: 'Alle bestehenden Termineinlagen',
@@ -263,7 +285,7 @@ export const de: Messages = {
     noChange: 'Seit Beginn der täglichen Erfassung keine Zinsänderung für diese Laufzeit.',
     panelTitle: 'Abgeschlossene Einlagen',
     panelMeta:
-      'EZB-Zinssatzstatistik der MFIs für private Haushalte in Österreich: Neugeschäft, volumengewichtet, monatlich. Die Weitergabe ist der Anteil der EZB-Zinsänderung seit Mitte 2022, der bei Sparern angekommen ist.',
+      'EZB- und OeNB-Zinssatzstatistik für private Haushalte in Österreich: Neugeschäft, volumengewichtet, monatlich. Die Weitergabe ist der Anteil der EZB-Zinsänderung seit Mitte 2022, der bei Sparern angekommen ist.',
     about: () => (
       <>
         <p>
@@ -281,12 +303,21 @@ export const de: Messages = {
           angelegt wurde, volumengewichtet – sie liegen daher nahe bei den Filialbanken, wo das meiste Geld liegt. Erste
           Bank, Bank Austria und Volksbank veröffentlichen keine auslesbaren Sparzinsen und fehlen daher.
         </p>
+        <p>
+          <strong>Einlagen mit Kündigungsfrist</strong> sind nach Kündigungsfrist aufgeteilt, bis und über drei Monate.{' '}
+          <strong>Spareinlagen</strong> zeigt die Zinssätze für Sparbuch- und Kapitalsparbuch-Geld innerhalb der
+          Termineinlagen, je Laufzeitklasse – eine österreichische Aufgliederung, die die OeNB veröffentlicht und die EZB
+          nicht.
+        </p>
       </>
     ),
   },
 
   consumer: {
     vsOther: 'vs. andere Kredite',
+    secured: 'Mit Sicherheiten',
+    allConsumer: 'Alle Konsumkredite',
+    securedLoans: 'Mit Sicherheiten oder Garantien',
     consumerEuroArea: 'Konsumkredite, Euroraum',
     lede: (period: string | undefined) =>
       `Was private Haushalte in Österreich${period ? ` im ${period}` : ''} abgeschlossen haben, und die wenigen Konsumkredit-Beispiele, die eine Bank in auslesbarer Form veröffentlicht.`,
@@ -303,7 +334,7 @@ export const de: Messages = {
     noHistory: 'Noch kein Verlauf erfasst.',
     panelTitle: 'Abgeschlossene Konsumkredite',
     panelMeta:
-      'EZB-Zinssatzstatistik der MFIs für private Haushalte in Österreich: Neugeschäft, volumengewichtet, monatlich.',
+      'EZB- und OeNB-Zinssatzstatistik für private Haushalte in Österreich: Neugeschäft, volumengewichtet, monatlich.',
     about: () => (
       <>
         <p>
@@ -314,6 +345,12 @@ export const de: Messages = {
         <p>
           Die EZB gliedert Konsumkredite nach anfänglicher Zinsbindung: variabel oder bis ein Jahr, über ein bis fünf
           Jahre und über fünf Jahre.
+        </p>
+        <p>
+          Kredite mit Sicherheiten oder Garantien werden gesondert gezeigt; der Abstand zu allen Konsumkrediten ist
+          ungefähr der Preis eines unbesicherten Kredits. Die Volumina trennen echte Neuverträge von neu verhandelten, und
+          der Zinsbindungsmix zeigt den Anteil des Neugeschäfts, der variabel oder bis ein Jahr fix ist: für Österreich
+          von der OeNB, für den Euroraum von der EZB.
         </p>
       </>
     ),

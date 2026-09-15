@@ -453,11 +453,25 @@ export function timeChart(
   };
 }
 
-/** New-business volume as thin columns; MIR volumes arrive in millions of euro. */
-export function volumeChart(pal: Palette, observations: Observation[], color: string): EChartsOption {
+export interface BarSpec {
+  name: string;
+  observations: Observation[];
+  color: string;
+}
+
+/**
+ * New-business volume as thin columns, stacked when a total is split into parts;
+ * MIR volumes arrive in millions of euro. Aligned to the union of months, since
+ * the parts start years after the total does.
+ */
+export function volumeChart(pal: Palette, specs: BarSpec[]): EChartsOption {
+  const periods = [...new Set(specs.flatMap((s) => s.observations.map((o) => o.period)))].sort();
   const b = base(pal);
+  const withLegend = specs.length > 1;
   return {
     ...b,
+    grid: { left: 4, right: 20, top: withLegend ? 40 : 16, bottom: 4, containLabel: true },
+    ...(withLegend ? { legend: legend(pal) } : {}),
     tooltip: {
       ...b.tooltip,
       trigger: 'axis',
@@ -466,7 +480,7 @@ export function volumeChart(pal: Palette, observations: Observation[], color: st
     },
     xAxis: {
       type: 'category',
-      data: observations.map((o) => formatPeriod(o.period)),
+      data: periods.map(formatPeriod),
       axisLine: { lineStyle: { color: pal.axis } },
       axisTick: { show: false },
       axisLabel: { ...axisLabel(pal), hideOverlap: true },
@@ -476,16 +490,21 @@ export function volumeChart(pal: Palette, observations: Observation[], color: st
       scale: false,
       axisLabel: { ...axisLabel(pal), formatter: (v: number) => eurBillions(v) },
     },
-    series: [
-      {
-        name: t.charts.newLending,
+    series: specs.map((spec, index) => {
+      const at = new Map(spec.observations.map((o) => [o.period, o.value]));
+      return {
+        name: spec.name,
         type: 'bar',
-        data: observations.map((o) => Number(o.value.toFixed(1))),
-        itemStyle: { color, borderRadius: [2, 2, 0, 0] },
+        stack: 'volume',
+        data: periods.map((p) => {
+          const v = at.get(p);
+          return v === undefined ? null : Number(v.toFixed(1));
+        }),
+        itemStyle: { color: spec.color, borderRadius: index === specs.length - 1 ? [2, 2, 0, 0] : 0 },
         barMaxWidth: 8,
         barCategoryGap: '30%',
-      },
-    ] as EChartsOption['series'],
+      };
+    }) as EChartsOption['series'],
   };
 }
 

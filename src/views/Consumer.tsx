@@ -1,6 +1,8 @@
 import { useMemo } from 'preact/hooks';
 
 import { latest } from '../lib/sdmx';
+import { residual, shareOf } from '../lib/metrics';
+import { oenbObs } from '../lib/oenb';
 import { repricings } from '../lib/offers';
 import { lenderStyles, quotesFor } from '../lib/quotes';
 import { day, fixationLong, formatPeriod, lowerFirst, pct, productName } from '../lib/format';
@@ -23,6 +25,14 @@ const VIEWS: MarketView[] = [
     ],
   },
   {
+    id: 'secured',
+    label: t.consumer.secured,
+    lines: (e, pal) => [
+      { name: t.consumer.allConsumer, observations: obs(e, 'cc_total'), color: pal.series[0] ?? pal.ink },
+      { name: t.consumer.securedLoans, observations: obs(e, 'cc_sec'), color: pal.series[1] ?? pal.ink },
+    ],
+  },
+  {
     id: 'fees',
     label: t.common.rateVsAprc,
     lines: (e, pal) => [
@@ -39,6 +49,37 @@ const VIEWS: MarketView[] = [
       { name: t.app.pages.housing, observations: obs(e, 'hl_total'), color: pal.series[2] ?? pal.ink },
       { name: t.consumer.consumerEuroArea, observations: obs(e, 'cc_total', 'ea'), color: pal.market },
     ],
+  },
+  {
+    id: 'mix',
+    label: t.common.fixationMix,
+    share: true,
+    decimals: 1,
+    lines: (e, pal, oenb) => [
+      {
+        name: `${buckets.variable}, ${t.common.austria}`,
+        observations: shareOf(oenbObs(oenb, 'consumer_volume_var'), oenbObs(oenb, 'consumer_volume')),
+        color: pal.series[0] ?? pal.ink,
+      },
+      {
+        name: `${buckets.variable}, ${t.common.euroArea}`,
+        observations: shareOf(obs(e, 'cc_volume_var', 'ea'), obs(e, 'cc_volume', 'ea')),
+        color: pal.market,
+      },
+    ],
+  },
+  {
+    id: 'volume',
+    label: t.common.volume,
+    bars: (e, pal) => {
+      const pure = obs(e, 'cc_volume_pure');
+      const reneg = obs(e, 'cc_volume_reneg');
+      return [
+        { name: t.common.genuinelyNew, observations: pure, color: pal.series[0] ?? pal.ink },
+        { name: t.common.renegotiated, observations: reneg, color: pal.series[1] ?? pal.ink },
+        { name: t.common.notSplit, observations: residual(obs(e, 'cc_volume'), [pure, reneg]), color: pal.muted },
+      ];
+    },
   },
 ];
 
@@ -123,6 +164,7 @@ export function Consumer({ offers, ecb, ecbWindow, onWindow }: PageProps) {
         meta={t.consumer.panelMeta}
         views={VIEWS}
         ecb={ecb}
+        oenb={offers.oenb}
         window={ecbWindow}
         onWindow={onWindow}
       />

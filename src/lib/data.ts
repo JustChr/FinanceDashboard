@@ -15,6 +15,7 @@ import {
 } from './catalog';
 import { toMonthEnd } from './metrics';
 import { loadHistory, loadOffers, type OfferBoard, type QuoteHistory } from './offers';
+import { loadOenb, type OenbData } from './oenb';
 
 /**
  * Collapses the catalogue into as few SDMX requests as possible.
@@ -211,10 +212,12 @@ export interface OfferData {
   housing: QuoteHistory | undefined;
   deposit: QuoteHistory | undefined;
   consumer: QuoteHistory | undefined;
+  /** OeNB statistics, committed by the same workflow. */
+  oenb: OenbData | undefined;
 }
 
 /**
- * Loads the offer files on their own, so the offer charts — same-origin and
+ * Loads the committed files on their own, so the offer charts — same-origin and
  * small — are on screen before the ECB API has answered.
  */
 export function useOffers(): OfferData | undefined {
@@ -228,10 +231,12 @@ export function useOffers(): OfferData | undefined {
       loadHistory('housing-history.json', signal),
       loadHistory('deposit-history.json', signal),
       loadHistory('consumer-history.json', signal),
+      loadOenb(signal),
     ])
-      .then(([board, housing, deposit, consumer]) => setData({ board, housing, deposit, consumer }))
+      .then(([board, housing, deposit, consumer, oenb]) => setData({ board, housing, deposit, consumer, oenb }))
       .catch(() => {
-        if (!signal.aborted) setData({ board: undefined, housing: undefined, deposit: undefined, consumer: undefined });
+        if (!signal.aborted)
+          setData({ board: undefined, housing: undefined, deposit: undefined, consumer: undefined, oenb: undefined });
       });
     return () => controller.abort();
   }, []);

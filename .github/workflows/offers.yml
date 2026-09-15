@@ -30,6 +30,13 @@ jobs:
       - name: Scrape published bank condition pages
         run: node scripts/scrape/index.mjs
 
+      - name: Fetch OeNB statistics
+        # Monthly national statistics the ECB does not carry. The OeNB sends no
+        # CORS headers, so they are committed like the offers. A failed fetch
+        # keeps the previous file and must not cost the day's offer commit.
+        continue-on-error: true
+        run: node scripts/stats/oenb.mjs
+
       - name: Commit the refreshed board
         # Committed on every run, not only when a rate moves. The dashboard greys
         # out an offer once `observedAt` ages past two weeks, so "we checked today
@@ -48,7 +55,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/offers.json public/data/*-history.json
+          git add public/data/offers.json public/data/*-history.json public/data/oenb.json
           git commit -m "Refresh bank offer board"
           # Another push may have landed since checkout; rebase rather than
           # force, so a human commit is never overwritten by the scheduler.
