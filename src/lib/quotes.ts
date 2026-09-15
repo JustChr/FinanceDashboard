@@ -13,6 +13,7 @@ import {
   isStale,
   lapseOf,
   quoteOf,
+  unseenLapseOf,
   type Offer,
   type OfferCategory,
   type QuoteBasis,
@@ -118,8 +119,9 @@ export function nearest(options: number[], value: number): number | undefined {
  * The corners of one quote's step line on a calendar.
  *
  * A quote is drawn from the day it took effect until its successor did — capped
- * where its Stand lapses under the staleness rule, which leaves a gap instead of
- * carrying an abandoned example forward as if it were a price.
+ * where its Stand lapses under the staleness rule, or, with no Stand, a year
+ * after it was last seen. Either leaves a gap instead of carrying an abandoned
+ * quote forward as if it were a price.
  */
 export function stepPoints(
   series: QuoteSeries,
@@ -133,8 +135,10 @@ export function stepPoints(
     const next = series.episodes[i + 1];
     const from = effectiveFrom(episode, previous);
     const replaced = next ? effectiveFrom(next, episode) : episode.lastSeen;
-    const lapse = lapseOf(episode, category);
-    const to = lapse !== null && lapse < replaced ? lapse : replaced;
+    const lapse = [lapseOf(episode, category), unseenLapseOf(episode)]
+      .filter((d): d is string => d !== null)
+      .sort()[0];
+    const to = lapse !== undefined && lapse < replaced ? lapse : replaced;
     const value = quoteOf(episode, basis);
 
     if (value === null || to < from) {

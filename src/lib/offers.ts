@@ -218,6 +218,20 @@ export function lapseOf(episode: QuoteEpisode, category: OfferCategory): string 
   return stamp === null ? null : addDays(stamp, STALE_AFTER_DAYS[category]);
 }
 
+/**
+ * How long an undated quote is carried past the last day it was seen.
+ *
+ * Archive captures of a page can sit most of a year apart, and holding a quote
+ * across that is ordinary. Raiffeisen Bausparkasse's catalogue stated no rate
+ * from 2022 to 2026; carried at face value, its 1,15 % would run straight
+ * through the hiking cycle as a price nobody offered. A dated quote lapses by
+ * its Stand instead (`lapseOf`).
+ */
+export const UNSEEN_CARRY_DAYS = 365;
+
+export const unseenLapseOf = (episode: QuoteEpisode): string | null =>
+  episode.statedAt === null ? addDays(episode.lastSeen, UNSEEN_CARRY_DAYS) : null;
+
 export interface Repricing {
   id: string;
   series: QuoteSeries;
